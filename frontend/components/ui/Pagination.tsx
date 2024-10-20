@@ -9,14 +9,16 @@ interface PaginationProps {
 export const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPageChange }) => {
     return (
         <div className="flex justify-center items-center space-x-2">
-            {[...Array(totalPages)].map((_, index) => (
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                 <button
-                    key={index}
-                    onClick={() => onPageChange(index + 1)}
-                    className={`px-3 py-1 rounded ${currentPage === index + 1 ? 'bg-indigo-600 text-white' : 'bg-gray-200'
+                    key={page}
+                    onClick={() => onPageChange(page)}
+                    className={`px-3 py-1 rounded-md text-sm ${currentPage === page
+                            ? 'bg-gray-900 text-white'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                         }`}
                 >
-                    {index + 1}
+                    {page}
                 </button>
             ))}
         </div>

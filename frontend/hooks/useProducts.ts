@@ -7,11 +7,11 @@ interface ProductsResponse {
     count: number;
 }
 
-export const useProducts = (page: number, limit: number) => {
+export const useProducts = (page: number, limit: number, sort: string = '') => {
     return useQuery<ProductsResponse, Error>({
-        queryKey: ['products', page, limit],
-        queryFn: () => getProducts(page, limit),
+        queryKey: ['products', page, limit, sort],
+        queryFn: () => getProducts(page, limit, sort),
         staleTime: 5 * 60 * 1000, // 5 minutes
-        placeholderData: (previousData) => previousData, // This replaces keepPreviousData
+        placeholderData: (previousData) => previousData,
     });
 };
