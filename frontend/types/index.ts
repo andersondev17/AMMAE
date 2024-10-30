@@ -54,6 +54,7 @@ export interface ProductListProps {
   onDelete?: (id: string) => Promise<void>;
   onEdit?: (product: Product) => void;
   isAdminView?: boolean;
+  isDeleting?: boolean;
 }
 
 export interface ProductCardProps {

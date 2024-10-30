@@ -32,13 +32,62 @@ class ProductoController {
     });
 
     crearProducto = asyncHandler(async (req, res, next) => {
-        const producto = await this.repository.createProducto(req.body);
-        res.status(201).json({
-            success: true,
-            data: producto
-        });
-    });
+        try {
+            // Validación inicial de datos requeridos
+            const { 
+                nombre, 
+                descripcion, 
+                precio, 
+                categoria, 
+                tallas, 
+                stock 
+            } = req.body;
 
+            if (!nombre || !descripcion || !precio || !categoria) {
+                return next(new ErrorResponse('Faltan campos requeridos', 400));
+            }
+
+            // Validación de tipo de datos y formato
+            if (typeof precio !== 'number' || precio <= 0) {
+                return next(new ErrorResponse('El precio debe ser un número válido mayor a 0', 400));
+            }
+
+            if (!Array.isArray(tallas)) {
+                return next(new ErrorResponse('Las tallas deben ser un array', 400));
+            }
+
+            // Preparar datos para crear el producto
+            const productoData = {
+                nombre: nombre.trim(),
+                descripcion: descripcion.trim(),
+                precio: Number(precio),
+                categoria,
+                tallas: Array.isArray(tallas) ? tallas : [],
+                colores: req.body.colores || [],
+                stock: Number(stock),
+                enOferta: Boolean(req.body.enOferta),
+                precioOferta: req.body.enOferta ? Number(req.body.precioOferta) : undefined,
+                estilo: req.body.estilo?.trim(),
+                material: req.body.material?.trim(),
+                imagenes: req.body.imagenes || []
+            };
+
+            // Crear el producto usando el repositorio
+            const producto = await this.repository.createProducto(productoData);
+
+            // Enviar respuesta exitosa
+            res.status(201).json({
+                success: true,
+                data: producto,
+                message: 'Producto creado exitosamente'
+            });
+
+        } catch (error) {
+            console.error('Error al crear producto:', error);
+            next(new ErrorResponse(error.message || 'Error al crear el producto', 500));
+        }
+    });
+    
     actualizarProducto = asyncHandler(async (req, res, next) => {
         const producto = await this.repository.updateProducto(req.params.id, req.body);
         if (!producto) {

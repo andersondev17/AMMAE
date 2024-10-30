@@ -7,7 +7,7 @@ import { useProducts } from '@/hooks/useProducts';
 import { Package } from 'lucide-react';
 import Link from 'next/link';
 
-export default function Home() {
+  export default function Home() {
   // Utilizamos el hook useProducts con configuración inicial
   const {
     products,

@@ -12,7 +12,7 @@ import { ProductList } from './product/ProductList';
  */
 const DEFAULT_FILTERS: ProductFilters = {
     fields: '',
-     sortBy: '',
+    sortBy: '',
     page: 1,
     limit: 10,
     search: '',

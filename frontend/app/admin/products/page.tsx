@@ -64,19 +64,42 @@ export default function AdminProductsPage() {
 
   const handleSubmit = async (data: ProductFormData) => {
     try {
-      if (editingProduct) {
-        await mutations.update.mutateAsync({ id: editingProduct._id, data });
+        console.log('AdminPage - Iniciando handleSubmit con datos:', data);
+        
+        const productData: ProductFormData = {
+            ...data,
+            precio: Number(data.precio),
+            stock: Number(data.stock),
+            precioOferta: data.enOferta ? Number(data.precioOferta) : undefined,
+            tallas: data.tallas || [],
+            colores: data.colores || [],
+            imagenes: data.imagenes || []
+        };
+
+        if (editingProduct) {
+          console.log('AdminPage - Actualizando producto:', {
+              id: editingProduct._id,
+              data: productData
+          });
+          
+          await mutations.update.mutateAsync({ 
+              id: editingProduct._id, 
+              data: productData 
+          });
       } else {
-        await mutations.create.mutateAsync(data);
+          await mutations.create.mutateAsync(productData);
       }
-      setIsFormOpen(false);
-      setEditingProduct(null);
-      await refresh(); // Usar refresh después de operaciones exitosas
-    } catch (error) {
-      toast.error('Error al guardar el producto');
-      console.error('Error:', error);
+      
+        
+        setIsFormOpen(false);
+        setEditingProduct(null);
+        await refresh();
+        
+    } catch (error: any) {
+        console.error('Error en handleSubmit:', error);
+        toast.error(error.response?.data?.message || 'Error al guardar el producto');
     }
-  };
+};
 
   const handleEdit = (product: Product) => {
     setEditingProduct(product);

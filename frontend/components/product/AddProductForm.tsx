@@ -28,21 +28,7 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
     isSubmitting = false
 }) => {
     const [imageUrls, setImageUrls] = useState<string[]>(initialData?.imagenes || []);
-
-    const defaultValues: ProductFormInput = {
-        nombre: initialData?.nombre || '',
-        descripcion: initialData?.descripcion || '',
-        precio: initialData?.precio || 0,
-        categoria: initialData?.categoria || '',
-        tallas: initialData?.tallas || [],
-        colores: initialData?.colores || [],
-        stock: initialData?.stock || 0,
-        enOferta: initialData?.enOferta || false,
-        precioOferta: initialData?.precioOferta || 0,
-        estilo: initialData?.estilo || '',
-        material: initialData?.material || '',
-        imagenes: initialData?.imagenes || [],
-    };
+    const [submitting, setSubmitting] = useState(false);
 
     const {
         register,
@@ -50,36 +36,72 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
         handleSubmit,
         watch,
         setValue,
-        formState: { errors }
+        reset,
+        formState: { errors, isDirty }
     } = useForm<ProductFormInput>({
         resolver: zodResolver(ProductFormSchema),
-        defaultValues
+        defaultValues: {
+            nombre: initialData?.nombre || '',
+            descripcion: initialData?.descripcion || '',
+            precio: initialData?.precio || 0,
+            categoria: initialData?.categoria || '',
+            tallas: initialData?.tallas || [],
+            colores: initialData?.colores || [],
+            stock: initialData?.stock || 0,
+            enOferta: initialData?.enOferta || false,
+            precioOferta: initialData?.precioOferta || 0,
+            estilo: initialData?.estilo || '',
+            material: initialData?.material || '',
+            imagenes: initialData?.imagenes || [],
+        },
+        mode: 'onChange'
     });
-
     const enOfertaValue = watch('enOferta');
 
     const handleFormSubmit = async (data: ProductFormInput) => {
         try {
-            if (imageUrls.length === 0) {
-                toast.error('Debes agregar al menos una imagen');
+            setSubmitting(true);
+            console.log('AddProductForm handleFormSubmit iniciado con datos:', data);
+    
+            // Validaciones básicas
+            if (!data.nombre || !data.descripcion || !data.categoria) {
+                toast.error('Por favor complete todos los campos requeridos');
                 return;
             }
-
+    
+            // Preparar datos del formulario
             const formData: ProductFormData = {
-                ...data,
-                imagenes: imageUrls,
+                nombre: data.nombre.trim(),
+                descripcion: data.descripcion.trim(),
                 precio: Number(data.precio),
+                categoria: data.categoria as "Jeans" | "Blusas" | "Vestidos" | "Faldas" | "Accesorios",
+                tallas: data.tallas.map(talla => talla as "XS" | "S" | "M" | "L" | "XL" | "XXL") || [],
+                colores: data.colores || [],
                 stock: Number(data.stock),
-                precioOferta: data.precioOferta ? Number(data.precioOferta) : undefined,
-                categoria: data.categoria as ProductFormData['categoria'],
-                tallas: data.tallas as ProductFormData['tallas']
+                enOferta: Boolean(data.enOferta),
+                precioOferta: data.enOferta ? Number(data.precioOferta) : undefined,
+                estilo: data.estilo?.trim() || '',
+                material: data.material?.trim() || '',
+                imagenes: imageUrls // Ahora usamos las URLs de las imágenes
             };
+            
             await onSubmit(formData);
+            toast.success('Producto creado exitosamente:');
+    
+            if (!initialData) {
+                reset();
+                setImageUrls([]);
+            }
+    
         } catch (error) {
-            console.error('Error submitting form:', error);
-            toast.error('Error al guardar el producto');
+            console.error('Error en AddProductForm handleFormSubmit:', error);
+            toast.error('Error al crear el producto');
+        } finally {
+            setSubmitting(false);
         }
     };
+     // Deshabilitar el botón si el formulario está siendo enviado o no es válido
+     const isButtonDisabled = isSubmitting || submitting;
 
     return (
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
@@ -280,10 +302,17 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
 
             <Button
                 type="submit"
-                disabled={isSubmitting}
-                className="w-full md:w-auto"
+                disabled={isButtonDisabled}
+                className="w-full md:w-auto relative"
             >
-                {isSubmitting ? 'Guardando...' : initialData ? 'Actualizar Producto' : 'Crear Producto'}
+                {(isSubmitting || submitting) && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-blue-600 rounded-md">
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    </div>
+                )}
+                <span className={isSubmitting || submitting ? 'opacity-0' : 'opacity-100'}>
+                    {initialData ? 'Actualizar Producto' : 'Crear Producto'}
+                </span>
             </Button>
         </form>
     );

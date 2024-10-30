@@ -34,7 +34,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
     const handleEdit = (e: React.MouseEvent) => {
         e.preventDefault();
-        if (onEdit) onEdit(product);
+        e.stopPropagation(); // Prevenir la navegación
+        if (onEdit)  {
+            console.log('ProductCard - Iniciando edición:', product);
+            onEdit(product);
+        }
     };
 
     return (
