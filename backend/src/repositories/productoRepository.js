@@ -3,27 +3,35 @@ const ApiFeatures = require('../utils/apiFeatures');
 
 class ProductoRepository {
     async getAllProductos(queryString) {
-        console.log('Query string:', queryString);
-        const features = new ApiFeatures(Producto.find(), queryString)
-            .filter()
-            .sort()
-            .limitFields()
-            .paginate()
-            .search();
-    
-        console.log('Filtered query:', features.query.getFilter());
-    
-        const productos = await features.query;
-        const total = await Producto.countDocuments(features.query.getFilter());
-    
-        console.log('Productos encontrados:', productos);
-        console.log('Total de productos:', total);
-    
-        return {
-            productos,
-            total,
-            pagination: features.pagination
-        };
+        try {
+            console.log('Repository - Recibiendo query:', queryString);
+
+            const features = new ApiFeatures(Producto.find(), queryString)
+                .filter()
+                .sort()
+                .paginate();
+
+            // Ejecutar consulta y contar total
+            const [productos, total] = await Promise.all([
+                features.query.exec(),
+                Producto.countDocuments(features.query.getQuery())
+            ]);
+
+            console.log('Repository - Productos encontrados:', productos.length);
+            console.log('Repository - Total:', total);
+
+            return {
+                productos,
+                total,
+                pagination: {
+                    ...features.pagination,
+                    totalPages: Math.ceil(total / features.pagination.limit)
+                }
+            };
+        } catch (error) {
+            console.error('Repository - Error:', error);
+            throw error;
+        }
     }
 
     async getProductoById(id) {

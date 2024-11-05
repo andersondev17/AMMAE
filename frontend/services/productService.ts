@@ -6,35 +6,35 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1
 axios.defaults.baseURL = API_URL;
 axios.defaults.headers.common['Content-Type'] = 'application/json';
 
-export const getProducts = async (
-  page = 1,
-  limit = 12,
-  sortBy = '',
-  categoria = '',
-  search = '',
-  fields = ''
-): Promise<{ data: Product[]; count: number }> => {
-  try {
-    console.log('Fetching products from:', `${API_URL}/productos`);
-    const response = await axios.get(`${API_URL}/productos`, {
-      params: { 
-        page, 
-        limit, 
-        sort: sortBy, 
-        categoria, 
-        search, 
-        fields 
-      }
-    });
+// services/productService.ts
 
-    console.log('API Response:', response.data);
-    return {
-      data: response.data.data,
-      count: response.data.count
-    };
+export const getProducts = async (
+  page: number,
+  limit: number,
+  sortBy: string,
+  categoria: string,
+  search: string,
+  additionalParams: string = ''
+) => {
+  try {
+      const baseUrl = `${API_URL}/productos`;
+      const queryString = new URLSearchParams({
+          page: page.toString(),
+          limit: limit.toString(),
+          ...(sortBy && { sort: sortBy }),
+          ...(categoria && { categoria }),
+          ...(search && { search })
+      }).toString();
+
+      const url = `${baseUrl}?${queryString}${additionalParams ? '&' + additionalParams : ''}`;
+      
+      console.log('Requesting URL:', url);
+      
+      const response = await axios.get(url);
+      return response.data;
   } catch (error) {
-    console.error('Error fetching products:', error);
-    throw error;
+      console.error('Error fetching products:', error);
+      throw error;
   }
 };
 

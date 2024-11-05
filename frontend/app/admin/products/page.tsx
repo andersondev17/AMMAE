@@ -40,7 +40,7 @@ export default function AdminProductsPage() {
       const newFilters = { ...prev };
       delete newFilters.stock;
       delete newFilters.enOferta;
-      
+
       switch (filter) {
         case 'inStock':
           newFilters.stock = 'inStock';
@@ -57,49 +57,47 @@ export default function AdminProductsPage() {
         default:
           return { limit: 12, page: 1 };
       }
-      
+
       return newFilters;
     });
   };
 
   const handleSubmit = async (data: ProductFormData) => {
     try {
-        console.log('AdminPage - Iniciando handleSubmit con datos:', data);
-        
-        const productData: ProductFormData = {
-            ...data,
-            precio: Number(data.precio),
-            stock: Number(data.stock),
-            precioOferta: data.enOferta ? Number(data.precioOferta) : undefined,
-            tallas: data.tallas || [],
-            colores: data.colores || [],
-            imagenes: data.imagenes || []
-        };
+      console.log('AdminPage - Iniciando handleSubmit con datos:', data);
 
-        if (editingProduct) {
-          console.log('AdminPage - Actualizando producto:', {
-              id: editingProduct._id,
-              data: productData
-          });
-          
-          await mutations.update.mutateAsync({ 
-              id: editingProduct._id, 
-              data: productData 
-          });
+      const productData: ProductFormData = {
+        ...data,
+        precio: Number(data.precio),
+        stock: Number(data.stock),
+        precioOferta: data.enOferta ? Number(data.precioOferta) : undefined,
+        tallas: data.tallas || [],
+        colores: data.colores || [],
+        imagenes: data.imagenes || []
+      };
+
+      if (editingProduct) {
+        console.log('AdminPage - Actualizando producto:', {
+          id: editingProduct._id,
+          data: productData
+        });
+
+        await mutations.update.mutateAsync({
+          id: editingProduct._id,
+          data: productData
+        });
       } else {
-          await mutations.create.mutateAsync(productData);
+        await mutations.create.mutateAsync(productData);
       }
-      
-        
-        setIsFormOpen(false);
-        setEditingProduct(null);
-        await refresh();
-        
+      setIsFormOpen(false);
+      setEditingProduct(null);
+      await refresh();
+
     } catch (error: any) {
-        console.error('Error en handleSubmit:', error);
-        toast.error(error.response?.data?.message || 'Error al guardar el producto');
+      console.error('Error en handleSubmit:', error);
+      toast.error(error.response?.data?.message || 'Error al guardar el producto');
     }
-};
+  };
 
   const handleEdit = (product: Product) => {
     setEditingProduct(product);
@@ -128,7 +126,7 @@ export default function AdminProductsPage() {
                 Administra tu catálogo de productos AMMAE ({totalCount} productos)
               </p>
             </div>
-            
+
             <div className="flex items-center gap-4">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -140,8 +138,8 @@ export default function AdminProductsPage() {
                   className="pl-10 pr-4 w-full md:w-[300px]"
                 />
               </div>
-              
-              <Button 
+
+              <Button
                 onClick={() => {
                   setEditingProduct(null);
                   setIsFormOpen(true);
@@ -195,7 +193,7 @@ export default function AdminProductsPage() {
       </div>
 
       <div className="container mx-auto px-4 py-8">
-      <ProductList 
+        <ProductList
           products={products}
           isLoading={isLoading}
           error={error}
@@ -205,8 +203,8 @@ export default function AdminProductsPage() {
         />
       </div>
 
-      <Dialog 
-        open={isFormOpen} 
+      <Dialog
+        open={isFormOpen}
         onOpenChange={(open) => {
           setIsFormOpen(open);
           if (!open) setEditingProduct(null);
@@ -221,7 +219,7 @@ export default function AdminProductsPage() {
           <AddProductForm
             initialData={editingProduct}
             onSubmit={handleSubmit}
-           /*  isSubmitting={isSubmitting} */
+          /*  isSubmitting={isSubmitting} */
           />
         </DialogContent>
       </Dialog>
