@@ -3,7 +3,6 @@
 import { Product, ProductListProps } from '@/types';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
-import { CategoryNav } from '../Layout/CategoryNav';
 import { Spinner } from '../ui/Spinner';
 import { ProductCard } from './ProductCard';
 
@@ -40,9 +39,7 @@ export const ProductList: React.FC<ProductListProps> = ({
       {!isAdminView && (
         <div className="mb-6 space-y-4">
           <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-bold text-gray-900">
-              Todos los Productos — Mujeres
-            </h2>
+            
             <div className="flex items-center gap-4">
               <input
                 type="text"
@@ -63,7 +60,6 @@ export const ProductList: React.FC<ProductListProps> = ({
               </select>
             </div>
           </div>
-          <CategoryNav />
         </div>
       )}
 

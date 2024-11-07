@@ -49,13 +49,19 @@ class ApiFeatures {
   
     sort() {
       if (this.queryString.sort) {
-          const sortBy = this.queryString.sort.split(',').join(' ');
+          // Manejar el caso cuando sort es un array
+          const sortValue = Array.isArray(this.queryString.sort) 
+              ? this.queryString.sort[0] 
+              : this.queryString.sort;
+          
+          const sortBy = sortValue.split(',').join(' ');
           this.query = this.query.sort(sortBy);
       } else {
           this.query = this.query.sort('-createdAt');
       }
       return this;
   }
+
   
     limitFields() {
       if (this.queryString.fields) {

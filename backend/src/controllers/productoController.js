@@ -8,9 +8,9 @@ class ProductoController {
     }
 
     getAllProductos = asyncHandler(async (req, res, next) => {
-        console.log('Query params:', req.query);
+        
         const { productos, total, pagination } = await this.repository.getAllProductos(req.query);
-        console.log('Productos recuperados:', productos);
+        
         console.log('Total de productos:', total);
         res.status(200).json({
             success: true,

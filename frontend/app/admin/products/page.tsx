@@ -4,23 +4,19 @@ import { AddProductForm } from '@/components/product/AddProductForm';
 import { ProductList } from '@/components/product/ProductList';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { useDebounce } from '@/hooks/useDebounce';
 import { useProducts } from '@/hooks/useProducts';
 import { Product, ProductFilters, ProductFormData } from '@/types';
-import { Plus, Search } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
 export default function AdminProductsPage() {
-  const [search, setSearch] = useState('');
   const [filters, setFilters] = useState<ProductFilters>({
     limit: 12,
     page: 1
   });
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  const debouncedSearch = useDebounce(search, 500);
   const {
     products,
     isLoading,
@@ -30,8 +26,7 @@ export default function AdminProductsPage() {
     pagination,
     refresh
   } = useProducts({
-    ...filters,
-    search: debouncedSearch
+    ...filters
   });
 
 
@@ -128,16 +123,6 @@ export default function AdminProductsPage() {
             </div>
 
             <div className="flex items-center gap-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <Input
-                  type="text"
-                  placeholder="Buscar productos..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="pl-10 pr-4 w-full md:w-[300px]"
-                />
-              </div>
 
               <Button
                 onClick={() => {

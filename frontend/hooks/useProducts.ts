@@ -34,8 +34,8 @@ export function useProducts(filters: Partial<ProductFilters> = {}) {
             case 'lowStock':
                 return { 
                     stock: { 
-                        $gt: STOCK_THRESHOLDS.OUT_OF_STOCK, 
-                        $lte: STOCK_THRESHOLDS.LOW_STOCK 
+                        $gt: STOCK_THRESHOLDS.OUT_OF_STOCK,
+                        $lte: STOCK_THRESHOLDS.LOW_STOCK
                     } 
                 };
             case 'outOfStock':
@@ -55,7 +55,7 @@ export function useProducts(filters: Partial<ProductFilters> = {}) {
         queryKey: ['products', filters],
         queryFn: async () => {
             const queryParams = new URLSearchParams();
-
+            
             // Filtros base existentes
             if (filters.page) queryParams.append('page', filters.page.toString());
             if (filters.limit) queryParams.append('limit', filters.limit.toString());
