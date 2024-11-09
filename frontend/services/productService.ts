@@ -25,7 +25,7 @@ export const getProducts = async (
           ...(categoria && { categoria }),
           ...(search && { search })
       }).toString();
-
+      
       const url = `${baseUrl}?${queryString}${additionalParams ? '&' + additionalParams : ''}`;
       
       console.log('Requesting URL:', url);

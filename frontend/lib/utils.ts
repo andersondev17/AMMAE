@@ -54,4 +54,9 @@ export const handleError = (error: unknown) => {
   console.error('An error occurred:', error)
   throw new Error(typeof error === 'string' ? error : JSON.stringify(error))
 }
-
+export const capitalize = (str: string): string => {
+  // Primero convertimos todo a minúsculas
+  const lowered = str.toLowerCase();
+  // Luego capitalizamos la primera letra
+  return lowered.charAt(0).toUpperCase() + lowered.slice(1);
+};

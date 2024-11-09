@@ -8,9 +8,9 @@ class ProductoController {
     }
 
     getAllProductos = asyncHandler(async (req, res, next) => {
-        
+
         const { productos, total, pagination } = await this.repository.getAllProductos(req.query);
-        
+
         console.log('Total de productos:', total);
         res.status(200).json({
             success: true,
@@ -34,13 +34,13 @@ class ProductoController {
     crearProducto = asyncHandler(async (req, res, next) => {
         try {
             // Validación inicial de datos requeridos
-            const { 
-                nombre, 
-                descripcion, 
-                precio, 
-                categoria, 
-                tallas, 
-                stock 
+            const {
+                nombre,
+                descripcion,
+                precio,
+                categoria,
+                tallas,
+                stock
             } = req.body;
 
             if (!nombre || !descripcion || !precio || !categoria) {
@@ -87,16 +87,49 @@ class ProductoController {
             next(new ErrorResponse(error.message || 'Error al crear el producto', 500));
         }
     });
-    
+
+    // productoController.js
+
     actualizarProducto = asyncHandler(async (req, res, next) => {
-        const producto = await this.repository.updateProducto(req.params.id, req.body);
-        if (!producto) {
-            return next(new ErrorResponse(`Producto no encontrado con id ${req.params.id}`, 404));
+        try {
+            const { id } = req.params;
+
+            // Validar que el producto existe
+            const productoExistente = await this.repository.getProductoById(id);
+            if (!productoExistente) {
+                return next(new ErrorResponse(`Producto no encontrado con id ${id}`, 404));
+            }
+
+            // Preparar datos de actualización
+            const updateData = {
+                ...req.body,
+                updatedAt: Date.now()
+            };
+
+            // Validaciones específicas para actualización
+            if (updateData.precio) {
+                updateData.precio = Number(updateData.precio);
+            }
+            if (updateData.stock) {
+                updateData.stock = Number(updateData.stock);
+            }
+            if (updateData.precioOferta && updateData.enOferta) {
+                updateData.precioOferta = Number(updateData.precioOferta);
+            }
+
+            // Actualizar producto
+            const productoActualizado = await this.repository.updateProducto(id, updateData);
+
+            res.status(200).json({
+                success: true,
+                data: productoActualizado,
+                message: 'Producto actualizado exitosamente'
+            });
+
+        } catch (error) {
+            console.error('Error al actualizar producto:', error);
+            next(new ErrorResponse(error.message || 'Error al actualizar el producto', 500));
         }
-        res.status(200).json({
-            success: true,
-            data: producto
-        });
     });
 
     eliminarProducto = asyncHandler(async (req, res, next) => {
