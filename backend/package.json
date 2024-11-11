@@ -8,7 +8,8 @@
     "dev": "nodemon src/app.js",
     "start:backend": "cd backend && npm start",
     "dev:backend": "cd backend && npm run dev",
-    "start:frontend": "cd frontend && npm start"
+    "start:frontend": "cd frontend && npm start",
+     "build": "echo 'Build complete'"
   },
   "keywords": [],
   "author": "",
