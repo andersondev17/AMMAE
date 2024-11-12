@@ -27,6 +27,11 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
     onSubmit,
     isSubmitting = false
 }) => {
+    const initialImages = initialData?.imagenes?.map(img =>
+        img.startsWith('http') || img.startsWith('/assets') ?
+            img : `/assets/images/demo/${img}`
+    ) || [];
+
     const [imageUrls, setImageUrls] = useState<string[]>(initialData?.imagenes || []);
     const [submitting, setSubmitting] = useState(false);
 
@@ -62,13 +67,13 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
         try {
             setSubmitting(true);
             console.log('AddProductForm handleFormSubmit iniciado con datos:', data);
-    
+
             // Validaciones básicas
             if (!data.nombre || !data.descripcion || !data.categoria) {
                 toast.error('Por favor complete todos los campos requeridos');
                 return;
             }
-    
+
             // Preparar datos del formulario
             const formData: ProductFormData = {
                 nombre: data.nombre.trim(),
@@ -82,17 +87,23 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
                 precioOferta: data.enOferta ? Number(data.precioOferta) : undefined,
                 estilo: data.estilo?.trim() || '',
                 material: data.material?.trim() || '',
-                imagenes: imageUrls // Ahora usamos las URLs de las imágenes
+                imagenes: imageUrls.map(url => {
+                    // Convertimos las URLs absolutas a rutas relativas para el backend
+                    if (url.startsWith('/assets/images/demo/')) {
+                        return url.split('/').pop() || url;
+                    }
+                    return url;
+                })
             };
-            
+
             await onSubmit(formData);
             toast.success('Producto creado exitosamente:');
-    
+
             if (!initialData) {
                 reset();
                 setImageUrls([]);
             }
-    
+
         } catch (error) {
             console.error('Error en AddProductForm handleFormSubmit:', error);
             toast.error('Error al crear el producto');
@@ -100,8 +111,8 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
             setSubmitting(false);
         }
     };
-     // Deshabilitar el botón si el formulario está siendo enviado o no es válido
-     const isButtonDisabled = isSubmitting || submitting;
+    // Deshabilitar el botón si el formulario está siendo enviado o no es válido
+    const isButtonDisabled = isSubmitting || submitting;
 
     return (
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
@@ -306,8 +317,9 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
                 className="w-full md:w-auto relative"
             >
                 {(isSubmitting || submitting) && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-blue-600 rounded-md">
-                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <div className="flex items-center space-x-2">
+                        <span className="animate-spin">⚪</span>
+                        <span>{initialData ? 'Actualizando...' : 'Creando...'}</span>
                     </div>
                 )}
                 <span className={isSubmitting || submitting ? 'opacity-0' : 'opacity-100'}>

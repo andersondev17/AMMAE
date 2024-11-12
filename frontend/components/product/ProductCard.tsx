@@ -1,11 +1,11 @@
+// components/ProductCard.tsx
 import { ProductCardProps } from '@/types';
+import { demoImages, getImageUrl } from '@/utils/demoImages';
 import { Edit, Trash } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 import { Button } from '../ui/button';
-
-const IMAGE_DOMAIN = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
 
 export const ProductCard: React.FC<ProductCardProps> = ({
     product,
@@ -14,16 +14,15 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     isAdminView = false
 }) => {
     const [isHovering, setIsHovering] = useState(false);
+    const [imageError, setImageError] = useState(false);
 
-    const getImageUrl = (imageUrl: string) => {
-        if (imageUrl.startsWith('http')) return imageUrl;
-        if (imageUrl.startsWith('/')) return imageUrl;
-        // Si es una ruta relativa, construimos la URL completa
-        return `${IMAGE_DOMAIN}/images/${imageUrl}`;
-    };
-
-    // Imagen de respaldo por si no hay imágenes disponibles
     const fallbackImage = '/placeholder.jpg';
+
+    // Optimizamos la función getImageUrl para manejar errores
+    const getProductImage = (imageUrl?: string): string => {
+        if (imageError) return demoImages.default;
+        return getImageUrl(imageUrl || '');
+    };
 
     const handleDelete = (e: React.MouseEvent) => {
         e.preventDefault();
@@ -31,13 +30,24 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             onDelete(product._id);
         }
     };
-
     const handleEdit = (e: React.MouseEvent) => {
         e.preventDefault();
-        e.stopPropagation(); // Prevenir la navegación
-        if (onEdit)  {
-            console.log('ProductCard - Iniciando edición:', product);
-            onEdit(product);
+        e.stopPropagation();
+        if (onEdit) {
+            // Aseguramos que las imágenes tengan las URLs correctas
+            const productToEdit = {
+                ...product,
+                imagenes: product.imagenes?.map(img => {
+                    // Si la imagen ya tiene la ruta completa, la mantenemos
+                    if (img.startsWith('http') || img.startsWith('/assets')) {
+                        return img;
+                    }
+                    // Si no, construimos la ruta
+                    return `/assets/images/demo/${img}`;
+                }) || []
+            };
+            console.log('ProductCard - Iniciando edición:', productToEdit);
+            onEdit(productToEdit);
         }
     };
 
@@ -51,28 +61,28 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                 <div className="aspect-square relative overflow-hidden mb-2">
                     <div className="relative w-full h-full">
                         <Image
-                            src={getImageUrl(product.imagenes[0] || fallbackImage)}
+                            src={getProductImage(product.imagenes?.[0])}
                             alt={product.nombre}
-                            className={`object-cover transition-opacity duration-300 ${
-                                isHovering ? 'opacity-0' : 'opacity-100'
-                            }`}
+                            className={`object-cover transition-opacity duration-300 ${isHovering ? 'opacity-0' : 'opacity-100'
+                                }`}
                             fill
                             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                             priority={true}
+                            onError={() => setImageError(true)}
                         />
-                        {product.imagenes[1] && (
+                        {product.imagenes?.[1] && (
                             <Image
-                                src={getImageUrl(product.imagenes[1])}
+                                src={getProductImage(product.imagenes[1])}
                                 alt={`${product.nombre} - vista alternativa`}
-                                className={`object-cover transition-opacity duration-300 ${
-                                    isHovering ? 'opacity-100' : 'opacity-0'
-                                }`}
+                                className={`object-cover transition-opacity duration-300 ${isHovering ? 'opacity-100' : 'opacity-0'
+                                    }`}
                                 fill
                                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                             />
                         )}
+                        {/* Mantenemos los badges y botones existentes */}
                         {product.enOferta && (
-                            <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 text-xs font-semibold">
+                            <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 text-xs font-semibold rounded-md">
                                 SALE
                             </div>
                         )}
@@ -98,29 +108,33 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                         )}
                     </div>
                 </div>
-                <div className="min-h-[4rem]">
-                    <h3 className="text-sm font-medium text-gray-900">{product.nombre}</h3>
+
+                {/* Información del producto */}
+                <div className="p-4">
+                    <h3 className="text-sm font-medium text-gray-900 line-clamp-1">{product.nombre}</h3>
                     <p className="text-sm text-gray-500 mt-1">{product.estilo}</p>
-                    <p className="text-sm font-medium text-gray-900 mt-1">
-                        ${product.precio.toFixed(2)}
-                        {product.enOferta && product.precioOferta && (
-                            <span className="ml-2 text-red-500 line-through">
-                                ${product.precioOferta.toFixed(2)}
+                    <div className="flex items-center justify-between mt-2">
+                        <p className="text-sm font-medium text-gray-900">
+                            ${product.precio.toFixed(2)}
+                            {product.enOferta && product.precioOferta && (
+                                <span className="ml-2 text-red-500 line-through">
+                                    ${product.precioOferta.toFixed(2)}
+                                </span>
+                            )}
+                        </p>
+                        {isAdminView && (
+                            <span className="text-sm text-gray-500">
+                                Stock: {product.stock}
                             </span>
                         )}
-                    </p>
-                    {isAdminView && (
-                        <p className="text-sm text-gray-500 mt-1">
-                            Stock: {product.stock} unidades
-                        </p>
-                    )}
+                    </div>
                 </div>
             </Link>
+
             {!isAdminView && (
                 <div
-                    className={`absolute bottom-4 left-4 right-4 flex items-center transition-opacity duration-300 bg-white bg-opacity-90 p-4 ${
-                        isHovering ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-                    }`}
+                    className={`absolute bottom-4 left-4 right-4 flex items-center transition-opacity duration-300 bg-white bg-opacity-90 p-4 ${isHovering ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+                        }`}
                 >
                     <span className="w-2 h-2 bg-blue-500 rounded-full mr-2 animate-pulse"></span>
                     <button className="text-sm text-gray-600 hover:text-gray-900 transition-colors duration-300">

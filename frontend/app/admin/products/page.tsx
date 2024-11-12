@@ -3,7 +3,7 @@
 import { AddProductForm } from '@/components/product/AddProductForm';
 import { ProductList } from '@/components/product/ProductList';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useProducts } from '@/hooks/useProducts';
 import { Product, ProductFilters, ProductFormData } from '@/types';
 import { Plus } from 'lucide-react';
@@ -195,18 +195,25 @@ export default function AdminProductsPage() {
           if (!open) setEditingProduct(null);
         }}
       >
-        <DialogContent className="max-w-4xl">
-          <DialogHeader>
-            <DialogTitle>
-              {editingProduct ? 'Editar Producto' : 'Nuevo Producto'}
-            </DialogTitle>
-          </DialogHeader>
-          <AddProductForm
-            initialData={editingProduct}
-            onSubmit={handleSubmit}
-          /*  isSubmitting={isSubmitting} */
-          />
-        </DialogContent>
+          <DialogContent className="w-[95vw] max-w-4xl max-h-[90vh] overflow-y-auto">
+    <DialogHeader>
+      <DialogTitle>
+        {editingProduct ? 'Editar Producto' : 'Nuevo Producto'}
+      </DialogTitle>
+      <DialogDescription>
+        {editingProduct 
+          ? 'Actualiza los detalles del producto.' 
+          : 'Añade un nuevo producto al catálogo.'}
+      </DialogDescription>
+    </DialogHeader>
+    <div className="mt-4">
+      <AddProductForm
+        initialData={editingProduct}
+        onSubmit={handleSubmit}
+        
+      />
+    </div>
+  </DialogContent>
       </Dialog>
     </div>
   );
