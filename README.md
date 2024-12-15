@@ -2,17 +2,17 @@
 
 ## Tecnologías Utilizadas
 
-### Backend
-- **Node.js & Express**: Framework backend para crear una API RESTful robusta
+### Stack MERN:
+
 - **MongoDB**: Base de datos NoSQL para almacenamiento flexible de datos
-- **Mongoose**: ODM para modelado de datos y validaciones
+- **Node.js & Express**: Framework backend para crear una API RESTful robusta
+- **React/Next.js**: Frontend
 
 ### Frontend
 - **React**: Biblioteca para construir interfaces de usuario
-- **Next.js 14**: Framework React para renderizado del lado del servidor y optimización
+- **Next.js 14**: Framework React para renderizado del lado del servidor y optimización y mejor tipado
 - **Tailwind CSS**: Framework de utilidades CSS para diseño moderno
 - **Shadcn/ui**: Componentes de UI reutilizables y personalizables
-- **React Hook Form**: Manejo de formularios con validación
 - **Zod**: Validación de esquemas TypeScript-first
 - **Axios**: Cliente HTTP para comunicación con la API
 
@@ -131,8 +131,8 @@ La aplicación estará disponible en:
 - Frontend: http://localhost:3000
 - Backend API: http://localhost:3001
 
-## Patrones de Diseño Implementados
-
+## Patrones de Diseño Y Arquitectura implementada
+   
 1. **Factory Method**:
    - Creación de modelos Mongoose
    - Generación de respuestas API estandarizadas
@@ -154,7 +154,7 @@ class ProductoFactory {
 
 2. **Repository Pattern**:
    - Abstracción de la capa de datos
-   - Separación de lógica de negocio y acceso a datos
+   - Separación de lógica de negocio y acceso a datos enfocado al CRUD
 Repositorio (productoRepository): Maneja el acceso a datos
 Controlador (productoController.js): Lógica de negocio
 Componente React (ProductManagement.tsx): Lógica de presentación
@@ -225,3 +225,27 @@ getAllProductos = asyncHandler(async (req, res, next) => {
 
 3. **Seguridad**:
     - Validación de datos con zod
+  
+### Endpoints de la API
+
+1. **Obtener Todos los Productos**
+*Método: GET*
+*Endpoint*
+```bash
+http://localhost:3001/api/v1/productos
+
+```
+Funcionalidad: Devuelve todos los productos de la página web.
+Parámetros de Consulta:
+
+## Parámetros de Consulta API
+
+| Parámetro | Tipo | Descripción | Ejemplo | Notas |
+|-----------|------|-------------|---------|-------|
+| `sort` | string | Ordena los resultados | `sort=precio,-nombre` | Use `-` para orden descendente |
+| `page` | number | Número de página | `page=2` | Paginación basada en 1 |
+| `limit` | number | Resultados por página | `limit=10` | Máximo: 100 |
+| `fields` | string | Campos a incluir | `fields=nombre,precio` | Separados por comas |
+| `categoria` | string | Filtro por categoría | `categoria=ofertas` | Case sensitive |
+| `search` | string | Búsqueda por texto | `search=sandwich` | Busca en nombre y descripción |
+
