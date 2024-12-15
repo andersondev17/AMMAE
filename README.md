@@ -226,7 +226,8 @@ getAllProductos = asyncHandler(async (req, res, next) => {
 3. **Seguridad**:
     - Validación de datos con zod
   
-### Endpoints de la API
+###  ![Endpoints de la API](https://docs.google.com/document/d/1Nr5PegF0RO9UHVlmztWF28YnupztY0MVScS2MOoXdGg/edit?tab=t.0)
+
 
 1. **Obtener Todos los Productos**
 *Método: GET*
@@ -249,3 +250,50 @@ Parámetros de Consulta:
 | `categoria` | string | Filtro por categoría | `categoria=ofertas` | Case sensitive |
 | `search` | string | Búsqueda por texto | `search=sandwich` | Busca en nombre y descripción |
 
+2. **Read - API GET: Obtener un Producto Específico por ID**
+*Método: GET*
+ Esta API devuelve todos los productos de la página web.
+*Endpoint*
+
+```bash
+http://localhost:3001/api/v1/productos/:id
+```
+
+3. **Create - API POST: Crear un Nuevo Producto**
+*Método: POST*
+Esta api crea productos
+*Endpoint*
+```bash
+http://localhost:3001/api/v1/productos
+
+```
+4. **UPDATE - API PUT: Actualizar un Producto Existente**
+*Método: POST*
+Actualiza un producto existente
+*Endpoint*
+```bash
+http://localhost:3001/api/v1/productos/:id
+```
+*Ejemplo de ID:* 6713e0c6ad1ad50e25a51eae
+*Funcionalidad:* Actualiza un producto existente por su ID.
+
+**Cuerpo de la Solicitud:**
+```bash
+{
+  "nombre": "Nombre del Producto",
+  "precio": 25.99,
+  "categoria": "Ejemplo",
+  "descripcion": "Descripción actualizada"
+}
+```
+5. **API DELETE - Eliminar un Producto**
+*Método: POST*
+Borra un producto existente
+*Endpoint*
+```bash
+http://localhost:3001/api/v1/productos/:id
+
+```
+
+*Ejemplo de ID:* 67151d151f206e5a65b48386
+*Funcionalidad:* Borra un producto existente por su ID.
