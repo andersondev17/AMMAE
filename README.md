@@ -61,19 +61,19 @@ proyectoMongo/
 │   │       └── page.tsx      # (Panel administrativo)contenedor que maneja el       
 |   |                             estado y la lógica                                
 │   ├── categoria/
-│   │   └── [categoria]/
+│   │   └── [categoria]/      #filtrados por categoria
 │   │       └── page.tsx      # Vista de categorías
 │   └── layout.tsx            # Layout principal
 ├── components/               # Componentes React reutilizables
 │   ├── Layout/
 │   │   ├── Navbar.tsx        # navegación principal 
 │   │   ├── Footer.tsx
-│   │   └── VideoHero/
+│   │   └── VideoHero/        # componente video promocional
 │   ├── product/
-│   │   ├── AddProductForm.tsx
-│   │   ├── ProductCard.tsx   # Componentes presentacionales
-│   │   └── ProductList.tsx
-│   ├── shared/
+│   │   ├── AddProductForm.tsx #Formulario para crear o editar productos,
+│   │   ├── ProductCard.tsx   # Componentes reutilizable
+│   │   └── ProductList.tsx   # hace uso del componente reutilizable productCard
+│   ├── shared/               # componentes para el formulario
 │   │   ├── ColorPicker.tsx
 │   │   └── ImageUpload.tsx
 │   └── ui/                   # Componentes shadcn/ui
@@ -81,8 +81,8 @@ proyectoMongo/
 │   ├── useProducts.ts        # estado global de productos
 │   └── useDebounce.tsx
 ├── lib/                    # Utilidades y configuraciones
-│   ├── validations/        # Validaciones de Zod
-├── services/               # Servicio consumo de API 
+│   ├── validations/        # Esquemas Validaciones de Zod
+├── services/               # Servicio encapsula consumo de API 
 │   ├── productService.ts
 ├── types/               # tipado de TypeScript
 │   ├── cart.types.ts
