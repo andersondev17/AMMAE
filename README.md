@@ -15,6 +15,7 @@
 - **Shadcn/ui**: Componentes de UI reutilizables y personalizables
 - **Zod**: Validación de esquemas TypeScript-first
 - **Axios**: Cliente HTTP para comunicación con la API
+- **Toast**: Manejo de Errores y Notificaciones
 
 ## Justificación de MongoDB como Base de Datos NoSQL
 
@@ -26,18 +27,14 @@ MongoDB fue seleccionado por las siguientes razones:
    - Soporta documentos anidados para relaciones como productos-categorías
 
 2. **Escalabilidad**:
-   - Sharding nativo para distribución horizontal de datos
-   - Replicación integrada para alta disponibilidad
    - Manejo eficiente de grandes volúmenes de datos
 
 3. **Rendimiento**:
-   - Consultas ricas y flexibles con agregaciones
-   - Índices para optimización de búsquedas
-   - Excelente rendimiento en operaciones de lectura
+   - Consultas optimizadas para lectura
+   - Índices eficientes para búsquedas
 
 4. **Integración**:
    - Compatibilidad nativa con JavaScript/Node.js
-   - Driver oficial robusto y bien mantenido
    - Gran ecosistema de herramientas y recursos
 
 ## Estructura del Proyecto
@@ -58,14 +55,43 @@ proyectoMongo/
 │   └── package.json
 │
 └── frontend/
-    ├── app/           # Páginas y rutas de Next.js
-    ├── components/    # Componentes React reutilizables
-    ├── hooks/         # Custom hooks
-    ├── lib/           # Utilidades y configuraciones
-    ├── services/      # Servicios de API
-    └── types/         # Definiciones de TypeScript
-    ├── public/           # Archivos estáticos
-    └── package.json
+├── app/                      #paginas y rutas 
+│   ├── admin/
+│   │   └── products/
+│   │       └── page.tsx      # (Panel administrativo)contenedor que maneja el       
+|   |                             estado y la lógica                                
+│   ├── categoria/
+│   │   └── [categoria]/
+│   │       └── page.tsx      # Vista de categorías
+│   └── layout.tsx            # Layout principal
+├── components/               # Componentes React reutilizables
+│   ├── Layout/
+│   │   ├── Navbar.tsx        # navegación principal 
+│   │   ├── Footer.tsx
+│   │   └── VideoHero/
+│   ├── product/
+│   │   ├── AddProductForm.tsx
+│   │   ├── ProductCard.tsx   # Componentes presentacionales
+│   │   └── ProductList.tsx
+│   ├── shared/
+│   │   ├── ColorPicker.tsx
+│   │   └── ImageUpload.tsx
+│   └── ui/                   # Componentes shadcn/ui
+├── hooks/                    # Custom hooks obtencion y manipulacion de productos 
+│   ├── useProducts.ts        # estado global de productos
+│   └── useDebounce.tsx
+├── lib/                    # Utilidades y configuraciones
+│   ├── validations/        # Validaciones de Zod
+├── services/               # Servicio consumo de API 
+│   ├── productService.ts
+├── types/               # tipado de TypeScript
+│   ├── cart.types.ts
+│   ├── index.ts
+│   ├── product.types.ts
+├── contexts/
+│   └── cart/
+└── utils/
+    └── demoImages.ts
 ```
 
 ## Cómo Ejecutar la Aplicación
@@ -80,20 +106,17 @@ proyectoMongo/
 1. **Clonar el Repositorio**
 ```bash
 git clone https://github.com/andersondev17/AMMAE
-cd fashionline
 ```
 
 2. **Configurar Backend**
 ```bash
 cd backend
-cp .env.example .env
 npm install
 ```
 
 3. **Configurar Frontend**
 ```bash
 cd frontend
-cp .env.example .env
 npm install
 ```
 
@@ -102,8 +125,8 @@ Editar el archivo `.env` en ambas carpetas con las credenciales necesarias:
 
 Backend `.env`:
 ```
-MONGODB_URI=mongodb://localhost:27017/tiendaBD
-JWT_SECRET=tu_secreto_jwt
+MONGODB_URI=
+JWT_SECRET=
 PORT=3001
 FRONTEND_URL=http://localhost:3000
 ```
@@ -155,8 +178,8 @@ class ProductoFactory {
 2. **Repository Pattern**:
    - Abstracción de la capa de datos
    - Separación de lógica de negocio y acceso a datos enfocado al CRUD
-Repositorio (productoRepository): Maneja el acceso a datos
-Controlador (productoController.js): Lógica de negocio
+Repositorio (productoRepository): Maneja el acceso a datos, consultas
+Controlador (productoController.js): Lógica CRUD de negocio
 Componente React (ProductManagement.tsx): Lógica de presentación
 
 3. **Singleton**:
@@ -171,11 +194,15 @@ const dbconnect = async () => {
             useUnifiedTopology: true
         });
         console.log('Conexión exitosa a la base de datos');
+        
+        // Listar las colecciones para verificar
+        const collections = await mongoose.connection.db.listCollections().toArray();
+        console.log('Colecciones en la base de datos:', collections.map(c => c.name));
     } catch (error) {
-        console.error('Error al conectar:', error);
+        console.error('Error al conectar a la base de datos:', error);
         process.exit(1);
     }
-};
+}
 ```
 
 4. **MVC**:
@@ -183,32 +210,14 @@ const dbconnect = async () => {
    - Vistas componentes de react como (ProductManagement.tsx): Maneja la interfaz de usuario en React
    - Controladores (productoController.js): Maneja la lógica de negocio y las respuestas HTTP
    
+*Zod validation*
 ```bash
-{
-    nombre: {
-        type: String,
-        required: [true, 'El nombre del producto es obligatorio'],
-        maxlength: [100, 'El nombre no puede tener más de 100 caracteres']
-    }
-}
-```
-```bash
+//lib/validations/product.ts
 export const ProductFormSchema = z.object({
     nombre: z.string()
         .min(3, 'El nombre debe tener al menos 3 caracteres')
         .max(100, 'El nombre no puede exceder los 100 caracteres'),
     // ...
-});
-```
-```bash
-getAllProductos = asyncHandler(async (req, res, next) => {
-    const { productos, total, pagination } = await this.repository.getAllProductos(req.query);
-    res.status(200).json({
-        success: true,
-        count: productos.length,
-        pagination,
-        data: productos
-    });
 });
 ```
     
