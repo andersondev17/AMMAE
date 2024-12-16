@@ -1,4 +1,4 @@
-# AMMAE E-commerce - Sistema de Gestión de Inventario
+# AMMAE E-commerce 
 
 ## Tecnologías Utilizadas
 

@@ -1,147 +1,275 @@
-// components/ProductCard.tsx
-import { ProductCardProps } from '@/types';
+import { Product, ProductCardProps } from '@/types';
 import { demoImages, getImageUrl } from '@/utils/demoImages';
 import { Edit, Trash } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
+import { memo, useCallback, useState } from 'react';
 import { Button } from '../ui/button';
 
-export const ProductCard: React.FC<ProductCardProps> = ({
+// Compound Components para ProductCard
+const ProductCardRoot = memo(({
     product,
     onEdit,
     onDelete,
-    isAdminView = false
-}) => {
+    isAdminView = false,
+    isLoading = false
+}: ProductCardProps & { isLoading?: boolean }) => {
     const [isHovering, setIsHovering] = useState(false);
     const [imageError, setImageError] = useState(false);
 
-    const fallbackImage = '/placeholder.jpg';
+    const handleMouseEnter = useCallback(() => setIsHovering(true), []);
+    const handleMouseLeave = useCallback(() => setIsHovering(false), []);
 
-    // Optimizamos la función getImageUrl para manejar errores
-    const getProductImage = (imageUrl?: string): string => {
+    // Si está cargando, mostrar el skeleton
+    if (isLoading) {
+        return <ProductCard.Skeleton />;
+    }
+
+    const getProductImage = useCallback((imageUrl?: string): string => {
         if (imageError) return demoImages.default;
         return getImageUrl(imageUrl || '');
-    };
+    }, [imageError]);
 
-    const handleDelete = (e: React.MouseEvent) => {
+    const handleDelete = useCallback((e: React.MouseEvent) => {
         e.preventDefault();
         if (onDelete && window.confirm('¿Estás seguro de que deseas eliminar este producto?')) {
             onDelete(product._id);
         }
-    };
-    const handleEdit = (e: React.MouseEvent) => {
+    }, [onDelete, product._id]);
+
+    const handleEdit = useCallback((e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
         if (onEdit) {
-            // Aseguramos que las imágenes tengan las URLs correctas
             const productToEdit = {
                 ...product,
-                imagenes: product.imagenes?.map(img => {
-                    // Si la imagen ya tiene la ruta completa, la mantenemos
-                    if (img.startsWith('http') || img.startsWith('/assets')) {
-                        return img;
-                    }
-                    // Si no, construimos la ruta
-                    return `/assets/images/demo/${img}`;
-                }) || []
+                imagenes: product.imagenes?.map(img =>
+                    img.startsWith('http') || img.startsWith('/assets')
+                        ? img
+                        : `/assets/images/demo/${img}`
+                ) || []
             };
-            console.log('ProductCard - Iniciando edición:', productToEdit);
             onEdit(productToEdit);
         }
-    };
+    }, [onEdit, product]);
 
     return (
         <div
-            className="border-b border-r border-gray-200 relative group"
-            onMouseEnter={() => setIsHovering(true)}
-            onMouseLeave={() => setIsHovering(false)}
+            className="group relative h-full"
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
         >
-            <Link href={`/product/${product._id}`} className="block p-4">
-                <div className="aspect-square relative overflow-hidden mb-2">
-                    <div className="relative w-full h-full">
-                        <Image
-                            src={getProductImage(product.imagenes?.[0])}
-                            alt={product.nombre}
-                            className={`object-cover transition-opacity duration-300 ${isHovering ? 'opacity-0' : 'opacity-100'
-                                }`}
-                            fill
-                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                            priority={true}
-                            onError={() => setImageError(true)}
+            <Link href={`/product/${product._id}`} className="block h-full">
+                <div className="relative aspect-[3/4] w-full overflow-hidden border">
+                    <ProductCard.Image
+                        src={getProductImage(product.imagenes?.[0])}
+                        alt={product.nombre}
+                        isVisible={!isHovering}
+                        onError={() => setImageError(true)}
+                        priority
+                    />
+
+                    {product.imagenes?.[1] && (
+                        <ProductCard.Image
+                            src={getProductImage(product.imagenes[1])}
+                            alt={`${product.nombre} - vista alternativa`}
+                            isVisible={isHovering}
                         />
-                        {product.imagenes?.[1] && (
-                            <Image
-                                src={getProductImage(product.imagenes[1])}
-                                alt={`${product.nombre} - vista alternativa`}
-                                className={`object-cover transition-opacity duration-300 ${isHovering ? 'opacity-100' : 'opacity-0'
-                                    }`}
-                                fill
-                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                            />
-                        )}
-                        {/* Mantenemos los badges y botones existentes */}
-                        {product.enOferta && (
-                            <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 text-xs font-semibold rounded-md">
-                                SALE
-                            </div>
-                        )}
-                        {isAdminView && (
-                            <div className="absolute top-2 left-2 flex gap-2">
-                                <Button
-                                    size="icon"
-                                    variant="secondary"
-                                    onClick={handleEdit}
-                                    className="opacity-0 group-hover:opacity-100 transition-opacity"
-                                >
-                                    <Edit className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                    size="icon"
-                                    variant="destructive"
-                                    onClick={handleDelete}
-                                    className="opacity-0 group-hover:opacity-100 transition-opacity"
-                                >
-                                    <Trash className="h-4 w-4" />
-                                </Button>
-                            </div>
-                        )}
-                    </div>
+                    )}
+
+                    <ProductCard.Controls
+                        product={product}
+                        isAdminView={isAdminView}
+                        onEdit={handleEdit}
+                        onDelete={handleDelete}
+                    />
                 </div>
 
-                {/* Información del producto */}
-                <div className="p-4">
-                    <h3 className="text-sm font-medium text-gray-900 line-clamp-1">{product.nombre}</h3>
-                    <p className="text-sm text-gray-500 mt-1">{product.estilo}</p>
-                    <div className="flex items-center justify-between mt-2">
-                        <p className="text-sm font-medium text-gray-900">
-                            ${product.precio.toFixed(2)}
-                            {product.enOferta && product.precioOferta && (
-                                <span className="ml-2 text-red-500 line-through">
-                                    ${product.precioOferta.toFixed(2)}
-                                </span>
-                            )}
-                        </p>
-                        {isAdminView && (
-                            <span className="text-sm text-gray-500">
-                                Stock: {product.stock}
-                            </span>
-                        )}
-                    </div>
-                </div>
+                <ProductCard.Info
+                    product={product}
+                    isAdminView={isAdminView}
+                />
             </Link>
 
             {!isAdminView && (
-                <div
-                    className={`absolute bottom-4 left-4 right-4 flex items-center transition-opacity duration-300 bg-white bg-opacity-90 p-4 ${isHovering ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-                        }`}
-                >
-                    <span className="w-2 h-2 bg-blue-500 rounded-full mr-2 animate-pulse"></span>
-                    <button className="text-sm text-gray-600 hover:text-gray-900 transition-colors duration-300">
-                        Quick add
-                    </button>
-                </div>
+                <ProductCard.QuickAdd isVisible={isHovering} />
             )}
         </div>
     );
-};
+});
+
+// Subcomponentes
+const ProductImage = memo(({
+    src,
+    alt,
+    isVisible,
+    onError,
+    priority = false
+}: {
+    src: string;
+    alt: string;
+    isVisible: boolean;
+    onError?: () => void;
+    priority?: boolean;
+}) => (
+    <Image
+        src={src}
+        alt={alt}
+        className={`
+            object-cover transition-opacity duration-500 ease-in-out
+            ${isVisible ? 'opacity-100' : 'opacity-0'}
+        `}
+        fill
+        sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+        onError={onError}
+        priority={priority}
+    />
+));
+
+const ProductControls = memo(({
+    product,
+    isAdminView,
+    onEdit,
+    onDelete
+}: {
+    product: Product;
+    isAdminView: boolean;
+    onEdit: (e: React.MouseEvent) => void;
+    onDelete: (e: React.MouseEvent) => void;
+}) => (
+    <div className="absolute inset-0 p-4">
+        {product.enOferta && (
+            <div className="absolute top-2 right-2 bg-red-500 text-white px-3 py-1 text-xs font-medium">
+                SALE
+            </div>
+        )}
+
+        {isAdminView && (
+            <div className="absolute top-2 left-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                <Button
+                    size="icon"
+                    variant="secondary"
+                    onClick={onEdit}
+                    className="hover:scale-105 transition-transform"
+                >
+                    <Edit className="h-4 w-4" />
+                </Button>
+                <Button
+                    size="icon"
+                    variant="destructive"
+                    onClick={onDelete}
+                    className="hover:scale-105 transition-transform"
+                >
+                    <Trash className="h-4 w-4" />
+                </Button>
+            </div>
+        )}
+    </div>
+));
+const ProductInfo = memo(({
+    product,
+    isAdminView
+}: {
+    product: Product;
+    isAdminView: boolean;
+}) => (
+    <div className="p-4 space-y-2">
+        <h3 className="text-sm font-medium tracking-tight line-clamp-1">
+            {product.nombre}
+        </h3>
+        <p className="text-sm text-gray-500">{product.estilo}</p>
+        <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+                <span className="text-sm font-medium">
+                    ${product.precio.toFixed(2)}
+                </span>
+                {product.enOferta && product.precioOferta && (
+                    <span className="text-sm text-red-500 line-through">
+                        ${product.precioOferta.toFixed(2)}
+                    </span>
+                )}
+            </div>
+            {isAdminView && (
+                <span className="text-xs text-gray-500">
+                    Stock: {product.stock}
+                </span>
+            )}
+        </div>
+    </div>
+));
+
+const QuickAddButton = memo(({ isVisible }: { isVisible: boolean }) => (
+    <div
+        className={`
+            absolute bottom-0 left-0 right-0 
+            bg-black bg-opacity-5 backdrop-blur-sm
+            transition-all duration-300 ease-in-out
+            ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-full'}
+        `}
+    >
+        <button className="w-full py-3 px-4 text-sm font-medium text-black hover:bg-black hover:text-white transition-colors">
+            Añadir al carrito
+        </button>
+    </div>
+));
+const ProductSkeleton = memo(() => (
+    <div className="relative h-full animate-pulse bg-white rounded-lg overflow-hidden">
+        {/* Imagen skeleton */}
+        <div className="relative aspect-[3/4] w-full bg-gray-200">
+            <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-shimmer"
+                style={{
+                    backgroundSize: '400% 100%',
+                    animation: 'shimmer 1.5s infinite'
+                }}
+            />
+        </div>
+
+        {/* Contenido skeleton */}
+        <div className="p-4 space-y-3">
+            <div className="h-4 bg-gray-200 rounded-md w-3/4" />
+            <div className="h-3 bg-gray-200 rounded-md w-1/2" />
+            <div className="flex justify-between items-center">
+                <div className="h-4 bg-gray-200 rounded-md w-20" />
+                <div className="h-3 bg-gray-200 rounded-md w-16" />
+            </div>
+        </div>
+    </div>
+));
+
+// Compound Component Export
+export const ProductCard = Object.assign(ProductCardRoot, {
+    Image: ProductImage,
+    Controls: ProductControls,
+    Info: ProductInfo,
+    QuickAdd: QuickAddButton,
+    Skeleton: ProductSkeleton
+});
+
+// Style para la animación shimmer
+const shimmerStyles = `
+@keyframes shimmer {
+    0% { background-position: 100% 0; }
+    100% { background-position: -100% 0; }
+}
+
+.animate-shimmer {
+    animation: shimmer 1.5s infinite;
+}
+`;
+
+// Agregar estilos al documento
+if (typeof document !== 'undefined') {
+    const style = document.createElement('style');
+    style.textContent = shimmerStyles;
+    document.head.appendChild(style);
+}
+
+// Display names
+ProductCardRoot.displayName = 'ProductCard';
+ProductImage.displayName = 'ProductCard.Image';
+ProductControls.displayName = 'ProductCard.Controls';
+ProductInfo.displayName = 'ProductCard.Info';
+QuickAddButton.displayName = 'ProductCard.QuickAdd';
+ProductSkeleton.displayName = 'ProductCard.Skeleton';
+
+export default ProductCard;

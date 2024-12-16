@@ -115,217 +115,203 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
     const isButtonDisabled = isSubmitting || submitting;
 
     return (
-        <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                    <div>
-                        <label className="text-sm font-medium text-gray-700">Nombre del Producto</label>
-                        <Input
-                            {...register('nombre')}
-                            placeholder="Ej: Blusa Floral Manga Larga"
-                            disabled={isSubmitting}
-                        />
-                        {errors.nombre && (
-                            <p className="text-sm text-red-500">{errors.nombre.message}</p>
-                        )}
-                    </div>
+        <div className="flex flex-col h-full">
+        <form onSubmit={handleSubmit(handleFormSubmit)} 
+            className="relative max-h-[calc(100vh-200px)] overflow-y-auto">
+            {/* Contenido del formulario con nuevo diseño */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6">
+                {/* Columna izquierda: Información básica */}
+                <div className="space-y-6">
+                    <div className="space-y-4">
+                        <h3 className="text-lg font-medium">Información básica</h3>
 
-                    <div>
-                        <label className="text-sm font-medium text-gray-700">Descripción</label>
-                        <textarea
-                            {...register('descripcion')}
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                            rows={4}
-                            placeholder="Describe el producto..."
-                            disabled={isSubmitting}
-                        />
-                        {errors.descripcion && (
-                            <p className="text-sm text-red-500">{errors.descripcion.message}</p>
-                        )}
-                    </div>
-
-                    <Controller
-                        name="categoria"
-                        control={control}
-                        render={({ field }) => (
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Categoría</label>
-                                <Select
-                                    onValueChange={field.onChange}
-                                    defaultValue={field.value}
+                        <div className="space-y-4">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">Nombre del Producto</label>
+                                <Input
+                                    {...register('nombre')}
+                                    placeholder="Ej: Blusa Floral Manga Larga"
+                                    className="w-full"
                                     disabled={isSubmitting}
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Selecciona categoría" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {['Jeans', 'Blusas', 'Vestidos', 'Faldas', 'Accesorios'].map(cat => (
-                                            <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                {errors.categoria && (
-                                    <p className="text-sm text-red-500">{errors.categoria.message}</p>
+                                />
+                                {errors.nombre && (
+                                    <p className="text-sm text-red-500">{errors.nombre.message}</p>
                                 )}
                             </div>
-                        )}
-                    />
 
-                    <Controller
-                        name="tallas"
-                        control={control}
-                        render={({ field }) => (
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Tallas</label>
-                                <Select
-                                    onValueChange={(value) => field.onChange([...field.value, value])}
-                                    value={undefined}
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">Descripción</label>
+                                <textarea
+                                    {...register('descripcion')}
+                                    className="w-full min-h-[100px] px-3 py-2 rounded-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    placeholder="Describe el producto..."
                                     disabled={isSubmitting}
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Agregar talla" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {['XS', 'S', 'M', 'L', 'XL', 'XXL'].map(talla => (
-                                            <SelectItem key={talla} value={talla}>{talla}</SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                <div className="mt-2 flex flex-wrap gap-2">
-                                    {field.value.map((talla) => (
-                                        <div key={talla} className="bg-gray-100 px-2 py-1 rounded-md flex items-center">
-                                            <span>{talla}</span>
-                                            <button
-                                                type="button"
-                                                onClick={() => field.onChange(field.value.filter(t => t !== talla))}
-                                                className="ml-2 text-red-500"
-                                                disabled={isSubmitting}
-                                            >
-                                                ×
-                                            </button>
-                                        </div>
-                                    ))}
+                                />
+                                {errors.descripcion && (
+                                    <p className="text-sm text-red-500">{errors.descripcion.message}</p>
+                                )}
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium">Precio</label>
+                                    <Input
+                                        {...register('precio')}
+                                        type="number"
+                                        step="0.01"
+                                        min="0"
+                                        className="w-full"
+                                        disabled={isSubmitting}
+                                    />
                                 </div>
-                                {errors.tallas && (
-                                    <p className="text-sm text-red-500">{errors.tallas.message}</p>
-                                )}
+
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium">Stock</label>
+                                    <Input
+                                        {...register('stock')}
+                                        type="number"
+                                        min="0"
+                                        className="w-full"
+                                        disabled={isSubmitting}
+                                    />
+                                </div>
                             </div>
-                        )}
-                    />
+                        </div>
+                    </div>
+
+                    <div className="space-y-4">
+                        <h3 className="text-lg font-medium">Categorización</h3>
+
+                        <Controller
+                            name="categoria"
+                            control={control}
+                            render={({ field }) => (
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium">Categoría</label>
+                                    <Select
+                                        onValueChange={field.onChange}
+                                        defaultValue={field.value}
+                                        disabled={isSubmitting}
+                                    >
+                                        <SelectTrigger className="w-full">
+                                            <SelectValue placeholder="Selecciona categoría" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {['Jeans', 'Blusas', 'Vestidos', 'Faldas', 'Accesorios'].map(cat => (
+                                                <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            )}
+                        />
+
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">Tallas disponibles</label>
+                            <div className="flex flex-wrap gap-2">
+                                {['XS', 'S', 'M', 'L', 'XL', 'XXL'].map(size => {
+                                    const isSelected = watch('tallas').includes(size);
+                                    return (
+                                        <button
+                                            key={size}
+                                            type="button"
+                                            onClick={() => {
+                                                const current = watch('tallas');
+                                                setValue('tallas',
+                                                    isSelected
+                                                        ? current.filter(s => s !== size)
+                                                        : [...current, size]
+                                                );
+                                            }}
+                                            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors
+                                                ${isSelected
+                                                    ? 'bg-black text-white'
+                                                    : 'bg-gray-100 hover:bg-gray-200'
+                                                }`}
+                                            disabled={isSubmitting}
+                                        >
+                                            {size}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <div className="space-y-4">
-                    <ImageUpload
-                        value={imageUrls}
-                        onChange={setImageUrls}
-                        maxImages={4}
-                        disabled={isSubmitting}
-                    />
-
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <label className="text-sm font-medium text-gray-700">Precio</label>
-                            <Input
-                                {...register('precio')}
-                                type="number"
-                                step="0.01"
-                                min="0"
-                                disabled={isSubmitting}
-                            />
-                            {errors.precio && (
-                                <p className="text-sm text-red-500">{errors.precio.message}</p>
-                            )}
-                        </div>
-
-                        <div>
-                            <label className="text-sm font-medium text-gray-700">Stock</label>
-                            <Input
-                                {...register('stock')}
-                                type="number"
-                                min="0"
-                                disabled={isSubmitting}
-                            />
-                            {errors.stock && (
-                                <p className="text-sm text-red-500">{errors.stock.message}</p>
-                            )}
-                        </div>
-                    </div>
-
-                    <div>
-                        <label className="flex items-center space-x-2">
-                            <Input
-                                type="checkbox"
-                                {...register('enOferta')}
-                                className="w-4 h-4"
-                                disabled={isSubmitting}
-                            />
-                            <span className="text-sm font-medium text-gray-700">En oferta</span>
-                        </label>
-                    </div>
-
-                    {enOfertaValue && (
-                        <div>
-                            <label className="text-sm font-medium text-gray-700">Precio de oferta</label>
-                            <Input
-                                {...register('precioOferta')}
-                                type="number"
-                                step="0.01"
-                                min="0"
-                                disabled={isSubmitting}
-                            />
-                            {errors.precioOferta && (
-                                <p className="text-sm text-red-500">{errors.precioOferta.message}</p>
-                            )}
-                        </div>
-                    )}
-
-                    <div>
-                        <label className="text-sm font-medium text-gray-700">Estilo</label>
-                        <Input
-                            {...register('estilo')}
-                            placeholder="Ej: Casual, Formal, etc."
+                {/* Columna derecha: Imágenes y detalles adicionales */}
+                <div className="space-y-6">
+                    <div className="space-y-4">
+                        <h3 className="text-lg font-medium">Imágenes del producto</h3>
+                        <ImageUpload
+                            value={imageUrls}
+                            onChange={setImageUrls}
+                            maxImages={4}
                             disabled={isSubmitting}
                         />
-                        {errors.estilo && (
-                            <p className="text-sm text-red-500">{errors.estilo.message}</p>
-                        )}
                     </div>
 
-                    <div>
-                        <label className="text-sm font-medium text-gray-700">Material</label>
-                        <Input
-                            {...register('material')}
-                            placeholder="Ej: Algodón, Poliéster, etc."
-                            disabled={isSubmitting}
-                        />
-                        {errors.material && (
-                            <p className="text-sm text-red-500">{errors.material.message}</p>
-                        )}
-                    </div>
+                    <div className="space-y-4">
+                        <h3 className="text-lg font-medium">Detalles adicionales</h3>
 
-                    <ColorPicker
-                        selected={watch('colores')}
-                        onChange={(colors) => setValue('colores', colors)}
-                        disabled={isSubmitting}
-                    />
+                        <div className="space-y-4">
+                            <div className="flex items-center space-x-2">
+                                <input
+                                    type="checkbox"
+                                    {...register('enOferta')}
+                                    className="w-4 h-4 rounded border-gray-300"
+                                    id="enOferta"
+                                    disabled={isSubmitting}
+                                />
+                                <label htmlFor="enOferta" className="text-sm font-medium">
+                                    Producto en oferta
+                                </label>
+                            </div>
+
+                            {enOfertaValue && (
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium">Precio de oferta</label>
+                                    <Input
+                                        {...register('precioOferta')}
+                                        type="number"
+                                        step="0.01"
+                                        min="0"
+                                        className="w-full"
+                                        disabled={isSubmitting}
+                                    />
+                                </div>
+                            )}
+
+                            <ColorPicker
+                                selected={watch('colores')}
+                                onChange={(colors) => setValue('colores', colors)}
+                                disabled={isSubmitting}
+                            />
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <Button
-                type="submit"
-                disabled={isButtonDisabled}
-                className="w-full md:w-auto relative"
-            >
-                {(isSubmitting || submitting) && (
-                    <div className="flex items-center space-x-2">
-                        <span className="animate-spin">⚪</span>
-                        <span>{initialData ? 'Actualizando...' : 'Creando...'}</span>
-                    </div>
-                )}
-                <span className={isSubmitting || submitting ? 'opacity-0' : 'opacity-100'}>
-                    {initialData ? 'Actualizar Producto' : 'Crear Producto'}
-                </span>
-            </Button>
+            {/* Botón fijo en la parte inferior */}
+            <div className="sticky bottom-0 left-0 right-0 mt-auto border-t bg-white p-4 shadow-md">
+                <div className="max-w-[1400px] mx-auto flex justify-end">
+                    <Button
+                        type="submit"
+                        disabled={isButtonDisabled}
+                        className="min-w-[150px]"
+                    >
+                        {(isSubmitting || submitting) ? (
+                            <div className="flex items-center justify-center space-x-2">
+                                <span className="animate-spin">⚪</span>
+                                <span>{initialData ? 'Actualizando...' : 'Creando...'}</span>
+                            </div>
+                        ) : (
+                            <span>{initialData ? 'Guardar cambios' : 'Crear producto'}</span>
+                        )}
+                    </Button>
+                </div>
+            </div>
         </form>
+        </div>
     );
 };

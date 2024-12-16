@@ -1,4 +1,10 @@
 // hooks/useProducts.ts
+
+
+/* Las operaciones CRUD se realizan a través de las mutaciones proporcionadas por el hook useProducts, 
+que internamente utiliza react-query para la gestión del estado del servidor. */
+
+
 import { getProducts, productService } from '@/services/productService';
 import { Product, ProductFilters, ProductFormData } from '@/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';

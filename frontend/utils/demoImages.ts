@@ -5,7 +5,7 @@ export const demoImages = {
     blusas: ['/assets/images/demo/blusa-floral-1.jpg', '/assets/images/demo/blusa-floral-2.jpg'],
     jeans: ['/assets/images/demo/jean-skinny-1.jpg', '/assets/images/demo/jean-slim-1.jpg'],
     placeholder: '/assets/images/demo/product-placeholder.jpg',
-    default: '/assets/images/demo/default-product.jpg'
+    default: '/assets/images/demo/blusa-floral-1.jpg'
 };
 
 export const getImageUrl = (imageUrl: string): string => {

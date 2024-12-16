@@ -1,3 +1,5 @@
+/* LOGICA DE NEGOCIO */
+
 const ProductoRepository = require('../repositories/productoRepository');
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/asyncHandler');

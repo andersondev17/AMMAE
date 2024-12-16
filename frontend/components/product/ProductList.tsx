@@ -3,7 +3,7 @@
 import { Product, ProductListProps } from '@/types';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
-import { Spinner } from '../ui/Spinner';
+import { ProductSkeleton } from '../skeletons/ProductSkeleton';
 import { ProductCard } from './ProductCard';
 
 export const ProductList: React.FC<ProductListProps> = ({
@@ -17,7 +17,7 @@ export const ProductList: React.FC<ProductListProps> = ({
   const [sortBy, setSortBy] = useState('');
   const [search, setSearch] = useState('');
 
-  if (isLoading) return <Spinner />;
+  if (isLoading) return <ProductSkeleton/>;
   if (error) return <div className="text-center text-red-500">Error: {error.message}</div>;
   if (!products?.length) return <div className="text-center">No se encontraron productos.</div>;
 
@@ -34,13 +34,13 @@ export const ProductList: React.FC<ProductListProps> = ({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="container mx-auto px-4"
+      className="container mx-auto px-2"
     >
       {!isAdminView && (
         <div className="mb-6 space-y-4">
           <div className="flex justify-between items-center">
             
-            <div className="flex items-center gap-4">
+            <div className="flex items-center">
               <input
                 type="text"
                 placeholder="Buscar productos..."
@@ -63,11 +63,11 @@ export const ProductList: React.FC<ProductListProps> = ({
         </div>
       )}
 
-      <div className="grid gap-8">
+      <div className="grid">
         {Object.entries(groupedProducts).map(([model, modelProducts]) => (
           <div key={model}>
             <h3 className="text-xl font-semibold mb-4">{model}</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
               {modelProducts.map((product) => (
                 <ProductCard
                   key={product._id}
