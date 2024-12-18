@@ -1,3 +1,4 @@
+import ErrorBoundary from '@/components/ErrorBoundary';
 import { ColorPicker } from '@/components/shared/ColorPicker';
 import { ImageUpload } from '@/components/shared/ImageUpload';
 import { Button } from '@/components/ui/button';
@@ -34,7 +35,10 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
 
     const [imageUrls, setImageUrls] = useState<string[]>(initialData?.imagenes || []);
     const [submitting, setSubmitting] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(0);
+    const [uploadingImages, setUploadingImages] = useState<File[]>([]);
 
+    
     const {
         register,
         control,
@@ -61,6 +65,7 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
         },
         mode: 'onChange'
     });
+
     const enOfertaValue = watch('enOferta');
 
     const handleFormSubmit = async (data: ProductFormInput) => {
@@ -68,13 +73,11 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
             setSubmitting(true);
             console.log('AddProductForm handleFormSubmit iniciado con datos:', data);
 
-            // Validaciones básicas
             if (!data.nombre || !data.descripcion || !data.categoria) {
                 toast.error('Por favor complete todos los campos requeridos');
                 return;
             }
 
-            // Preparar datos del formulario
             const formData: ProductFormData = {
                 nombre: data.nombre.trim(),
                 descripcion: data.descripcion.trim(),
@@ -88,7 +91,6 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
                 estilo: data.estilo?.trim() || '',
                 material: data.material?.trim() || '',
                 imagenes: imageUrls.map(url => {
-                    // Convertimos las URLs absolutas a rutas relativas para el backend
                     if (url.startsWith('/assets/images/demo/')) {
                         return url.split('/').pop() || url;
                     }
@@ -103,7 +105,6 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
                 reset();
                 setImageUrls([]);
             }
-
         } catch (error) {
             console.error('Error en AddProductForm handleFormSubmit:', error);
             toast.error('Error al crear el producto');
@@ -111,207 +112,245 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
             setSubmitting(false);
         }
     };
-    // Deshabilitar el botón si el formulario está siendo enviado o no es válido
+
     const isButtonDisabled = isSubmitting || submitting;
 
     return (
         <div className="flex flex-col h-full">
-        <form onSubmit={handleSubmit(handleFormSubmit)} 
-            className="relative max-h-[calc(100vh-200px)] overflow-y-auto">
-            {/* Contenido del formulario con nuevo diseño */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6">
-                {/* Columna izquierda: Información básica */}
-                <div className="space-y-6">
-                    <div className="space-y-4">
-                        <h3 className="text-lg font-medium">Información básica</h3>
-
+            <form onSubmit={handleSubmit(handleFormSubmit)} className="relative max-h-[calc(100vh-200px)] overflow-y-auto">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6">
+                    <div className="space-y-6">
                         <div className="space-y-4">
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium">Nombre del Producto</label>
-                                <Input
-                                    {...register('nombre')}
-                                    placeholder="Ej: Blusa Floral Manga Larga"
-                                    className="w-full"
-                                    disabled={isSubmitting}
-                                />
-                                {errors.nombre && (
-                                    <p className="text-sm text-red-500">{errors.nombre.message}</p>
-                                )}
-                            </div>
-
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium">Descripción</label>
-                                <textarea
-                                    {...register('descripcion')}
-                                    className="w-full min-h-[100px] px-3 py-2 rounded-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    placeholder="Describe el producto..."
-                                    disabled={isSubmitting}
-                                />
-                                {errors.descripcion && (
-                                    <p className="text-sm text-red-500">{errors.descripcion.message}</p>
-                                )}
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
+                            <h3 className="text-lg font-medium">Información básica</h3>
+                            <div className="space-y-4">
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium">Precio</label>
+                                    <label className="text-sm font-medium">Nombre del Producto</label>
                                     <Input
-                                        {...register('precio')}
-                                        type="number"
-                                        step="0.01"
-                                        min="0"
+                                        {...register('nombre')}
+                                        placeholder="Ej: Blusa Floral Manga Larga"
                                         className="w-full"
                                         disabled={isSubmitting}
                                     />
+                                    {errors.nombre && (
+                                        <p className="text-sm text-red-500">{errors.nombre.message}</p>
+                                    )}
                                 </div>
-
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium">Stock</label>
-                                    <Input
-                                        {...register('stock')}
-                                        type="number"
-                                        min="0"
-                                        className="w-full"
+                                    <label className="text-sm font-medium">Descripción</label>
+                                    <textarea
+                                        {...register('descripcion')}
+                                        className="w-full min-h-[100px] px-3 py-2 rounded-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        placeholder="Describe el producto..."
                                         disabled={isSubmitting}
                                     />
+                                    {errors.descripcion && (
+                                        <p className="text-sm text-red-500">{errors.descripcion.message}</p>
+                                    )}
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium">Precio</label>
+                                        <Input
+                                            {...register('precio')}
+                                            type="number"
+                                            step="0.01"
+                                            min="0"
+                                            className="w-full"
+                                            disabled={isSubmitting}
+                                        />
+                                        {errors.precio && (
+                                            <p className="text-sm text-red-500">{errors.precio.message}</p>
+                                        )}
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium">Stock</label>
+                                        <Input
+                                            {...register('stock')}
+                                            type="number"
+                                            min="0"
+                                            className="w-full"
+                                            disabled={isSubmitting}
+                                        />
+                                        {errors.stock && (
+                                            <p className="text-sm text-red-500">{errors.stock.message}</p>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-
-                    <div className="space-y-4">
-                        <h3 className="text-lg font-medium">Categorización</h3>
-
-                        <Controller
-                            name="categoria"
-                            control={control}
-                            render={({ field }) => (
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium">Categoría</label>
-                                    <Select
-                                        onValueChange={field.onChange}
-                                        defaultValue={field.value}
-                                        disabled={isSubmitting}
-                                    >
-                                        <SelectTrigger className="w-full">
-                                            <SelectValue placeholder="Selecciona categoría" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {['Jeans', 'Blusas', 'Vestidos', 'Faldas', 'Accesorios'].map(cat => (
-                                                <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                            )}
-                        />
-
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium">Tallas disponibles</label>
-                            <div className="flex flex-wrap gap-2">
-                                {['XS', 'S', 'M', 'L', 'XL', 'XXL'].map(size => {
-                                    const isSelected = watch('tallas').includes(size);
-                                    return (
-                                        <button
-                                            key={size}
-                                            type="button"
-                                            onClick={() => {
-                                                const current = watch('tallas');
-                                                setValue('tallas',
-                                                    isSelected
-                                                        ? current.filter(s => s !== size)
-                                                        : [...current, size]
-                                                );
-                                            }}
-                                            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors
-                                                ${isSelected
-                                                    ? 'bg-black text-white'
-                                                    : 'bg-gray-100 hover:bg-gray-200'
-                                                }`}
+                        <div className="space-y-4">
+                            <h3 className="text-lg font-medium">Categorización</h3>
+                            <Controller
+                                name="categoria"
+                                control={control}
+                                render={({ field }) => (
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium">Categoría</label>
+                                        <Select
+                                            onValueChange={field.onChange}
+                                            defaultValue={field.value}
                                             disabled={isSubmitting}
                                         >
-                                            {size}
-                                        </button>
-                                    );
-                                })}
+                                            <SelectTrigger className="w-full">
+                                                <SelectValue placeholder="Selecciona categoría" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {['Jeans', 'Blusas', 'Vestidos', 'Faldas', 'Accesorios'].map(cat => (
+                                                    <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        {errors.categoria && (
+                                            <p className="text-sm text-red-500">{errors.categoria.message}</p>
+                                        )}
+                                    </div>
+                                )}
+                            />
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">Tallas disponibles</label>
+                                <div className="flex flex-wrap gap-2">
+                                    {['XS', 'S', 'M', 'L', 'XL', 'XXL'].map(size => {
+                                        const isSelected = watch('tallas').includes(size);
+                                        return (
+                                            <button
+                                                key={size}
+                                                type="button"
+                                                onClick={() => {
+                                                    const current = watch('tallas');
+                                                    setValue('tallas',
+                                                        isSelected
+                                                            ? current.filter(s => s !== size)
+                                                            : [...current, size]
+                                                    );
+                                                }}
+                                                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors
+                                                ${isSelected
+                                                        ? 'bg-black text-white'
+                                                        : 'bg-gray-100 hover:bg-gray-200'
+                                                    }`}
+                                                disabled={isSubmitting}
+                                            >
+                                                {size}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                                {errors.tallas && (
+                                    <p className="text-sm text-red-500">{errors.tallas.message}</p>
+                                )}
                             </div>
                         </div>
                     </div>
-                </div>
-
-                {/* Columna derecha: Imágenes y detalles adicionales */}
-                <div className="space-y-6">
-                    <div className="space-y-4">
-                        <h3 className="text-lg font-medium">Imágenes del producto</h3>
-                        <ImageUpload
-                            value={imageUrls}
-                            onChange={setImageUrls}
-                            maxImages={4}
-                            disabled={isSubmitting}
-                        />
-                    </div>
-
-                    <div className="space-y-4">
-                        <h3 className="text-lg font-medium">Detalles adicionales</h3>
-
-                        <div className="space-y-4">
-                            <div className="flex items-center space-x-2">
-                                <input
-                                    type="checkbox"
-                                    {...register('enOferta')}
-                                    className="w-4 h-4 rounded border-gray-300"
-                                    id="enOferta"
+                    <div className="space-y-6">
+                        <ErrorBoundary
+                            fallback={
+                                <div className="p-4 border border-red-200 rounded-lg bg-red-50">
+                                    <p className="text-red-600">Esta es una imagen demo</p>
+                                </div>
+                            }
+                        >
+                            <div className="space-y-4">
+                                <h3 className="text-lg font-medium">Imágenes del producto</h3>
+                                <ImageUpload
+                                    value={imageUrls}
+                                    onChange={setImageUrls}
+                                    maxImages={4}
                                     disabled={isSubmitting}
                                 />
-                                <label htmlFor="enOferta" className="text-sm font-medium">
-                                    Producto en oferta
-                                </label>
+                                {uploadingImages.length > 0 && (
+                                    <div className="mt-2">
+                                        <p>Subiendo {uploadingImages.length} imagen(es)...</p>
+                                        <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                                            <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: `${uploadProgress}%` }}></div>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
-
-                            {enOfertaValue && (
+                        </ErrorBoundary>
+                        <div className="space-y-4">
+                            <h3 className="text-lg font-medium">Detalles adicionales</h3>
+                            <div className="space-y-4">
+                                <div className="flex items-center space-x-2">
+                                    <input
+                                        type="checkbox"
+                                        {...register('enOferta')}
+                                        className="w-4 h-4 rounded border-gray-300"
+                                        id="enOferta"
+                                        disabled={isSubmitting}
+                                    />
+                                    <label htmlFor="enOferta" className="text-sm font-medium">
+                                        Producto en oferta
+                                    </label>
+                                </div>
+                                {enOfertaValue && (
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium">Precio de oferta</label>
+                                        <Input
+                                            {...register('precioOferta')}
+                                            type="number"
+                                            step="0.01"
+                                            min="0"
+                                            className="w-full"
+                                            disabled={isSubmitting}
+                                        />
+                                        {errors.precioOferta && (
+                                            <p className="text-sm text-red-500">{errors.precioOferta.message}</p>
+                                        )}
+                                    </div>
+                                )}
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium">Precio de oferta</label>
+                                    <label className="text-sm font-medium">Estilo</label>
                                     <Input
-                                        {...register('precioOferta')}
-                                        type="number"
-                                        step="0.01"
-                                        min="0"
+                                        {...register('estilo')}
+                                        placeholder="Ej: Casual, Formal, etc."
                                         className="w-full"
                                         disabled={isSubmitting}
                                     />
+                                    {errors.estilo && (
+                                        <p className="text-sm text-red-500">{errors.estilo.message}</p>
+                                    )}
                                 </div>
-                            )}
-
-                            <ColorPicker
-                                selected={watch('colores')}
-                                onChange={(colors) => setValue('colores', colors)}
-                                disabled={isSubmitting}
-                            />
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium">Material</label>
+                                    <Input
+                                        {...register('material')}
+                                        placeholder="Ej: Algodón, Poliéster, etc."
+                                        className="w-full"
+                                        disabled={isSubmitting}
+                                    />
+                                    {errors.material && (
+                                        <p className="text-sm text-red-500">{errors.material.message}</p>
+                                    )}
+                                </div>
+                                <ColorPicker
+                                    selected={watch('colores')}
+                                    onChange={(colors) => setValue('colores', colors)}
+                                    disabled={isSubmitting}
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-
-            {/* Botón fijo en la parte inferior */}
-            <div className="sticky bottom-0 left-0 right-0 mt-auto border-t bg-white p-4 shadow-md">
-                <div className="max-w-[1400px] mx-auto flex justify-end">
-                    <Button
-                        type="submit"
-                        disabled={isButtonDisabled}
-                        className="min-w-[150px]"
-                    >
-                        {(isSubmitting || submitting) ? (
-                            <div className="flex items-center justify-center space-x-2">
-                                <span className="animate-spin">⚪</span>
-                                <span>{initialData ? 'Actualizando...' : 'Creando...'}</span>
-                            </div>
-                        ) : (
-                            <span>{initialData ? 'Guardar cambios' : 'Crear producto'}</span>
-                        )}
-                    </Button>
+                <div className="sticky bottom-0 left-0 right-0 mt-auto border-t bg-white p-4 shadow-md">
+                    <div className="max-w-[1400px] mx-auto flex justify-end">
+                        <Button
+                            type="submit"
+                            disabled={isButtonDisabled}
+                            className="min-w-[150px]"
+                        >
+                            {(isSubmitting || submitting) ? (
+                                <div className="flex items-center justify-center space-x-2">
+                                    <span className="animate-spin">⚪</span>
+                                    <span>{initialData ? 'Actualizando...' : 'Creando...'}</span>
+                                </div>
+                            ) : (
+                                <span>{initialData ? 'Guardar cambios' : 'Crear producto'}</span>
+                            )}
+                        </Button>
+                    </div>
                 </div>
-            </div>
-        </form>
+            </form>
         </div>
     );
 };
+

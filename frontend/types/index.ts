@@ -35,8 +35,9 @@ export interface ProductFormInput {
   material: string;
 }
 
-export type ProductFormData = Omit<Product, '_id' | 'createdAt' | 'updatedAt'>;
-
+export type ProductFormData = Omit<Product, '_id' | 'createdAt' | 'updatedAt'> & {
+  imagenes?: string[]; //  imagenes opcional
+};
 export interface ApiResponse<T> {
   success: boolean;
   data: T;

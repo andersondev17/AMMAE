@@ -17,7 +17,7 @@ export const ProductList: React.FC<ProductListProps> = ({
   const [sortBy, setSortBy] = useState('');
   const [search, setSearch] = useState('');
 
-  if (isLoading) return <ProductSkeleton/>;
+  if (isLoading) return <ProductSkeleton />;
   if (error) return <div className="text-center text-red-500">Error: {error.message}</div>;
   if (!products?.length) return <div className="text-center">No se encontraron productos.</div>;
 
@@ -39,7 +39,7 @@ export const ProductList: React.FC<ProductListProps> = ({
       {!isAdminView && (
         <div className="mb-6 space-y-4">
           <div className="flex justify-between items-center">
-            
+
             <div className="flex items-center">
               <input
                 type="text"
@@ -67,15 +67,16 @@ export const ProductList: React.FC<ProductListProps> = ({
         {Object.entries(groupedProducts).map(([model, modelProducts]) => (
           <div key={model}>
             <h3 className="text-xl font-semibold mb-4">{model}</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-[2px]"> {/* Añadido gap */}
               {modelProducts.map((product) => (
-                <ProductCard
-                  key={product._id}
-                  product={product}
-                  onEdit={onEdit}
-                  onDelete={onDelete}
-                  isAdminView={isAdminView}
-                />
+                <div key={product._id} className="relative isolate"> {/* Añadido isolate para contener el hover */}
+                  <ProductCard
+                    product={product}
+                    onEdit={onEdit}
+                    onDelete={onDelete}
+                    isAdminView={isAdminView}
+                  />
+                </div>
               ))}
             </div>
           </div>
