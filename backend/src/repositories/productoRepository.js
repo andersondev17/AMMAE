@@ -1,3 +1,5 @@
+/* para abstracción de la base de datos: */
+
 const Producto = require('../models/productos');
 const ApiFeatures = require('../utils/apiFeatures');
 

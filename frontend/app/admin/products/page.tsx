@@ -1,4 +1,5 @@
 'use client';
+// App Router de Next.js 14 con Server Components
 
 import { AddProductForm } from '@/components/product/AddProductForm';
 import { ProductList } from '@/components/product/ProductList';

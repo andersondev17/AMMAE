@@ -1,4 +1,4 @@
-// components/product/ProductManagement.tsx
+// LOGICA DE PRESENTACION
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { useProducts } from '@/hooks/useProducts';
 import { Product, ProductFilters, ProductFormData } from '@/types';
