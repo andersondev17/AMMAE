@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Footer } from '../components/Layout/Footer';
 import { Navbar } from '../components/Layout/Navbar/Navbar';
+import { Cart } from "../components/cart/Cart";
 import { Providers } from './Providers';
 import "./globals.css";
 
@@ -35,6 +36,7 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <Navbar />
         <Providers>{children}</Providers>
+        <Cart />
         <Footer />
       </body>
     </html>

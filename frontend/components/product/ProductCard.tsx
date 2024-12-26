@@ -1,4 +1,5 @@
 // components/product/ProductCard.tsx
+import { useCart } from '@/hooks/useCart';
 import { Product, ProductCardProps } from '@/types';
 import { DEFAULT_IMAGES, getProductImages } from '@/utils/demoImages';
 import { Edit, Trash } from 'lucide-react';
@@ -127,7 +128,7 @@ export const ProductCard = memo(({
     }, [onDelete, product._id]);
 
     return (
-        <div 
+        <div
             className="group relative bg-white overflow-hidden rounded-none border-0 transition-all duration-300 hover:shadow-xl"
             onMouseEnter={() => setIsHovering(true)}
             onMouseLeave={() => setIsHovering(false)}
@@ -205,11 +206,12 @@ export const ProductCard = memo(({
                         ${isHovering ? 'translate-y-0' : 'translate-y-full'}
                     `}
                 >
-                    <button 
+                    <button
                         className="w-full py-4 text-sm font-medium text-black hover:bg-black hover:text-white transition-colors"
                         onClick={(e) => {
                             e.preventDefault();
-                            // Lógica del carrito
+                            const cart = useCart.getState();
+                            cart.addItem(product);
                         }}
                     >
                         Añadir al carrito

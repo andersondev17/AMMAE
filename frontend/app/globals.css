@@ -85,3 +85,8 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+.perspective {
+  perspective: 1000px;
+  transform-style: preserve-3d;
+}
