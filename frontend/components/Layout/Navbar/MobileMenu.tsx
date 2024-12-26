@@ -1,55 +1,83 @@
-// components/Navbar/MobileMenu.tsx
-import { Category } from '@/types/navigation';
-import Image from 'next/image';
-import Link from 'next/link';
-import { memo } from 'react';
+import {
+    Sheet,
+    SheetContent,
+    SheetHeader,
+    SheetTitle,
+} from "@/components/ui/sheet";
+import { Home, Package, User } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 interface MobileMenuProps {
     isOpen: boolean;
-    categories: ReadonlyArray<Category>;
     onClose: () => void;
+    categories: readonly {
+        name: string;
+        path: string;
+        apiValue: string;
+    }[];
 }
 
-export const MobileMenu = memo(({ isOpen, categories, onClose }: MobileMenuProps) => (
-    <div
-        className={`
-      lg:hidden fixed inset-0 bg-white z-50 
-      transform transition-all duration-300 ease-in-out
-      ${isOpen ? 'translate-x-0' : '-translate-x-full'}
-    `}
-    >
-        <div className="p-4">
-            <div className="flex justify-between items-center mb-8">
-                <Image
-                    src="/assets/logo.jpeg"
-                    alt="AMMAE"
-                    width={100}
-                    height={40}
-                    className="h-8 w-auto"
-                />
-                <button
-                    onClick={onClose}
-                    className="text-2xl p-2"
-                    aria-label="Cerrar menú"
-                >
-                    &times;
-                </button>
-            </div>
+export const MobileMenu = ({ isOpen, onClose, categories }: MobileMenuProps) => {
+    const pathname = usePathname();
 
-            <div className="space-y-4">
-                {categories.map((category) => (
-                    <Link
-                        key={category.name}
-                        href={category.path}
-                        className="block text-lg font-medium py-2 border-b border-gray-100"
-                        onClick={onClose}
-                    >
-                        {category.name}
-                    </Link>
-                ))}
-            </div>
-        </div>
-    </div>
-));
+    const menuItems = [
+        { icon: Home, label: "Inicio", path: "/" },
+        { icon: Package, label: "Admin", path: "/admin/products" },
+        { icon: User, label: "Mi Cuenta", path: "/account" },
+    ];
 
-MobileMenu.displayName = 'MobileMenu';
+    return (
+        <Sheet open={isOpen} onOpenChange={onClose}>
+            <SheetContent side="left" className="w-[300px] sm:w-[400px]">
+                <SheetHeader>
+                    <SheetTitle className="text-2xl font-bold">AMMAE</SheetTitle>
+                </SheetHeader>
+                <div className="mt-8 flex flex-col gap-4">
+                    {/* Menú principal */}
+                    <div className="space-y-4">
+                        {menuItems.map((item) => (
+                            <Link
+                                key={item.path}
+                                href={item.path}
+                                onClick={onClose}
+                                className={`flex items-center space-x-3 px-2 py-3 rounded-lg transition-colors
+                    ${pathname === item.path
+                                        ? "bg-gray-100 text-black"
+                                        : "hover:bg-gray-50"}`}
+                            >
+                                <item.icon className="h-5 w-5" />
+                                <span className="font-medium">{item.label}</span>
+                            </Link>
+                        ))}
+                    </div>
+
+                    {/* Separador */}
+                    <div className="border-t my-4" />
+
+                    {/* Categorías */}
+                    <div className="space-y-2">
+                        <h3 className="text-sm font-semibold text-gray-500 px-2">
+                            CATEGORÍAS
+                        </h3>
+                        <div className="space-y-1">
+                            {categories.map((category) => (
+                                <Link
+                                    key={category.path}
+                                    href={category.path}
+                                    onClick={onClose}
+                                    className={`block px-2 py-3 rounded-lg transition-colors
+                      ${pathname === category.path
+                                            ? "bg-gray-100 text-black font-medium"
+                                            : "hover:bg-gray-50"}`}
+                                >
+                                    {category.name}
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </SheetContent>
+        </Sheet>
+    );
+};

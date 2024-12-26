@@ -18,6 +18,17 @@ export interface Product {
   createdAt: string;
   updatedAt: string;
 }
+export interface Category {
+  id: ProductCategory;
+  name: string;
+  image: string;
+  description: string;
+  link: string;
+}
+export type CategoryCardProps = {
+  category: Category;
+  index: number;
+};
 
 // Nueva interfaz para el formulario de entrada
 export interface ProductFormInput {
@@ -61,7 +72,7 @@ export interface ProductListProps {
 export interface ProductCardProps {
   product: Product;
   onEdit?: (product: Product) => void;
-  onDelete?: (id: string) => void;
+  onDelete?: (id: string) => Promise<void>;
   isAdminView?: boolean;
 }
 

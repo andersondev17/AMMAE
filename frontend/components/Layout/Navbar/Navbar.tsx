@@ -1,5 +1,6 @@
-'use client';
+"use client";
 
+import { useCart } from '@/hooks/useCart';
 import { useScrollBehavior } from '@/hooks/useScrollBehavior';
 import { Menu, Package, Search, ShoppingBag, User } from 'lucide-react';
 import Link from 'next/link';
@@ -22,19 +23,13 @@ export const Navbar = memo(() => {
     const [searchTerm, setSearchTerm] = useState('');
     const router = useRouter();
     const pathname = usePathname();
+    const { itemCount, onOpen } = useCart();
 
-    const handleSearch = useCallback(
-        (e: React.FormEvent<HTMLFormElement>) => {
-            e.preventDefault();
-            setSearchOpen(false);
-            router.push(`/search?q=${encodeURIComponent(searchTerm)}`);
-        },
-        [searchTerm, router]
-    );
-
-    const toggleMenu = useCallback(() => {
-        setIsMenuOpen((prev) => !prev);
-    }, []);
+    const handleSearch = useCallback((e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setSearchOpen(false);
+        router.push(`/search?q=${encodeURIComponent(searchTerm)}`);
+    }, [searchTerm, router]);
 
     const toggleSearch = useCallback(() => {
         setSearchOpen((prev) => !prev);
@@ -43,31 +38,29 @@ export const Navbar = memo(() => {
     return (
         <>
             {/* Banner promocional */}
-            <div
-                className={`
-          bg-gradient-to-r from-[#232526] to-[#232526] text-white text-xs py-3 text-center font-medium
-          transition-transform duration-300 shadow-md
-          ${!isVisible ? '-translate-y-full' : 'translate-y-0'}
-        `}
-            >
-                <p className='container mx-auto italic'>✨ ENVÍO GRATIS EN PEDIDOS SUPERIORES A $100 K ✨</p>
+            <div className={`
+                bg-gradient-to-r from-[#232526] to-[#232526] text-white text-xs py-3 text-center font-medium
+                transition-transform duration-300 shadow-md
+                ${!isVisible ? '-translate-y-full' : 'translate-y-0'}
+            `}>
+                <p className='container mx-auto italic'>
+                    ✨ ENVÍO GRATIS EN PEDIDOS SUPERIORES A $100 K ✨
+                </p>
             </div>
 
             {/* Navbar */}
-            <nav
-                className={`
-          fixed w-full z-50 
-          transition-all duration-300 ease-in-out
-          ${!isVisible ? '-translate-y-full' : 'translate-y-0'}
-          ${!isAtTop ? 'bg-white/95 backdrop-blur-sm shadow-lg' : 'bg-transparent'}
-        `}
-            >
+            <nav className={`
+                fixed w-full z-50 
+                transition-all duration-300 ease-in-out
+                ${!isVisible ? '-translate-y-full' : 'translate-y-0'}
+                ${!isAtTop ? 'bg-white/95 backdrop-blur-sm shadow-lg' : 'bg-transparent'}
+            `}>
                 <div className="container mx-auto px-4 py-4">
                     <div className="flex items-center justify-between">
-                        {/* Menú móvil */}
+                        {/* Botón menú móvil */}
                         <button
-                            className="lg:hidden p-2"
-                            onClick={toggleMenu}
+                            className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                            onClick={() => setIsMenuOpen(true)}
                             aria-label="Menú"
                         >
                             <Menu className="h-6 w-6 text-gray-600" />
@@ -75,34 +68,26 @@ export const Navbar = memo(() => {
 
                         {/* Logo */}
                         <Link href="/" className="flex-shrink-0">
-                            {/* <Image
-                                src="/assets/logo2.jpeg"
-                                alt="AMMAE"
-                                width={120}
-                                height={40}
-                                className="h-8 w-auto"
-                                priority
-                            /> */}
                             <h1 className="text-2xl font-bold text-gray-600">AMMAE</h1>
                         </Link>
 
-                        {/* Categorías principales */}
+                        {/* Navegación desktop */}
                         <div className="hidden lg:flex items-center space-x-8">
                             {mainCategories.map((category) => (
                                 <Link
                                     key={category.name}
                                     href={category.path}
-                                    className={`text-sm font-medium transition-colors ${pathname === category.path
-                                            ? 'text-gray-900 font-black'
-                                            : 'hover:text-gray-600'
-                                        }`}
+                                    className={`text-sm font-medium transition-colors
+                                        ${pathname === category.path 
+                                            ? 'text-black border-b font-black' 
+                                            : 'hover:text-gray-300'}`}
                                 >
                                     {category.name}
                                 </Link>
                             ))}
                         </div>
 
-                        {/* Iconos */}
+                        {/* Iconos de acción */}
                         <div className="flex items-center space-x-6">
                             <button
                                 onClick={toggleSearch}
@@ -128,13 +113,18 @@ export const Navbar = memo(() => {
                                 <span className="text-sm">Admin</span>
                             </Link>
 
-                            <Link
-                                href="/cart"
-                                className="hover:text-blue-600 transition-colors p-2"
+                            <button
+                                onClick={onOpen}
+                                className="hover:text-blue-600 transition-colors p-2 relative"
                                 aria-label="Carrito"
                             >
                                 <ShoppingBag className="h-5 w-5" />
-                            </Link>
+                                {itemCount > 0 && (
+                                    <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-blue-600 flex items-center justify-center text-[10px] text-white">
+                                        {itemCount}
+                                    </span>
+                                )}
+                            </button>
                         </div>
                     </div>
 
@@ -150,12 +140,12 @@ export const Navbar = memo(() => {
                 {/* Menú móvil */}
                 <MobileMenu
                     isOpen={isMenuOpen}
-                    categories={mainCategories}
                     onClose={() => setIsMenuOpen(false)}
+                    categories={mainCategories}
                 />
             </nav>
 
-            {/* Separador para la altura del Navbar */}
+            {/* Espaciador */}
             <div className="h-[64px]" />
         </>
     );
