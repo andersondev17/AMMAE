@@ -1,13 +1,14 @@
-"use client";
-
+'use client'
 import { useCart } from '@/hooks/useCart';
-import { useScrollBehavior } from '@/hooks/useScrollBehavior';
+import { cn } from '@/lib/utils';
+
+import gsap from 'gsap';
 import { Menu, Package, Search, ShoppingBag, User } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import { memo, useCallback, useState } from 'react';
+import { usePathname } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
+import { useWindowScroll } from 'react-use';
 import { MobileMenu } from './MobileMenu';
-import { SearchBar } from './SearchBar';
 
 const mainCategories = [
     { name: 'JEANS', path: '/categoria/jeans', apiValue: 'Jeans' },
@@ -16,139 +17,164 @@ const mainCategories = [
     { name: 'ACCESORIOS', path: '/categoria/accesorios', apiValue: 'Accesorios' },
 ] as const;
 
-export const Navbar = memo(() => {
-    const { isVisible, isAtTop } = useScrollBehavior();
+export default function AnimatedNavbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [searchOpen, setSearchOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
-    const router = useRouter();
-    const pathname = usePathname();
     const { itemCount, onOpen } = useCart();
 
-    const handleSearch = useCallback((e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        setSearchOpen(false);
-        router.push(`/search?q=${encodeURIComponent(searchTerm)}`);
-    }, [searchTerm, router]);
+    const pathname = usePathname();
+    const navContainerRef = useRef<HTMLDivElement | null>(null);
+    const { y: currentScrollY } = useWindowScroll();
+    const [isNavVisible, setIsNavVisible] = useState(true);
+    const [lastScrollY, setLastScrollY] = useState(0);
 
-    const toggleSearch = useCallback(() => {
-        setSearchOpen((prev) => !prev);
-    }, []);
+    useEffect(() => {
+        if (currentScrollY === 0) {
+            setIsNavVisible(true);
+            navContainerRef.current?.classList.remove("floating-nav");
+        } else if (currentScrollY > lastScrollY) {
+            setIsNavVisible(false);
+            navContainerRef.current?.classList.add("floating-nav");
+        } else if (currentScrollY < lastScrollY) {
+            setIsNavVisible(true);
+            navContainerRef.current?.classList.add("floating-nav");
+        }
+
+        setLastScrollY(currentScrollY);
+    }, [currentScrollY, lastScrollY]);
+
+    useEffect(() => {
+        gsap.to(navContainerRef.current, {
+            y: isNavVisible ? 0 : -100,
+            opacity: isNavVisible ? 1 : 0,
+            duration: 0.2,
+        });
+    }, [isNavVisible]);
+
+    // Determina si el navbar está en modo transparente o flotante
+    const isTransparent = currentScrollY === 0;
+    const textColor = isTransparent ? "text-white" : "text-gray-800";
+    const hoverTextColor = isTransparent ? "hover:text-gray-200" : "hover:text-gray-600";
 
     return (
-        <>
-            {/* Banner promocional */}
-            <div className={`
-                bg-gradient-to-r from-[#232526] to-[#232526] text-white text-xs py-3 text-center font-medium
-                transition-transform duration-300 shadow-md
-                ${!isVisible ? '-translate-y-full' : 'translate-y-0'}
-            `}>
-                <p className='container mx-auto italic'>
-                    ✨ ENVÍO GRATIS EN PEDIDOS SUPERIORES A $100 K ✨
-                </p>
-            </div>
+        <div className="fixed inset-x-0 top-0 z-50 pt-3">
+           
 
-            {/* Navbar */}
-            <nav className={`
-                fixed w-full z-50 
-                transition-all duration-300 ease-in-out
-                ${!isVisible ? '-translate-y-full' : 'translate-y-0'}
-                ${!isAtTop ? 'bg-white/95 backdrop-blur-sm shadow-lg' : 'bg-transparent'}
-            `}>
-                <div className="container mx-auto px-4 py-4">
-                    <div className="flex items-center justify-between">
-                        {/* Botón menú móvil */}
+            <div
+                ref={navContainerRef}
+                className={cn(
+                    "relative z-50 mx-auto max-w-7xl px-4 h-16 transition-all duration-700",
+                    "sm:px-6 lg:px-8",
+                    isTransparent 
+                        ? "bg-transparent" 
+                        : "floating-nav bg-white/95 shadow-lg backdrop-blur-sm"
+                )}
+            >
+                <nav className="flex h-full items-center justify-between">
+                    <div className="flex items-center gap-6">
                         <button
-                            className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                            onClick={() => setIsMenuOpen(true)}
-                            aria-label="Menú"
+                            onClick={() => setIsMenuOpen(!isMenuOpen)}
+                            className={cn("lg:hidden transition-colors", textColor, hoverTextColor)}
                         >
-                            <Menu className="h-6 w-6 text-gray-600" />
+                            <Menu className="h-6 w-6" />
                         </button>
 
-                        {/* Logo */}
                         <Link href="/" className="flex-shrink-0">
-                            <h1 className="text-2xl font-bold text-gray-600">AMMAE</h1>
+                        <h1 className={cn("text-2xl font-bold transition-colors", textColor)}>AMMAE</h1>
+
+                        </Link>
+                    </div>
+
+                    <div className="hidden lg:flex items-center space-x-1">
+                        {mainCategories.map((category) => (
+                            <Link
+                                key={category.name}
+                                href={category.path}
+                                className={cn(
+                                    "nav-hover-btn",
+                                    pathname === category.path 
+                                        ? textColor 
+                                        : isTransparent ? "text-gray-200" : "black-600",
+                                    hoverTextColor
+                                )}
+                            >
+                                {category.name}
+                            </Link>
+                        ))}
+                    </div>
+
+                    <div className="flex items-center space-x-4">
+                        <button
+                            onClick={() => setSearchOpen(!searchOpen)}
+                            className={cn("nav-hover-btn p-2 transition-colors", textColor)}
+                            aria-label="Buscar"
+                        >
+                            <Search className="h-5 w-5" />
+                        </button>
+
+                        <Link 
+                            href="/account" 
+                            className={cn("nav-hover-btn p-2", textColor)}
+                            aria-label="Mi cuenta"
+                        >
+                            <User className="h-5 w-5" />
                         </Link>
 
-                        {/* Navegación desktop */}
-                        <div className="hidden lg:flex items-center space-x-8">
-                            {mainCategories.map((category) => (
-                                <Link
-                                    key={category.name}
-                                    href={category.path}
-                                    className={`text-sm font-medium transition-colors
-                                        ${pathname === category.path 
-                                            ? 'text-black border-b font-black' 
-                                            : 'hover:text-gray-300'}`}
-                                >
-                                    {category.name}
-                                </Link>
-                            ))}
-                        </div>
+                        <Link 
+                            href="/admin/products"
+                            className={cn("hidden md:flex items-center nav-hover-btn", textColor)}
+                        >
+                            <Package className="h-5 w-5" />
+                            <span className="ml-2">Admin</span>
+                        </Link>
 
-                        {/* Iconos de acción */}
-                        <div className="flex items-center space-x-6">
-                            <button
-                                onClick={toggleSearch}
-                                className="hover:text-blue-600 transition-colors p-2"
-                                aria-label="Buscar"
-                            >
-                                <Search className="h-5 w-5" />
-                            </button>
-
-                            <Link
-                                href="/account"
-                                className="hover:text-blue-600 transition-colors p-2"
-                                aria-label="Mi cuenta"
-                            >
-                                <User className="h-5 w-5" />
-                            </Link>
-
-                            <Link
-                                href="/admin/products"
-                                className="hidden md:flex items-center space-x-2 hover:text-blue-600 transition-colors"
-                            >
-                                <Package className="h-5 w-5" />
-                                <span className="text-sm">Admin</span>
-                            </Link>
-
-                            <button
+                        <button 
                                 onClick={onOpen}
-                                className="hover:text-blue-600 transition-colors p-2 relative"
-                                aria-label="Carrito"
-                            >
-                                <ShoppingBag className="h-5 w-5" />
+                                className={cn("nav-hover-btn p-2", textColor)}
+                            aria-label="Carrito"
+                        >
+                             <ShoppingBag className="h-5 w-5" />
                                 {itemCount > 0 && (
                                     <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-blue-600 flex items-center justify-center text-[10px] text-white">
                                         {itemCount}
                                     </span>
                                 )}
-                            </button>
-                        </div>
+                        </button>
                     </div>
+                </nav>
+            </div>
 
-                    {/* Barra de búsqueda */}
-                    <SearchBar
-                        isOpen={searchOpen}
-                        searchTerm={searchTerm}
-                        onSubmit={handleSearch}
-                        onChange={setSearchTerm}
+            {/* Search Panel */}
+            <div className={cn(
+                "fixed left-0 right-0 z-40",
+                "transform transition-all duration-300",
+                "bg-white/95 backdrop-blur-sm shadow-lg",
+                searchOpen ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0"
+            )}>
+                <div className="container mx-auto px-4 py-6">
+                    <input
+                        type="search"
+                        placeholder="Buscar productos..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full px-4 py-2 bg-transparent border-b border-gray-200 
+                                 text-gray-900 placeholder-gray-500 focus:border-gray-900 focus:outline-none"
                     />
                 </div>
+            </div>
 
-                {/* Menú móvil */}
-                <MobileMenu
+            {/* Mobile Menu */}
+            <MobileMenu
                     isOpen={isMenuOpen}
                     onClose={() => setIsMenuOpen(false)}
                     categories={mainCategories}
                 />
-            </nav>
+            
 
             {/* Espaciador */}
             <div className="h-[64px]" />
-        </>
+            
+        </div>
     );
-});
-
-Navbar.displayName = 'Navbar';
+}
