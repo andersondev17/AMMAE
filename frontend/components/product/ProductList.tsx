@@ -2,7 +2,7 @@
 
 import { Product, ProductListProps } from '@/types';
 import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ProductSkeleton } from '../skeletons/ProductSkeleton';
 import { ProductCard } from './ProductCard';
 
@@ -17,17 +17,20 @@ export const ProductList: React.FC<ProductListProps> = ({
   const [sortBy, setSortBy] = useState('');
   const [search, setSearch] = useState('');
 
+  // Memoizamos el agrupamiento de productos
+  const groupedProducts = useMemo(() => {
+    return products.reduce((acc, product) => {
+      // Usamos una key más única combinando nombre y ID
+      const modelKey = `${product.nombre.split(' ')[0]}-${product.categoria}`;
+      if (!acc[modelKey]) acc[modelKey] = [];
+      acc[modelKey].push(product);
+      return acc;
+    }, {} as Record<string, Product[]>);
+  }, [products]);
+
   if (isLoading) return <ProductSkeleton />;
   if (error) return <div className="text-center text-red-500">Error: {error.message}</div>;
   if (!products?.length) return <div className="text-center">No se encontraron productos.</div>;
-
-  // Agrupar productos por modelo
-  const groupedProducts = products.reduce((acc, product) => {
-    const model = product.nombre.split(' ')[0];
-    if (!acc[model]) acc[model] = [];
-    acc[model].push(product);
-    return acc;
-  }, {} as Record<string, Product[]>);
 
   return (
     <motion.div
@@ -39,8 +42,7 @@ export const ProductList: React.FC<ProductListProps> = ({
       {!isAdminView && (
         <div className="mb-6 space-y-4">
           <div className="flex justify-between items-center">
-
-            <div className="flex items-center">
+            <div className="flex items-center gap-4">
               <input
                 type="text"
                 placeholder="Buscar productos..."
@@ -63,24 +65,26 @@ export const ProductList: React.FC<ProductListProps> = ({
         </div>
       )}
 
-      <div className="grid">
-        {Object.entries(groupedProducts).map(([model, modelProducts]) => (
-          <div key={model}>
-            <h3 className="text-xl font-semibold mb-4">{model}</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-[2px]"> {/* Añadido gap */}
-              {modelProducts.map((product) => (
-                <div key={product._id} className="relative isolate"> {/* Añadido isolate para contener el hover */}
+      <div className="grid gap-8">
+        {Object.entries(groupedProducts).map(([modelKey, modelProducts]) => {
+          const modelName = modelKey.split('-')[0]; // Extraemos el nombre del modelo
+          return (
+            <div key={modelKey} className="space-y-4">
+              <h3 className="text-xl font-semibold">{modelName}</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {modelProducts.map((product) => (
                   <ProductCard
+                    key={product._id}
                     product={product}
                     onEdit={onEdit}
                     onDelete={onDelete}
                     isAdminView={isAdminView}
                   />
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </motion.div>
   );

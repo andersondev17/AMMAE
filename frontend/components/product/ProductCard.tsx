@@ -10,35 +10,35 @@ import { Button } from '../ui/button';
 
 // Subcomponente para mostrar el stock y las tallas
 const StockInfo = memo(({ stock, tallas }: { stock: number; tallas: string[] }) => {
-  const getStockStatus = (stock: number) => {
-    if (stock === 0) return { label: 'Sin stock', color: 'bg-red-100 text-red-800' };
-    if (stock <= 5) return { label: 'Stock bajo', color: 'bg-yellow-100 text-yellow-800' };
-    return { label: 'En stock', color: 'bg-green-100 text-green-800' };
-  };
+    const getStockStatus = useCallback((stock: number) => {
+        if (stock === 0) return { label: 'Sin stock', color: 'bg-red-100 text-red-800' };
+        if (stock <= 5) return { label: 'Stock bajo', color: 'bg-yellow-100 text-yellow-800' };
+        return { label: 'En stock', color: 'bg-green-100 text-green-800' };
+    }, []);
 
-  const status = getStockStatus(stock);
+    const status = getStockStatus(stock);
 
-  return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between">
-        <span className="text-sm text-gray-500">Disponibilidad:</span>
-        <Badge variant="outline" className={`${status.color} border-0`}>
-          {status.label} ({stock})
-        </Badge>
-      </div>
-      <div className="flex flex-wrap gap-1">
-        {tallas.map((talla) => (
-          <Badge
-            key={talla}
-            variant="outline"
-            className="text-xs bg-gray-100 hover:bg-gray-200 transition-colors"
-          >
-            {talla}
-          </Badge>
-        ))}
-      </div>
-    </div>
-  );
+    return (
+        <div className="space-y-2">
+            <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-500">Disponibilidad:</span>
+                <Badge variant="outline" className={`${status.color} border-0`}>
+                    {status.label} ({stock})
+                </Badge>
+            </div>
+            <div className="flex flex-wrap gap-1">
+                {tallas.map((talla, index) => (
+                    <Badge
+                        key={`${talla}-${index}`}
+                        variant="outline"
+                        className="text-xs bg-gray-100 hover:bg-gray-200 transition-colors"
+                    >
+                        {talla}
+                    </Badge>
+                ))}
+            </div>
+        </div>
+    );
 });
 
 // Subcomponente para manejar las imágenes del producto
@@ -144,10 +144,10 @@ export const ProductCard = memo(({
                                         'Gris': '#4B5563',
                                         'Beige': '#D4B89C'
                                     };
-                                    
+
                                     const colorValue = colorMap[color] || color;
                                     const isLight = colorValue === '#FFFFFF' || colorValue === '#D4B89C';
-                                    
+
                                     return (
                                         <div
                                             key={idx}

@@ -66,7 +66,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-20">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Galería de imágenes */}
         <div className="space-y-4">
@@ -130,9 +130,9 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                 <span className="text-sm text-gray-500">Guía de tallas</span>
               </div>
               <div className="grid grid-cols-4 gap-2">
-                {product.tallas.map((talla) => (
+                {Array.from(new Set(product.tallas)).map((talla) => ( // Aseguramos valores únicos
                   <Button
-                    key={talla}
+                    key={`size-${talla}-${product._id}`} // Key única
                     variant={selectedSize === talla ? "default" : "outline"}
                     onClick={() => setSelectedSize(talla)}
                     className="relative"

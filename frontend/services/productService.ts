@@ -1,4 +1,4 @@
-import { Product, ProductFormData } from '@/types';
+import { Product, ProductFilters, ProductFormData } from '@/types';
 import axios from 'axios';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
@@ -8,33 +8,28 @@ axios.defaults.headers.common['Content-Type'] = 'application/json';
 
 // services/productService.ts
 
-export const getProducts = async (
-  page: number,
-  limit: number,
-  sortBy: string,
-  categoria: string,
-  search: string,
-  additionalParams: string = ''
-) => {
+export const getProducts = async (filters: Partial<ProductFilters>) => {
   try {
-      const baseUrl = `${API_URL}/productos`;
-      const queryString = new URLSearchParams({
-          page: page.toString(),
-          limit: limit.toString(),
-          ...(sortBy && { sort: sortBy }),
-          ...(categoria && { categoria }),
-          ...(search && { search })
-      }).toString();
+    const baseUrl = `${API_URL}/productos`;
+    const queryString = new URLSearchParams();
+
+    // Mapear los filtros a parámetros de consulta
+    if (filters.page) queryString.append('page', filters.page.toString());
+    if (filters.limit) queryString.append('limit', filters.limit.toString());
+    if (filters.sortBy) queryString.append('sort', filters.sortBy);
+    if (filters.categoria) queryString.append('categoria', filters.categoria);
+    if (filters.search) queryString.append('search', filters.search);
+    if (filters.stock) queryString.append('stock', filters.stock);
+    if (filters.enOferta) queryString.append('enOferta', 'true');
+
+    const url = `${baseUrl}?${queryString.toString()}`;
+    console.log('Requesting URL:', url);
       
-      const url = `${baseUrl}?${queryString}${additionalParams ? '&' + additionalParams : ''}`;
-      
-      console.log('Requesting URL:', url);
-      
-      const response = await axios.get(url);
-      return response.data;
+    const response = await axios.get(url);
+    return response.data;
   } catch (error) {
-      console.error('Error fetching products:', error);
-      throw error;
+    console.error('Error fetching products:', error);
+    throw error;
   }
 };
 

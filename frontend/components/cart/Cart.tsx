@@ -1,6 +1,7 @@
 'use client';
 import { useCart } from "@/hooks/useCart";
 import { ShoppingBag } from "lucide-react";
+import { useRouter } from 'next/navigation';
 import { memo, useCallback, useMemo } from "react";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
@@ -26,16 +27,18 @@ export const Cart = memo(() => {
     } = useCart();
 
     const isEmpty = useMemo(() => items.length === 0, [items]);
-
+    const router = useRouter();
     const handleCheckout = useCallback(async () => {
         try {
-            // Aquí irá la lógica de checkout
+            onClose();//cerrando carrito
+            router.push('/checkout');
             toast.success('Procesando orden...');
         } catch (error) {
+            console.error('Error al procesar la orden:', error);
             toast.error('Error al procesar la orden');
         }
-    }, []);
-
+    }, [router, onClose]);
+    
     return (
         <Sheet open={isOpen} onOpenChange={onClose}>
             <SheetContent className="flex w-full flex-col pr-0 sm:max-w-lg">
@@ -99,7 +102,7 @@ export const Cart = memo(() => {
                                     className="w-full rounded-full bg-black hover:bg-gray-800"
                                     disabled={isEmpty}
                                 >
-                                    Finalizar compra
+                                    CHECKOUT
                                 </Button>
                                 
                                 <Button
