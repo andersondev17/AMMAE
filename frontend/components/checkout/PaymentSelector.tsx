@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/form/card';
 import { PaymentMethod } from '@/types/checkout.types';
 import { CreditCard, QrCode, Truck } from 'lucide-react';
 

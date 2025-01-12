@@ -1,46 +1,60 @@
 // types/checkout.types.ts
-import { z } from 'zod';
 
 export enum PaymentMethod {
     CONTRA_ENTREGA = 'CONTRA_ENTREGA',
     TRANSFERENCIA = 'TRANSFERENCIA',
-    QR = 'QR'
+    QR = 'QR',
 }
 
-export const checkoutFormSchema = z.object({
-    fullName: z.string().min(1, 'El nombre es requerido'),
-    email: z.string().email('Email inválido'),
-    phone: z.string().min(1, 'El teléfono es requerido'),
-    address: z.object({
-        street: z.string().min(1, 'La dirección es requerida'),
-        city: z.string().min(1, 'La ciudad es requerida'),
-        zipCode: z.string().min(1, 'El código postal es requerido')
-    })
-});
-
-export type CheckoutFormInputs = z.infer<typeof checkoutFormSchema>;
-
-export interface FormFieldError {
-    message?: string;
+export interface Address {
+    street: string;
+    city: string;
+    state: string;
+    zipCode: string;
 }
 
-export interface AddressFieldErrors {
-    street?: FormFieldError;
-    city?: FormFieldError;
-    zipCode?: FormFieldError;
+export interface CustomerFormData {
+    fullName: string;
+    email: string;
+    phone: string;
+    address: Address;
 }
 
-export interface FormErrors {
-    fullName?: FormFieldError;
-    email?: FormFieldError;
-    phone?: FormFieldError;
-    address?: AddressFieldErrors;
+export interface OrderItem {
+    productId: string;
+    quantity: number;
+    price: number;
+    name: string;
+
 }
 
-export interface CustomerFormData extends CheckoutFormInputs {
-    address: {
-        street: string;
-        city: string;
-        zipCode: string;
-    };
+
+export interface CheckoutFormData extends CustomerFormData {
+    paymentMethod: PaymentMethod;
+    orderItems: OrderItem[];
+    subtotal: number;
+    shipping: number;
+    total: number;
+}
+
+export interface OrderSummaryProps {
+    items: {
+        _id: string;
+        nombre: string;
+        precio: number;
+        quantity: number;
+        imagenes: string[]; 
+        itemTotal: number; 
+
+    }[];
+    subtotal: number;
+    shipping: number;
+    total: number;
+    showShippingMethod?: boolean;
+    shippingMethod?: 'standard' | 'express';
+}
+
+export interface CheckoutFormProps {
+    onSubmit: (data: CheckoutFormData) => Promise<void>;
+    isSubmitting?: boolean;
 }

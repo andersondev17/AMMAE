@@ -4,7 +4,7 @@
 import ErrorBoundary from '@/components/ErrorBoundary';
 import { ProductList } from '@/components/product/ProductList';
 import { Spinner } from '@/components/ui/Spinner';
-import { useProducts } from '@/hooks/useProducts';
+import { useProducts } from '@/hooks/product/useProducts';
 import { capitalize } from '@/utils/formatting';
 import { notFound } from 'next/navigation';
 import { useEffect } from 'react';

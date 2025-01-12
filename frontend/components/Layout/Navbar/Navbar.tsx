@@ -1,14 +1,16 @@
 'use client'
-import { useCart } from '@/hooks/useCart';
+import { useCart } from '@/hooks/cart/useCart';
 import { cn } from '@/lib/utils';
 
+import { useSearch } from '@/hooks/product/useSearch';
 import gsap from 'gsap';
-import { Menu, Package, Search, ShoppingBag, User, X } from 'lucide-react';
+import { Menu, Package, Search, ShoppingBag, User } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useWindowScroll } from 'react-use';
 import { MobileMenu } from './MobileMenu';
+import { SearchBar } from './SearchBar';
 
 const mainCategories = [
     { name: 'JEANS', path: '/categoria/jeans', apiValue: 'Jeans' },
@@ -20,7 +22,6 @@ const mainCategories = [
 export default function AnimatedNavbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [searchOpen, setSearchOpen] = useState(false);
-    const [searchTerm, setSearchTerm] = useState('');
     const { itemCount, onOpen } = useCart();
 
     const pathname = usePathname();
@@ -29,6 +30,18 @@ export default function AnimatedNavbar() {
     const [isNavVisible, setIsNavVisible] = useState(true);
     const [lastScrollY, setLastScrollY] = useState(0);
     const isHomePage = pathname === '/';
+
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const { searchTerm, handleSearch, isLoading } = useSearch();
+
+    const handleToggleSearch = useCallback(() => {
+        setIsSearchOpen(prev => !prev);
+    }, []);
+
+    const handleClearSearch = useCallback(() => {
+        handleSearch('');
+        setIsSearchOpen(false);
+    }, [handleSearch]);
 
 
     useEffect(() => {
@@ -58,6 +71,19 @@ export default function AnimatedNavbar() {
     const shouldBeTransparent = isHomePage && currentScrollY === 0;
     const textColor = shouldBeTransparent ? "text-white" : "text-gray-800";
     const hoverTextColor = shouldBeTransparent ? "hover:text-gray-200" : "hover:text-gray-600";
+    if (pathname.includes('/checkout')) {
+        return (
+            <div className="fixed inset-x-0 top-0 z-50">
+                <div className="mx-auto px-4 h-10 backdrop-blur-sm shadow-sm">
+                    <nav className="flex h-full items-center justify-center">
+                        <Link href="/" className="flex-shrink-0">
+                            <h1 className="text-2xl font-bold text-gray-800">AMMAE</h1>
+                        </Link>
+                    </nav>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="fixed inset-x-0 top-0 z-50 pt-3">
@@ -82,8 +108,26 @@ export default function AnimatedNavbar() {
 
                         <Link href="/" className="flex-shrink-0">
                             <h1 className={cn("text-2xl font-bold transition-colors", textColor)}>AMMAE</h1>
-
                         </Link>
+                    </div>
+
+                    {/* Search Panel */}
+                    <div className={cn(
+                        "absolute top-full left-0 right-0 z-40",
+                        "transform transition-all duration-300 ease-in-out",
+                        "bg-white backdrop-blur-sm",
+                        isSearchOpen ? "translate-y-0 opacity-100" : "-translate-y-2 opacity-0 pointer-events-none"
+                    )}>
+                        <div className="container mx-auto py-9 px-4">
+                            <SearchBar
+                                searchTerm={searchTerm}
+                                onChange={handleSearch}
+                                onClear={handleClearSearch}
+                                isOpen={isSearchOpen}
+                                isLoading={isLoading}
+                                autoFocus
+                            />
+                        </div>
                     </div>
 
                     <div className="hidden lg:flex items-center space-x-7">
@@ -103,10 +147,11 @@ export default function AnimatedNavbar() {
                             </Link>
                         ))}
                     </div>
+                    {/* Icons */}
 
                     <div className="flex items-center space-x-4">
                         <button
-                            onClick={() => setSearchOpen(!searchOpen)}
+                            onClick={handleToggleSearch}
                             className={cn("nav-hover-btn p-2 transition-colors", textColor)}
                             aria-label="Buscar"
                         >
@@ -146,71 +191,6 @@ export default function AnimatedNavbar() {
             </div>
 
 
-            {/* Search Panel */}
-            <div
-                className={cn(
-                    "absolute top-full left-0 right-0 z-40",
-                    "transform transition-all duration-300 ease-in-out",
-                    "bg-white/95 backdrop-blur-sm",
-                    "border-b border-gray-200/80",
-                    searchOpen
-                        ? "translate-y-0 opacity-100 shadow-lg"
-                        : "-translate-y-2 opacity-0 pointer-events-none"
-                )}
-            >
-                <div className="container mx-auto max-w-8xl">
-                    <div className="relative flex items-center px-4 py-4 sm:px-6 lg:px-8">
-                        <Search className="absolute left-6 h-5 w-5 text-gray-400" />
-                        <input
-                            type="search"
-                            placeholder="Buscar productos..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className={cn(
-                                "w-full pl-12 pr-4 py-3",
-                                "bg-transparent rounded-lg",
-                                "text-gray-900 placeholder-gray-500",
-                                "border border-gray-200 focus:border-gray-900",
-                                "transition-all duration-200",
-                                "focus:outline-none focus:ring-2 focus:ring-blue-500/20",
-                                "text-base sm:text-lg"
-                            )}
-                        />
-                        {searchTerm && (
-                            <button
-                                onClick={() => setSearchTerm('')}
-                                className="absolute right-6 p-2 text-gray-400 hover:text-gray-600 transition-colors"
-                            >
-                                <X className="h-5 w-5" />
-                            </button>
-                        )}
-                    </div>
-
-                    {/* Opcional: Búsquedas recientes o sugerencias */}
-                    {searchOpen && (
-                        <div className="px-4 py-3 border-t border-gray-100">
-                            <div className="text-sm text-gray-500">
-                                Búsquedas populares:
-                                <div className="mt-2 flex flex-wrap gap-2">
-                                    {['Jeans', 'Blusas', 'Vestidos'].map((term) => (
-                                        <button
-                                            key={term}
-                                            onClick={() => setSearchTerm(term)}
-                                            className={cn(
-                                                "px-3 py-1 rounded-full text-sm",
-                                                "bg-gray-100 hover:bg-gray-200",
-                                                "text-gray-700 transition-colors"
-                                            )}
-                                        >
-                                            {term}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                </div>
-            </div>
 
             {/* Mobile Menu */}
             <MobileMenu

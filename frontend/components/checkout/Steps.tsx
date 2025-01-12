@@ -135,7 +135,7 @@ export function Steps({ currentStep }: StepsProps) {
 
     return (
         <nav
-            className="relative flex justify-center mb-8 px-4"
+            className="relative flex mb-8 px-4"
             aria-label="Progreso del checkout"
         >
             <ProgressBar progress={progress} />

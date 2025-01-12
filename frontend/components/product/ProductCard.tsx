@@ -1,7 +1,7 @@
-import { useCart } from '@/hooks/useCart';
+import { useCart } from '@/hooks/cart/useCart';
 import { Product, ProductCardProps } from '@/types';
 import { getImageUrl } from '@/utils/demoImages';
-import { Edit, ShoppingBag, Trash } from 'lucide-react';
+import { Edit, Trash } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { memo, useCallback, useState } from 'react';
@@ -115,7 +115,7 @@ export const ProductCard = memo(({
 
     return (
         <div
-            className="group relative bg-white border rounded-lg overflow-hidden hover:shadow-lg transition-shadow"
+            className="group relative bg-white rounded-lg overflow-hidden "
             onMouseEnter={() => setIsHovering(true)}
             onMouseLeave={() => setIsHovering(false)}
         >
@@ -206,10 +206,9 @@ export const ProductCard = memo(({
                         `}>
                             <Button
                                 onClick={handleAddToCart}
-                                className="w-[calc(100%-2rem)] mx-4 bg-white hover:bg-black text-black hover:text-white border border-black transition-colors"
+                                className="w-[calc(100%-2rem)] mx-4 bg-white hover:bg-black text-black hover:text-white transition-colors"
                             >
-                                <ShoppingBag className="h-4 w-4 mr-2" />
-                                Agregar al carrito
+                                SELECCIONAR OPCIONES
                             </Button>
                         </div>
                     )}

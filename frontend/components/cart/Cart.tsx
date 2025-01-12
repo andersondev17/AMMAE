@@ -1,11 +1,11 @@
 'use client';
-import { useCart } from "@/hooks/useCart";
+import { useCart } from "@/hooks/cart/useCart";
 import { ShoppingBag } from "lucide-react";
 import { useRouter } from 'next/navigation';
 import { memo, useCallback, useMemo } from "react";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
-import { Separator } from "../ui/separator";
+import { Separator } from "../ui/form/separator";
 import {
     Sheet,
     SheetContent,
@@ -38,7 +38,7 @@ export const Cart = memo(() => {
             toast.error('Error al procesar la orden');
         }
     }, [router, onClose]);
-    
+
     return (
         <Sheet open={isOpen} onOpenChange={onClose}>
             <SheetContent className="flex w-full flex-col pr-0 sm:max-w-lg">

@@ -2,7 +2,7 @@ import ErrorBoundary from '@/components/ErrorBoundary';
 import { ColorPicker } from '@/components/shared/ColorPicker';
 import { ImageUpload } from '@/components/shared/ImageUpload';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Input } from '@/components/ui/form/input';
 import {
     Select,
     SelectContent,

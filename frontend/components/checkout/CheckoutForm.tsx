@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Separator } from '@/components/ui/separator';
-import { useCart } from '@/hooks/useCart';
+import { Input } from '@/components/ui/form/input';
+import { Separator } from '@/components/ui/form/separator';
+import { useCart } from '@/hooks/cart/useCart';
 import { CheckoutFormData, CustomerFormData, PaymentMethod } from '@/types/checkout.types';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -21,6 +21,7 @@ const CheckoutForm = () => {
     const subtotal = cart.items.reduce((acc, item) => acc + (item.precio * item.quantity), 0);
     const shipping = subtotal > 100 ? 0 : 10; // Envío gratis por compras mayores a $100
     const total = subtotal + shipping;
+    
 
     const onSubmit = async (data: CustomerFormData) => {
         try {

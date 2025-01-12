@@ -84,6 +84,7 @@ export interface ProductFilters {
   search?: string;
   stock?: 'inStock' | 'lowStock' | 'outOfStock';
   enOferta?: boolean;
+  fields: string;
 }
 
 export interface AddProductFormProps {

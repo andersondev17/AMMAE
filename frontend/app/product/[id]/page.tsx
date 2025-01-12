@@ -2,9 +2,9 @@
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
+import { Separator } from '@/components/ui/form/separator';
 import { Spinner } from '@/components/ui/Spinner';
-import { useCart } from '@/hooks/useCart';
+import { useCart } from '@/hooks/cart/useCart';
 import { Product } from '@/types';
 import { getImageUrl } from '@/utils/demoImages';
 import { ShoppingBag } from 'lucide-react';

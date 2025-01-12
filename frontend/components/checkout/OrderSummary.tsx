@@ -1,9 +1,19 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/form/card';
+import { Separator } from '@/components/ui/form/separator';
+import { useCart } from '@/hooks/cart/useCart';
+import { formatPrice } from '@/lib/utils';
 import { OrderSummaryProps } from '@/types/checkout.types';
 import Image from 'next/image';
 
-export const OrderSummary = ({ items, subtotal, shipping, total }: OrderSummaryProps) => {
+
+
+export function OrderSummary({ showShippingMethod = true, shippingMethod = 'standard' }: OrderSummaryProps) {
+    const { items, total: subtotal } = useCart();
+    
+    // Usar la misma lógica de cálculo que el carrito
+    const shipping = shippingMethod === 'express' ? 15 : 5;
+    const total = subtotal + shipping;
+
     return (
         <Card>
             <CardHeader>
@@ -13,19 +23,34 @@ export const OrderSummary = ({ items, subtotal, shipping, total }: OrderSummaryP
                 {/* Lista de productos */}
                 <div className="space-y-4">
                     {items.map((item) => (
-                        <div key={item._id} className="flex items-start space-x-4">
+                        <div key={`${item._id}-${item.selectedSize}-${item.selectedColor}`} className="flex items-start space-x-4">
                             <div className="relative h-16 w-16 overflow-hidden rounded">
-                                <Image
-                                    src="/api/placeholder/64/64"
-                                    alt={item.nombre}
-                                    fill
-                                    className="object-cover"
-                                />
+                                {item.imagenes && item.imagenes[0] ? (
+                                    <Image
+                                        src={item.imagenes[0]}
+                                        alt={item.nombre}
+                                        fill
+                                        className="object-cover"
+                                    />
+                                ) : (
+                                    <div className="w-full h-full bg-gray-200" />
+                                )}
                             </div>
                             <div className="flex-1 space-y-1">
                                 <h3 className="text-sm font-medium">{item.nombre}</h3>
-                                <p className="text-sm text-gray-500">Cantidad: {item.quantity}</p>
-                                <p className="text-sm font-medium">${item.precio.toFixed(2)}</p>
+                                <p className="text-sm text-gray-500">
+                                    Cantidad: {item.quantity}
+                                    {item.selectedSize && ` • Talla: ${item.selectedSize}`}
+                                    {item.selectedColor && ` • Color: ${item.selectedColor}`}
+                                </p>
+                                <div className="flex justify-between">
+                                    <p className="text-sm text-gray-500">
+                                        {formatPrice(String(item.precio))} x {item.quantity}
+                                    </p>
+                                    <p className="text-sm font-medium">
+                                        {formatPrice(String(item.precio * item.quantity))}
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     ))}
@@ -37,20 +62,26 @@ export const OrderSummary = ({ items, subtotal, shipping, total }: OrderSummaryP
                 <div className="space-y-2">
                     <div className="flex justify-between text-sm">
                         <span>Subtotal</span>
-                        <span>${subtotal.toFixed(2)}</span>
+                        <span>{formatPrice(String(subtotal))}</span>
                     </div>
-                    <div className="flex justify-between text-sm">
-                        <span>Envío</span>
-                        <span>{shipping === 0 ? 'Gratis' : `$${shipping.toFixed(2)}`}</span>
-                    </div>
+                    {showShippingMethod && (
+                        <div className="flex justify-between text-sm">
+                            <span>Envío ({shippingMethod === 'express' ? 'Express' : 'Estándar'})</span>
+                            <span>
+                                {shipping === 5 
+                                    ? 'Gratis' 
+                                    : formatPrice(String(shipping))}
+                            </span>
+                        </div>
+                    )}
                     <Separator />
-                    <div className="flex justify-between text-base font-medium">
+                    <div className="flex justify-between text-lg font-bold">
                         <span>Total</span>
-                        <span>${total.toFixed(2)}</span>
+                        <span>{formatPrice(String(total))}</span>
                     </div>
                 </div>
 
-                {/* Políticas y garantías */}
+                {/* Garantías y políticas */}
                 <div className="rounded-lg bg-gray-50 p-4">
                     <ul className="space-y-2 text-sm text-gray-600">
                         <li className="flex items-center">
@@ -70,4 +101,4 @@ export const OrderSummary = ({ items, subtotal, shipping, total }: OrderSummaryP
             </CardContent>
         </Card>
     );
-};
+}
