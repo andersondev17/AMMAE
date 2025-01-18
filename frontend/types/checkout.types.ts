@@ -1,10 +1,56 @@
 // types/checkout.types.ts
+import { CartItem } from '@/types/cart.types';
 
 export enum PaymentMethod {
     CONTRA_ENTREGA = 'CONTRA_ENTREGA',
     TRANSFERENCIA = 'TRANSFERENCIA',
     QR = 'QR',
 }
+
+
+export interface PaymentSelectorProps {
+    selectedMethod: PaymentMethod | null;
+    onSelect: (method: PaymentMethod) => Promise<void>;
+    orderNumber?: string | null; // Opcional
+    isProcessing?: boolean;
+}
+
+export interface CheckoutOrderData {
+    customerData: {
+        nombre: string;
+        email: string;
+        telefono: string;
+        direccion: string;
+    };
+    productos: Array<{
+        producto: string;
+        cantidad: number;
+        talla: string;
+        color: string;
+    }>;
+    metodoPago: string;
+    totalPagado: number;
+    direccionEnvio: {
+        calle: string;
+        ciudad: string;
+        codigoPostal: string;
+        pais: string;
+    };
+}
+export interface OrderDetailsData {
+    orderId: string;
+    orderNumber: string;
+    customerDetails: {
+        name: string;
+        phone: string;
+        address: string;
+        shippingMethod: string;
+    };
+    items: CartItem[];
+    total: number;
+    paymentMethod: PaymentMethod;
+}
+
 
 export interface Address {
     street: string;

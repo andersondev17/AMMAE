@@ -52,18 +52,18 @@ export class WhatsAppService {
         }
     }
 
-    private static formatOrderMessage(orderDetails: OrderDetails): string {
-        const { items, customerDetails } = orderDetails;
+    private static formatOrderMessage(orderDetails: OrderDetails & { orderNumber?: string }): string {
+        const { items, customerDetails, orderNumber} = orderDetails;
 
         const itemsList = items
-            .map(item => `• ${item.nombre} x${item.quantity} - $${item.itemTotal}`)
-            .join('\n');
+        .map(item => `• ${item.nombre} x${item.quantity} - $${item.itemTotal.toLocaleString()}`)
+        .join('\n');
 
         const subtotal = items.reduce((sum, item) => sum + item.itemTotal, 0);
-        const shippingCost = customerDetails.shippingMethod.includes('Express') ? 15 : 5;
+        const shippingCost = customerDetails.shippingMethod.includes('Express') ? 15000 : 5000;//costo domi delivery
         const total = subtotal + shippingCost;
 
-        return `🛍️ *Nuevo Pedido*\n\n` +
+        return `🛍️ *Nuevo Pedido${orderNumber ? ` #${orderNumber}` : ''}*\n\n` +
             `📋 *Detalles del Cliente:*\n` +
             `• Nombre: ${customerDetails.name}\n` +
             `• Teléfono: ${customerDetails.phone}\n` +

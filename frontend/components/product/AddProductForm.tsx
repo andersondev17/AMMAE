@@ -90,16 +90,11 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
                 precioOferta: data.enOferta ? Number(data.precioOferta) : undefined,
                 estilo: data.estilo?.trim() || '',
                 material: data.material?.trim() || '',
-                imagenes: imageUrls.map(url => {
-                    if (url.startsWith('/assets/images/demo/')) {
-                        return url.split('/').pop() || url;
-                    }
-                    return url;
-                })
+                imagenes: imageUrls
             };
 
             await onSubmit(formData);
-            toast.success('Producto creado exitosamente:');
+
 
             if (!initialData) {
                 reset();

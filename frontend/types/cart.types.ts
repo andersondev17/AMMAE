@@ -18,6 +18,7 @@ export interface WhatsAppOrderItem {
     itemTotal: number;
 }
 
+
 export interface CartStore {
     items: CartItem[];
     total: number;
@@ -37,6 +38,7 @@ export interface CustomerDetails {
     phone: string;
     address: string;
     shippingMethod: string;
+    orderNumber?: string; 
 }
 
 export interface CartOptions {

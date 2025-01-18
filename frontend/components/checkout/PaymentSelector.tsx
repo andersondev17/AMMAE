@@ -37,7 +37,6 @@ export const PaymentSelector = ({ selectedMethod, onSelect }: PaymentSelectorPro
                 {paymentMethods.map((method) => {
                     const Icon = method.icon;
                     const isSelected = selectedMethod === method.id;
-
                     return (
                         <Card
                             key={method.id}

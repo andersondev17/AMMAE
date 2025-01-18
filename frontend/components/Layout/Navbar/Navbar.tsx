@@ -116,9 +116,10 @@ export default function AnimatedNavbar() {
                         "absolute top-full left-0 right-0 z-40",
                         "transform transition-all duration-300 ease-in-out",
                         "bg-white backdrop-blur-sm",
+                        "border b rounded-xl",
                         isSearchOpen ? "translate-y-0 opacity-100" : "-translate-y-2 opacity-0 pointer-events-none"
                     )}>
-                        <div className="container mx-auto py-9 px-4">
+                        <div className="container mx-auto px-4 ">
                             <SearchBar
                                 searchTerm={searchTerm}
                                 onChange={handleSearch}
