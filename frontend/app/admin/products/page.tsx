@@ -5,7 +5,7 @@ import { AddProductForm } from '@/components/product/AddProductForm';
 import { ProductList } from '@/components/product/ProductList';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { useProducts } from '@/hooks/useProducts';
+import { useProducts } from '@/hooks/product/useProducts';
 import { Product, ProductFilters, ProductFormData } from '@/types';
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 
 export default function AdminProductsPage() {
   const [filters, setFilters] = useState<ProductFilters>({
+    fields:'',
     limit: 12,
     page: 1
   });

@@ -1,11 +1,14 @@
-"use client";
+'use client'
+import { useCart } from '@/hooks/cart/useCart';
+import { cn } from '@/lib/utils';
 
-import { useCart } from '@/hooks/useCart';
-import { useScrollBehavior } from '@/hooks/useScrollBehavior';
+import { useSearch } from '@/hooks/product/useSearch';
+import gsap from 'gsap';
 import { Menu, Package, Search, ShoppingBag, User } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import { memo, useCallback, useState } from 'react';
+import { usePathname } from 'next/navigation';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useWindowScroll } from 'react-use';
 import { MobileMenu } from './MobileMenu';
 import { SearchBar } from './SearchBar';
 
@@ -16,139 +19,191 @@ const mainCategories = [
     { name: 'ACCESORIOS', path: '/categoria/accesorios', apiValue: 'Accesorios' },
 ] as const;
 
-export const Navbar = memo(() => {
-    const { isVisible, isAtTop } = useScrollBehavior();
+export default function AnimatedNavbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [searchOpen, setSearchOpen] = useState(false);
-    const [searchTerm, setSearchTerm] = useState('');
-    const router = useRouter();
-    const pathname = usePathname();
     const { itemCount, onOpen } = useCart();
 
-    const handleSearch = useCallback((e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        setSearchOpen(false);
-        router.push(`/search?q=${encodeURIComponent(searchTerm)}`);
-    }, [searchTerm, router]);
+    const pathname = usePathname();
+    const navContainerRef = useRef<HTMLDivElement | null>(null);
+    const { y: currentScrollY } = useWindowScroll();
+    const [isNavVisible, setIsNavVisible] = useState(true);
+    const [lastScrollY, setLastScrollY] = useState(0);
+    const isHomePage = pathname === '/';
 
-    const toggleSearch = useCallback(() => {
-        setSearchOpen((prev) => !prev);
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const { searchTerm, handleSearch, isLoading } = useSearch();
+
+    const handleToggleSearch = useCallback(() => {
+        setIsSearchOpen(prev => !prev);
     }, []);
 
-    return (
-        <>
-            {/* Banner promocional */}
-            <div className={`
-                bg-gradient-to-r from-[#232526] to-[#232526] text-white text-xs py-3 text-center font-medium
-                transition-transform duration-300 shadow-md
-                ${!isVisible ? '-translate-y-full' : 'translate-y-0'}
-            `}>
-                <p className='container mx-auto italic'>
-                    ✨ ENVÍO GRATIS EN PEDIDOS SUPERIORES A $100 K ✨
-                </p>
-            </div>
+    const handleClearSearch = useCallback(() => {
+        handleSearch('');
+        setIsSearchOpen(false);
+    }, [handleSearch]);
 
-            {/* Navbar */}
-            <nav className={`
-                fixed w-full z-50 
-                transition-all duration-300 ease-in-out
-                ${!isVisible ? '-translate-y-full' : 'translate-y-0'}
-                ${!isAtTop ? 'bg-white/95 backdrop-blur-sm shadow-lg' : 'bg-transparent'}
-            `}>
-                <div className="container mx-auto px-4 py-4">
-                    <div className="flex items-center justify-between">
-                        {/* Botón menú móvil */}
+
+    useEffect(() => {
+        if (currentScrollY === 0) {
+            setIsNavVisible(true);
+            navContainerRef.current?.classList.remove("floating-nav");
+        } else if (currentScrollY > lastScrollY) {
+            setIsNavVisible(false);
+            navContainerRef.current?.classList.add("floating-nav");
+        } else if (currentScrollY < lastScrollY) {
+            setIsNavVisible(true);
+            navContainerRef.current?.classList.add("floating-nav");
+        }
+
+        setLastScrollY(currentScrollY);
+    }, [currentScrollY, lastScrollY]);
+
+    useEffect(() => {
+        gsap.to(navContainerRef.current, {
+            y: isNavVisible ? 0 : -100,
+            opacity: isNavVisible ? 1 : 0,
+            duration: 0.2,
+        });
+    }, [isNavVisible]);
+
+    // Determina si el navbar está en modo transparente o flotante
+    const shouldBeTransparent = isHomePage && currentScrollY === 0;
+    const textColor = shouldBeTransparent ? "text-white" : "text-gray-800";
+    const hoverTextColor = shouldBeTransparent ? "hover:text-gray-200" : "hover:text-gray-600";
+    if (pathname.includes('/checkout')) {
+        return (
+            <div className="fixed inset-x-0 top-0 z-50">
+                <div className="mx-auto px-4 h-10 backdrop-blur-sm shadow-sm">
+                    <nav className="flex h-full items-center justify-center">
+                        <Link href="/" className="flex-shrink-0">
+                            <h1 className="text-2xl font-bold text-gray-800">AMMAE</h1>
+                        </Link>
+                    </nav>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="fixed inset-x-0 top-0 z-50 pt-3">
+            <div
+                ref={navContainerRef}
+                className={cn(
+                    "relative z-50 mx-auto max-w-7xl px-4 h-16 transition-all duration-700",
+                    "sm:px-6 lg:px-12 xl:px-16 2xl:px-24",
+                    shouldBeTransparent
+                        ? "bg-transparent"
+                        : "floating-nav bg-white/95 shadow-lg backdrop-blur-sm"
+                )}
+            >
+                <nav className="flex h-full items-center justify-between">
+                    <div className="flex items-center gap-6">
                         <button
-                            className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                            onClick={() => setIsMenuOpen(true)}
-                            aria-label="Menú"
+                            onClick={() => setIsMenuOpen(!isMenuOpen)}
+                            className={cn("lg:hidden transition-colors", textColor, hoverTextColor)}
                         >
-                            <Menu className="h-6 w-6 text-gray-600" />
+                            <Menu className="h-6 w-6" />
                         </button>
 
-                        {/* Logo */}
                         <Link href="/" className="flex-shrink-0">
-                            <h1 className="text-2xl font-bold text-gray-600">AMMAE</h1>
+                            <h1 className={cn("text-2xl font-bold transition-colors", textColor)}>AMMAE</h1>
                         </Link>
+                    </div>
 
-                        {/* Navegación desktop */}
-                        <div className="hidden lg:flex items-center space-x-8">
-                            {mainCategories.map((category) => (
-                                <Link
-                                    key={category.name}
-                                    href={category.path}
-                                    className={`text-sm font-medium transition-colors
-                                        ${pathname === category.path 
-                                            ? 'text-black border-b font-black' 
-                                            : 'hover:text-gray-300'}`}
-                                >
-                                    {category.name}
-                                </Link>
-                            ))}
-                        </div>
-
-                        {/* Iconos de acción */}
-                        <div className="flex items-center space-x-6">
-                            <button
-                                onClick={toggleSearch}
-                                className="hover:text-blue-600 transition-colors p-2"
-                                aria-label="Buscar"
-                            >
-                                <Search className="h-5 w-5" />
-                            </button>
-
-                            <Link
-                                href="/account"
-                                className="hover:text-blue-600 transition-colors p-2"
-                                aria-label="Mi cuenta"
-                            >
-                                <User className="h-5 w-5" />
-                            </Link>
-
-                            <Link
-                                href="/admin/products"
-                                className="hidden md:flex items-center space-x-2 hover:text-blue-600 transition-colors"
-                            >
-                                <Package className="h-5 w-5" />
-                                <span className="text-sm">Admin</span>
-                            </Link>
-
-                            <button
-                                onClick={onOpen}
-                                className="hover:text-blue-600 transition-colors p-2 relative"
-                                aria-label="Carrito"
-                            >
-                                <ShoppingBag className="h-5 w-5" />
-                                {itemCount > 0 && (
-                                    <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-blue-600 flex items-center justify-center text-[10px] text-white">
-                                        {itemCount}
-                                    </span>
-                                )}
-                            </button>
+                    {/* Search Panel */}
+                    <div className={cn(
+                        "absolute top-full left-0 right-0 z-40",
+                        "transform transition-all duration-300 ease-in-out",
+                        "bg-white backdrop-blur-sm",
+                        "border b rounded-xl",
+                        isSearchOpen ? "translate-y-0 opacity-100" : "-translate-y-2 opacity-0 pointer-events-none"
+                    )}>
+                        <div className="container mx-auto px-4 ">
+                            <SearchBar
+                                searchTerm={searchTerm}
+                                onChange={handleSearch}
+                                onClear={handleClearSearch}
+                                isOpen={isSearchOpen}
+                                isLoading={isLoading}
+                                autoFocus
+                            />
                         </div>
                     </div>
 
-                    {/* Barra de búsqueda */}
-                    <SearchBar
-                        isOpen={searchOpen}
-                        searchTerm={searchTerm}
-                        onSubmit={handleSearch}
-                        onChange={setSearchTerm}
-                    />
-                </div>
+                    <div className="hidden lg:flex items-center space-x-7">
+                        {mainCategories.map((category) => (
+                            <Link
+                                key={category.name}
+                                href={category.path}
+                                className={cn(
+                                    "nav-hover-btn",
+                                    pathname === category.path
+                                        ? textColor
+                                        : shouldBeTransparent ? "text-gray-200" : "black-600",
+                                    hoverTextColor
+                                )}
+                            >
+                                {category.name}
+                            </Link>
+                        ))}
+                    </div>
+                    {/* Icons */}
 
-                {/* Menú móvil */}
-                <MobileMenu
-                    isOpen={isMenuOpen}
-                    onClose={() => setIsMenuOpen(false)}
-                    categories={mainCategories}
-                />
-            </nav>
+                    <div className="flex items-center space-x-4">
+                        <button
+                            onClick={handleToggleSearch}
+                            className={cn("nav-hover-btn p-2 transition-colors", textColor)}
+                            aria-label="Buscar"
+                        >
+                            <Search className="h-5 w-5" />
+                        </button>
+
+                        <Link
+                            href="/account"
+                            className={cn("nav-hover-btn p-2", textColor)}
+                            aria-label="Mi cuenta"
+                        >
+                            <User className="h-5 w-5" />
+                        </Link>
+
+                        <Link
+                            href="/admin/products"
+                            className={cn("hidden md:flex items-center nav-hover-btn", textColor)}
+                        >
+                            <Package className="h-5 w-5" />
+                            <span className="ml-2">Admin</span>
+                        </Link>
+
+                        <button
+                            onClick={onOpen}
+                            className={cn("nav-hover-btn p-2", textColor)}
+                            aria-label="Carrito"
+                        >
+                            <ShoppingBag className="h-5 w-5" />
+                            {itemCount > 0 && (
+                                <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-blue-600 flex items-center justify-center text-[10px] text-white">
+                                    {itemCount}
+                                </span>
+                            )}
+                        </button>
+                    </div>
+                </nav>
+            </div>
+
+
+
+            {/* Mobile Menu */}
+            <MobileMenu
+                isOpen={isMenuOpen}
+                onClose={() => setIsMenuOpen(false)}
+                categories={mainCategories}
+            />
+
 
             {/* Espaciador */}
             <div className="h-[64px]" />
-        </>
-    );
-});
 
-Navbar.displayName = 'Navbar';
+        </div>
+    );
+}

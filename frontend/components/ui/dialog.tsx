@@ -50,6 +50,10 @@ const DialogContent = React.forwardRef<
       <X className="h-4 w-4" />
         <span className="sr-only">Close</span>
       </DialogPrimitive.Close>
+
+      <div id="dialog-description" className="sr-only">
+        Este es un diálogo modal. Presiona Escape para cerrarlo.
+      </div>
     </DialogPrimitive.Content>
   </DialogPortal>
 ))

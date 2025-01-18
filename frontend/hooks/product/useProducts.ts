@@ -5,7 +5,7 @@
 que internamente utiliza react-query para la gestión del estado del servidor. */
 
 // hooks/useProducts.ts
-import { getProducts, productService } from '@/services/productService';
+import { productService } from '@/services/productService';
 import { ProductFilters, ProductFormData } from '@/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -62,19 +62,20 @@ export function useProducts(filters: Partial<ProductFilters> = {}) {
     } = useQuery({
         queryKey: ['products', filters],
         queryFn: async () => {
-            const queryParams = buildQueryParams(filters);
-            return await getProducts(
-                filters.page || 1,
-                filters.limit || STOCK_THRESHOLDS.DEFAULT_PAGE_SIZE,
-                filters.sortBy || '-createdAt',  // Ordenar por más recientes primero
-                filters.categoria ?? '',
-                filters.search || '',
-                queryParams.toString()
-            );
+            // Ahora pasamos los filtros directamente
+            return await productService.getProducts({
+                page: filters.page || 1,
+                limit: filters.limit || STOCK_THRESHOLDS.DEFAULT_PAGE_SIZE,
+                sortBy: filters.sortBy || '-createdAt',
+                categoria: filters.categoria || '',
+                search: filters.search || '',
+                stock: filters.stock,
+                enOferta: filters.enOferta
+            });
         },
-        staleTime: 1000 * 60, // 1 minuto
-        refetchInterval: 1000 * 30, // Revalidar cada 30 segundos
-        refetchOnWindowFocus: true, // Revalidar cuando la ventana recupere el foco
+        staleTime: STOCK_THRESHOLDS.CACHE_TIME,
+        refetchInterval: false, // Desactivamos el refresco automático
+        refetchOnWindowFocus: true,
     });
     
     // Handler genérico para errores de mutación

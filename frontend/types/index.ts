@@ -77,18 +77,14 @@ export interface ProductCardProps {
 }
 
 export interface ProductFilters {
-  search?: string;
-  categoria?: string;
-  talla?: string;
-  color?: string;
-  precioMin?: string;
-  precioMax?: string;
-  enOferta?: boolean;
-  stock?: 'inStock' | 'lowStock' | 'outOfStock';
   page?: number;
   limit?: number;
   sortBy?: string;
-  fields?: string;
+  categoria?: string;
+  search?: string;
+  stock?: 'inStock' | 'lowStock' | 'outOfStock';
+  enOferta?: boolean;
+  fields: string;
 }
 
 export interface AddProductFormProps {

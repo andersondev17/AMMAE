@@ -1,8 +1,9 @@
+// models/productos.js
 const mongoose = require('mongoose');
 
 class ProductoFactory {
     createSchema() {
-        return new mongoose.Schema({
+        const schema = new mongoose.Schema({
             nombre: {
                 type: String,
                 required: [true, 'El nombre del producto es obligatorio'],
@@ -31,7 +32,17 @@ class ProductoFactory {
             colores: [String],
             imagenes: [{
                 type: String,
-                required: [true, 'Al menos una imagen del producto es obligatoria']
+                required: [true, 'Al menos una imagen del producto es obligatoria'],
+                get: function(imagen) {
+                    if (!imagen) return '';
+                    // Normalizar la ruta eliminando 'public' y asegurando el formato correcto
+                    return imagen.replace(/^public\//, '/').replace(/^\/?assets/, '/assets');
+                },
+                set: function(imagen) {
+                    if (!imagen) return '';
+                    // Almacenar la ruta en formato consistente
+                    return imagen.replace(/^public\/|^\//, '').replace(/^\/?assets/, 'assets');
+                }
             }],
             stock: {
                 type: Number,
@@ -54,34 +65,51 @@ class ProductoFactory {
             estilo: String,
             material: String
         }, {
-            timestamps: true
+            timestamps: true,
+            toJSON: { getters: true },
+            toObject: { getters: true }
         });
-    }
 
-    createModel() {
-        const ProductoSchema = this.createSchema();
-        
-        // Middleware pre-save
-        ProductoSchema.pre('save', function(next) {
-            this.updatedAt = Date.now();
+        // Middleware pre-save para procesar las imágenes
+        schema.pre('save', function(next) {
+            if (this.imagenes) {
+                this.imagenes = this.imagenes.map(img => {
+                    if (!img) return '';
+                    return img.replace(/^public\/|^\//, '').replace(/^\/?assets/, 'assets');
+                }).filter(Boolean);
+            }
             next();
         });
 
-        // Método estático para búsqueda avanzada
-        ProductoSchema.statics.busquedaAvanzada = function(criterios) {
-            return this.find(criterios);
+        // Método para obtener URLs completas de imágenes
+        schema.methods.getImageUrls = function() {
+            return this.imagenes.map(img => {
+                if (!img) return '/assets/images/demo/default-product.jpg';
+                return img.startsWith('/') ? img : `/assets/images/demo/${img}`;
+            });
         };
 
-        // Método de instancia para calcular descuento
-        ProductoSchema.methods.calcularDescuento = function() {
+        // Método para calcular descuento
+        schema.methods.calcularDescuento = function() {
             if (this.enOferta && this.precioOferta) {
                 return ((this.precio - this.precioOferta) / this.precio) * 100;
             }
             return 0;
         };
 
+        // Método estático para búsqueda avanzada
+        schema.statics.busquedaAvanzada = function(criterios) {
+            return this.find(criterios);
+        };
+
+        return schema;
+    }
+
+    createModel() {
+        const ProductoSchema = this.createSchema();
         return mongoose.model('Producto', ProductoSchema);
     }
 }
 
+// Exportar una única instancia del modelo
 module.exports = new ProductoFactory().createModel();

@@ -1,106 +1,87 @@
-// components/product/ProductCard.tsx
-import { useCart } from '@/hooks/useCart';
+import { useCart } from '@/hooks/cart/useCart';
 import { Product, ProductCardProps } from '@/types';
-import { DEFAULT_IMAGES, getProductImages } from '@/utils/demoImages';
+import { getImageUrl } from '@/utils/demoImages';
 import { Edit, Trash } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { memo, useCallback, useEffect, useMemo, useState } from 'react';
-import { ProductSkeleton } from '../skeletons/ProductSkeleton';
+import { memo, useCallback, useState } from 'react';
+import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
-// Subcomponentes
+
+// Subcomponente para mostrar el stock y las tallas
+const StockInfo = memo(({ stock, tallas }: { stock: number; tallas: string[] }) => {
+    const getStockStatus = useCallback((stock: number) => {
+        if (stock === 0) return { label: 'Sin stock', color: 'bg-red-100 text-red-800' };
+        if (stock <= 5) return { label: 'Stock bajo', color: 'bg-yellow-100 text-yellow-800' };
+        return { label: 'En stock', color: 'bg-green-100 text-green-800' };
+    }, []);
+
+    const status = getStockStatus(stock);
+
+    return (
+        <div className="space-y-2">
+            <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-500">Disponibilidad:</span>
+                <Badge variant="outline" className={`${status.color} border-0`}>
+                    {status.label} ({stock})
+                </Badge>
+            </div>
+            <div className="flex flex-wrap gap-1">
+                {tallas.map((talla, index) => (
+                    <Badge
+                        key={`${talla}-${index}`}
+                        variant="outline"
+                        className="text-xs bg-gray-100 hover:bg-gray-200 transition-colors"
+                    >
+                        {talla}
+                    </Badge>
+                ))}
+            </div>
+        </div>
+    );
+});
+
+// Subcomponente para manejar las imágenes del producto
 const ProductImage = memo(({
     product,
     isHovering,
-    onError
 }: {
     product: Product;
     isHovering: boolean;
-    onError?: () => void;
 }) => {
-    const [isLoading, setIsLoading] = useState(true);
-    const [loadError, setLoadError] = useState(false);
-    const { primary, hover } = useMemo(() => getProductImages(product), [product]);
-
-    useEffect(() => {
-        let mounted = true;
-        const preloadImages = async () => {
-            try {
-                setIsLoading(true);
-                setLoadError(false);
-
-                await Promise.all([
-                    new Promise<void>((resolve, reject) => {
-                        const img = document.createElement('img');
-                        img.onload = () => mounted && resolve();
-                        img.onerror = () => mounted && reject();
-                        img.src = primary;
-                    }),
-                    new Promise<void>((resolve, reject) => {
-                        const img = document.createElement('img');
-                        img.onload = () => mounted && resolve();
-                        img.onerror = () => mounted && reject();
-                        img.src = hover;
-                    })
-                ]);
-
-                if (mounted) setIsLoading(false);
-            } catch (err) {
-                if (mounted) {
-                    setLoadError(true);
-                    setIsLoading(false);
-                    onError?.();
-                }
-            }
-        };
-
-        preloadImages();
-        return () => { mounted = false; };
-    }, [primary, hover, onError]);
-
-    if (isLoading) return <ProductSkeleton />;
-
-    if (loadError) {
-        return (
-            <div className="relative aspect-square w-full overflow-hidden bg-gray-50">
-                <Image
-                    src={DEFAULT_IMAGES.primary}
-                    alt="Imagen no disponible"
-                    fill
-                    className="object-cover"
-                    priority
-                />
-            </div>
-        );
-    }
+    const [imageError, setImageError] = useState(false);
+    const primaryImage = getImageUrl(product.imagenes?.[0] || '');
+    const secondaryImage = getImageUrl(product.imagenes?.[1] || '');
 
     return (
-        <div className="relative aspect-square w-full overflow-hidden bg-white">
-            <div className="absolute inset-0">
+        <div className="relative aspect-[3/4] overflow-hidden bg-gray-100">
+            <Image
+                src={primaryImage}
+                alt={product.nombre}
+                className={`
+                    absolute inset-0 w-full h-full object-cover
+                    transition-opacity duration-300 ease-out
+                    ${isHovering ? 'opacity-0' : 'opacity-100'}
+                `}
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                priority
+                onError={() => setImageError(true)}
+            />
+            {secondaryImage && (
                 <Image
-                    src={primary}
-                    alt={product.nombre}
+                    src={secondaryImage}
+                    alt={`${product.nombre} - vista alternativa`}
                     className={`
-                        w-full h-full object-cover
-                        transition-opacity duration-300 ease-out
-                        ${isHovering ? 'opacity-0' : 'opacity-100'}
-                    `}
-                    fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    priority
-                />
-                <Image
-                    src={hover}
-                    alt={`${product.nombre} - alternativa`}
-                    className={`
-                        w-full h-full object-cover
+                        absolute inset-0 w-full h-full object-cover
                         transition-opacity duration-300 ease-out
                         ${isHovering ? 'opacity-100' : 'opacity-0'}
                     `}
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    onError={() => setImageError(true)}
                 />
-            </div>
+            )}
         </div>
     );
 });
@@ -112,49 +93,95 @@ export const ProductCard = memo(({
     isAdminView = false
 }: ProductCardProps) => {
     const [isHovering, setIsHovering] = useState(false);
-    const [imageError, setImageError] = useState(false);
+    const { addItem } = useCart();
+
+    const handleAddToCart = useCallback((e: React.MouseEvent) => {
+        e.preventDefault();
+        addItem(product);
+    }, [product, addItem]);
 
     const handleEdit = useCallback((e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        if (onEdit) onEdit(product);
+        onEdit?.(product);
     }, [onEdit, product]);
 
     const handleDelete = useCallback((e: React.MouseEvent) => {
         e.preventDefault();
-        if (onDelete && window.confirm('¿Estás seguro de que deseas eliminar este producto?')) {
-            onDelete(product._id);
+        if (window.confirm('¿Estás seguro de que deseas eliminar este producto?')) {
+            onDelete?.(product._id);
         }
     }, [onDelete, product._id]);
 
     return (
         <div
-            className="group relative bg-white overflow-hidden rounded-none border-0 transition-all duration-300 hover:shadow-xl"
+            className="group relative bg-white rounded-lg overflow-hidden "
             onMouseEnter={() => setIsHovering(true)}
             onMouseLeave={() => setIsHovering(false)}
         >
-            <Link href={`/product/${product._id}`} className="block">
-                <ProductImage
-                    product={product}
-                    isHovering={isHovering}
-                    onError={() => setImageError(true)}
-                />
+            <Link href={`/product/${product._id}`}>
+                <div className="relative">
+                    <ProductImage
+                        product={product}
+                        isHovering={isHovering}
+                    />
 
-                {/* Badges y controles */}
-                <div className="absolute top-0 left-0 right-0 p-4">
-                    {product.enOferta && (
-                        <div className="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 text-xs font-medium">
-                            SALE
+                    {/* Badges y opciones */}
+                    <div className="absolute inset-x-0 top-0 p-4">
+                        <div className="flex justify-between items-start">
+                            {/* Colores disponibles */}
+                            <div className="flex -space-x-1">
+                                {product.colores?.map((color, idx) => {
+                                    const colorMap: { [key: string]: string } = {
+                                        'Negro': '#000000',
+                                        'Blanco': '#FFFFFF',
+                                        'Azul': '#2563EB',
+                                        'Rojo': '#DC2626',
+                                        'Verde': '#059669',
+                                        'Amarillo': '#CA8A04',
+                                        'Morado': '#7C3AED',
+                                        'Rosa': '#DB2777',
+                                        'Gris': '#4B5563',
+                                        'Beige': '#D4B89C'
+                                    };
+
+                                    const colorValue = colorMap[color] || color;
+                                    const isLight = colorValue === '#FFFFFF' || colorValue === '#D4B89C';
+
+                                    return (
+                                        <div
+                                            key={idx}
+                                            className={`
+                                                w-5 h-5 rounded-full 
+                                                border-2 border-white 
+                                                ring-1 ${isLight ? 'ring-gray-300' : 'ring-gray-200'}
+                                                shadow-sm
+                                            `}
+                                            style={{ backgroundColor: colorValue }}
+                                            title={color}
+                                        />
+                                    );
+                                })}
+                            </div>
+
+                            {/* Badge de descuento */}
+                            {product.enOferta && product.precioOferta && (
+                                <Badge variant="destructive">
+                                    -{Math.round(((product.precio - product.precioOferta) / product.precio) * 100)}%
+                                </Badge>
+                            )}
                         </div>
-                    )}
+                    </div>
 
+                    {/* Botones de administrador */}
                     {isAdminView && (
-                        <div className="absolute top-4 left-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                        <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                             <Button
                                 size="icon"
                                 variant="secondary"
                                 onClick={handleEdit}
-                                className="hover:scale-105 transition-transform"
+                                className="bg-white hover:bg-blue-50 text-blue-600 border border-blue-200 shadow-sm"
+                                title="Editar producto"
                             >
                                 <Edit className="h-4 w-4" />
                             </Button>
@@ -162,9 +189,26 @@ export const ProductCard = memo(({
                                 size="icon"
                                 variant="destructive"
                                 onClick={handleDelete}
-                                className="hover:scale-105 transition-transform"
+                                className="bg-white hover:bg-red-50 text-red-600 border border-red-200 shadow-sm hover:text-red-700"
+                                title="Eliminar producto"
                             >
                                 <Trash className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    )}
+
+                    {/* Botón de agregar al carrito */}
+                    {!isAdminView && product.stock > 0 && (
+                        <div className={`
+                            absolute bottom-16 inset-x-0
+                            transition-all duration-300 ease-out
+                            ${isHovering ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}
+                        `}>
+                            <Button
+                                onClick={handleAddToCart}
+                                className="w-[calc(100%-2rem)] mx-4 bg-white hover:bg-black text-black hover:text-white transition-colors"
+                            >
+                                SELECCIONAR OPCIONES
                             </Button>
                         </div>
                     )}
@@ -172,52 +216,29 @@ export const ProductCard = memo(({
 
                 {/* Información del producto */}
                 <div className="p-4">
-                    <h3 className="text-sm font-medium text-gray-900 truncate">
+                    <h3 className="text-sm font-medium text-gray-900 line-clamp-1">
                         {product.nombre}
                     </h3>
                     <p className="mt-1 text-sm text-gray-500">{product.estilo}</p>
-                    <div className="mt-2 flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                            <span className="text-sm font-semibold">
-                                ${product.precio.toFixed(2)}
-                            </span>
-                            {product.enOferta && product.precioOferta && (
-                                <span className="text-sm text-red-500 line-through">
-                                    ${product.precioOferta.toFixed(2)}
-                                </span>
-                            )}
-                        </div>
-                        {isAdminView && (
-                            <span className="text-xs text-gray-500">
-                                Stock: {product.stock}
+                    <div className="mt-1 flex items-center gap-2">
+                        <span className="text-sm font-medium text-gray-900">
+                            ${product.precio.toFixed(2)}
+                        </span>
+                        {product.enOferta && product.precioOferta && (
+                            <span className="text-sm text-red-500 line-through">
+                                ${product.precioOferta.toFixed(2)}
                             </span>
                         )}
                     </div>
+
+                    {/* Información adicional para vista de administrador */}
+                    {isAdminView && (
+                        <div className="mt-3 pt-3 border-t border-gray-100">
+                            <StockInfo stock={product.stock} tallas={product.tallas} />
+                        </div>
+                    )}
                 </div>
             </Link>
-
-            {/* Quick Add button */}
-            {!isAdminView && (
-                <div
-                    className={`
-                        absolute bottom-0 left-0 right-0 
-                        bg-white/90 backdrop-blur-sm
-                        transition-all duration-300
-                        ${isHovering ? 'translate-y-0' : 'translate-y-full'}
-                    `}
-                >
-                    <button
-                        className="w-full py-4 text-sm font-medium text-black hover:bg-black hover:text-white transition-colors"
-                        onClick={(e) => {
-                            e.preventDefault();
-                            const cart = useCart.getState();
-                            cart.addItem(product);
-                        }}
-                    >
-                        Añadir al carrito
-                    </button>
-                </div>
-            )}
         </div>
     );
 });
@@ -225,6 +246,6 @@ export const ProductCard = memo(({
 // Display names
 ProductCard.displayName = 'ProductCard';
 ProductImage.displayName = 'ProductImage';
-ProductSkeleton.displayName = 'ProductSkeleton';
+StockInfo.displayName = 'StockInfo';
 
 export default ProductCard;

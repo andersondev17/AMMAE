@@ -5,7 +5,7 @@ import CategoriesSection from '@/components/Layout/CategoriesSection';
 import { VideoHero } from '@/components/Layout/VideoHero/VideoHero';
 import { ProductList } from '@/components/product/ProductList';
 import { ProductSkeleton } from '@/components/skeletons/ProductSkeleton';
-import { useProducts } from '@/hooks/useProducts';
+import { useProducts } from '@/hooks/product/useProducts';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { motion } from 'framer-motion';
 import { Package } from 'lucide-react';

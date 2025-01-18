@@ -8,32 +8,33 @@ const categories: Category[] = [
     {
         id: 'Jeans',
         name: 'JEANS',
-        image: '/assets/categories/jeans.webp', // Asume que tienes estas imágenes en tu proyecto
+        image: '/assets/images/demo/jeans/jean-1.jpg',
         description: 'Colección exclusiva de jeans',
         link: '/categoria/jeans'
     },
     {
         id: 'Blusas',
         name: 'BLUSAS',
-        image: '/assets/categories/blusas.webp',
+        image: '/assets/images/demo/blusas/blusa-floral-1.jpg',
         description: 'Blusas para toda ocasión',
         link: '/categoria/blusas'
     },
     {
         id: 'Vestidos',
         name: 'VESTIDOS',
-        image: '/assets/categories/vestidos.webp',
+        image: '/assets/images/demo/vestidos/vestido-1.png',
         description: 'Vestidos elegantes',
         link: '/categoria/vestidos'
     },
     {
         id: 'Accesorios',
         name: 'ACCESORIOS',
-        image: '/assets/categories/accesorios.webp',
+        image: '/assets/images/demo/accesorios/accesorio-1.png',
         description: 'Complementa tu estilo',
         link: '/categoria/accesorios'
     }
 ];
+
 
 const CategoryCard = ({ category, index }: { category: Category; index: number }) => {
     const [isInView, setIsInView] = useState(false);

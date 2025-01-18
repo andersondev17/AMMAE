@@ -204,8 +204,40 @@ const dbconnect = async () => {
     }
 }
 ```
+4. **Observer**:
+ CartEventManager.ts  que implementa el patrón Observer
+  - Singleton para asegurar una única instancia
+  - Sistema de suscripción/desuscripción a eventos
+  - Notificación a observadores
+Ademas permite: Integración con el sistema de eventos, Validaciones de stock, Notificaciones con toast, Manejo de estados más robusto
 
-4. **MVC**:
+**Para usar el sistema de eventos en cualquier componente:**
+```bash 
+import { cartEvents } from '@/lib/cart/CartEventManager';
+
+// Suscribirse a eventos
+useEffect(() => {
+  const onItemAdded = (data: any) => {
+    // Manejar evento
+  };
+  
+  cartEvents.subscribe('itemAdded', onItemAdded);
+  
+  return () => {
+    cartEvents.unsubscribe('itemAdded', onItemAdded);
+  };
+}, []);
+```
+
+**Beneficios del patrón Observer implementado:**
+
+- Desacoplamiento entre componentes
+- Notificaciones en tiempo real
+- Fácil extensibilidad
+- Manejo centralizado de eventos
+- Consistencia en el estado
+
+5. **MVC**:
    - Modelos(productos.js) : Define la estructura de datos y validaciones usando ProductoFactory
    - Vistas componentes de react como (ProductManagement.tsx): Maneja la interfaz de usuario en React
    - Controladores (productoController.js): Maneja la lógica de negocio y las respuestas HTTP

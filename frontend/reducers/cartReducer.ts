@@ -47,7 +47,6 @@ export const cartReducer = (state: CartState, action: CartAction): CartState => 
                 total: calculateCartTotal([...state.items, newItem])
             };
         }
-        // ... otros casos
         default:
             return state;
     }

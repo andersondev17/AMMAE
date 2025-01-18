@@ -4,7 +4,7 @@
 import ErrorBoundary from '@/components/ErrorBoundary';
 import { ProductList } from '@/components/product/ProductList';
 import { Spinner } from '@/components/ui/Spinner';
-import { useProducts } from '@/hooks/useProducts';
+import { useProducts } from '@/hooks/product/useProducts';
 import { capitalize } from '@/utils/formatting';
 import { notFound } from 'next/navigation';
 import { useEffect } from 'react';
@@ -63,7 +63,7 @@ export default function CategoryPage({ params }: { params: { categoria: string }
         </div>
       }
     >
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 pt-24">
         <h1 className="text-3xl font-bold mb-4">
           Colección {categoria}
         </h1>

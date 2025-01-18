@@ -1,6 +1,6 @@
 // LOGICA DE PRESENTACION
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { useProducts } from '@/hooks/useProducts';
+import { useProducts } from '@/hooks/product/useProducts';
 import { Product, ProductFilters, ProductFormData } from '@/types';
 import { useState } from 'react';
 import { toast } from 'sonner';

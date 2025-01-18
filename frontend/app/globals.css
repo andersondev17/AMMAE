@@ -10,6 +10,24 @@ body {
   .text-balance {
     text-wrap: balance;
   }
+  .border-hsla {
+    @apply border border-white/20;
+  }
+
+  .nav-hover-btn {
+    @apply relative ms-10 text-xs  after:absolute after:-bottom-0.5 after:left-0 after:h-[2px] after:w-full after:origin-bottom-right after:scale-x-0 after:bg-neutral-800 after:transition-transform after:duration-300  hover:after:origin-bottom-left hover:after:scale-x-100 dark:after:bg-white cursor-pointer;
+  }
+  .floating-nav {
+    @apply bg-white rounded-lg border;
+  }
+
+  .absolute-center {
+    @apply absolute top-1/2 left-1/2 translate-x-[-50%] translate-y-[-50%];
+  }
+
+  .flex-center {
+    @apply flex justify-center items-center;
+  }
 }
 
 
@@ -90,3 +108,5 @@ body {
   perspective: 1000px;
   transform-style: preserve-3d;
 }
+
+

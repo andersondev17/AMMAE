@@ -1,4 +1,4 @@
-const Pedido = require('../models/Pedido');
+const Pedido = require('../models/Order');
 const ErrorResponse = require('../utils/errorResponse');
 
 // Función de pago simulado

@@ -1,28 +1,12 @@
 // hooks/useCart.ts
 import { cartEvents } from '@/lib/cart/CartEventManager';
 import { Product } from '@/types';
+import { CartItem, CartStore } from '@/types/cart.types';
 import { toast } from 'sonner';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-interface CartItem extends Product {
-    quantity: number;
-    selectedSize?: string;
-    selectedColor?: string;
-}
 
-interface CartStore {
-    items: CartItem[];
-    total: number;
-    itemCount: number;
-    isOpen: boolean;
-    addItem: (product: Product, options?: { size?: string; color?: string }) => void;
-    removeItem: (productId: string) => void;
-    updateQuantity: (productId: string, quantity: number) => void;
-    clearCart: () => void;
-    onClose: () => void;
-    onOpen: () => void;
-}
 
 export const useCart = create<CartStore>()(
     persist(
@@ -31,12 +15,12 @@ export const useCart = create<CartStore>()(
             total: 0,
             itemCount: 0,
             isOpen: false,
+            shipping:0,
 
-            addItem: (product, options = {}) => {
+            addItem: (product: Product, options = {}) => {
                 const { size, color } = options;
                 const currentItems = get().items;
                 
-                // Verificar stock
                 if (product.stock <= 0) {
                     toast.error('Producto agotado');
                     return;
@@ -51,7 +35,6 @@ export const useCart = create<CartStore>()(
                 let updatedItems: CartItem[];
 
                 if (existingItem) {
-                    // Verificar que no exceda el stock disponible
                     if (existingItem.quantity >= product.stock) {
                         toast.error('No hay más unidades disponibles');
                         return;
@@ -61,7 +44,11 @@ export const useCart = create<CartStore>()(
                         item._id === product._id &&
                         item.selectedSize === size &&
                         item.selectedColor === color
-                            ? { ...item, quantity: Math.min(item.quantity + 1, item.stock) }
+                            ? {
+                                ...item,
+                                quantity: Math.min(item.quantity + 1, item.stock),
+                                itemTotal: item.precio * Math.min(item.quantity + 1, item.stock)
+                              }
                             : item
                     );
                 } else {
@@ -70,6 +57,7 @@ export const useCart = create<CartStore>()(
                         quantity: 1,
                         selectedSize: size,
                         selectedColor: color,
+                        itemTotal: product.precio // Calculado al crear
                     };
                     updatedItems = [...currentItems, newItem];
                 }
@@ -79,14 +67,6 @@ export const useCart = create<CartStore>()(
                     total: calculateTotal(updatedItems),
                     itemCount: calculateItemCount(updatedItems),
                     isOpen: true,
-                });
-
-                // Notificar a los observadores
-                cartEvents.notify('itemAdded', {
-                    product,
-                    size,
-                    color,
-                    cart: get()
                 });
 
                 toast.success('Producto añadido al carrito');

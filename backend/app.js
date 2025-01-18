@@ -1,17 +1,21 @@
-// app.js
 require('dotenv').config();
 const express = require('express');
+const router = express.Router();
+const multer = require('multer');
+const fs = require('fs');
+const path = require('path');
 const morgan = require('morgan');
 const cors = require('cors');
 const dbconnect = require('./src/config/dbconnect');
 const errorHandler = require('./src/middleware/errorHandler');
-
-const app = express();
+const uploadRoutes = require('./src/routes/uploadRoutes');
 
 // Import routes
 const resenaRoutes = require('./src/routes/resenaRoutes');
 const pagoRoutes = require('./src/routes/pagoRoutes');
 const productoRoutes = require('./src/routes/productoRoutes');
+
+const app = express();
 
 // Database connection
 dbconnect().catch(console.error);
@@ -24,10 +28,35 @@ app.use(cors({
 app.use(express.json());
 app.use(morgan('dev'));
 
+// Directorio de uploads
+const uploadDir = path.join(__dirname, 'public', 'assets', 'images', 'demo');
+try {
+    fs.mkdirSync(uploadDir, { recursive: true });
+    console.log(`Directorio de subida asegurado: ${uploadDir}`);
+} catch (error) {
+    console.error(`Error al crear el directorio de subida: ${error.message}`);
+    process.exit(1); // Salir si no se puede crear el directorio
+}
+
+// Configuración para archivos estáticos
+app.use('/assets', express.static(path.join(__dirname, 'public', 'assets')));
+
+// Logging para debugging
+app.use((req, res, next) => {
+    console.log('Incoming request:', {
+        method: req.method,
+        url: req.url,
+        body: req.body,
+        files: req.files
+    });
+    next();
+});
+
 // Routes
 app.use('/api/v1/productos', productoRoutes);
 app.use('/api/v1/resenas', resenaRoutes);
 app.use('/api/v1/pagos', pagoRoutes);
+app.use('/api/v1/upload', uploadRoutes); // Agregamos la ruta de upload
 
 // Error handling middleware
 app.use(errorHandler);
