@@ -9,17 +9,19 @@ const {
     confirmPayment
 } = require('../controllers/orderController');
 
-router.route('/')
-    .post(createOrder)
-    .get(getOrders);
+router.post('/', createOrder);
 
 router.route('/:id')
     .get(getOrder);
 
+router.get('/:orderNumber')
+    .get(getOrder)
+    .patch(updateOrderStatus);
+    
+router.patch('/:orderNumber/status', updateOrderStatus);
+
 router.route('/:id/status')
     .patch(updateOrderStatus);
 
-router.route('/confirm-payment')
-    .post(confirmPayment);
 
 module.exports = router;

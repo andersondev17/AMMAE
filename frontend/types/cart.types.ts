@@ -8,6 +8,7 @@ export interface CartItem extends Product {
     selectedSize?: string;
     selectedColor?: string;
     itemTotal: number;
+    price: number;
 }
 
 export interface WhatsAppOrderItem {

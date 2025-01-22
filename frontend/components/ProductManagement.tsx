@@ -17,7 +17,7 @@ const DEFAULT_FILTERS: ProductFilters = {
     limit: 10,
     search: '',
     categoria: '',
-    talla: '',
+    tallas: '',
     color: '',
     precioMin: '',
     precioMax: '',
@@ -124,7 +124,7 @@ export const ProductManagement: React.FC<ProductManagementProps> = ({
                 open={isFormOpen}
                 onOpenChange={handleDialogChange}
             >
-                <DialogContent className="max-w-4xl">
+                <DialogContent aria-describedby='dialog-description' className="max-w-4xl">
                     <AddProductForm
                         initialData={editingProduct}
                         onSubmit={handleSubmit}

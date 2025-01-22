@@ -3,15 +3,11 @@
 import { useCart } from '@/hooks/cart/useCart';
 import { checkoutFormSchema, type CheckoutFormValues } from '@/lib/validations/checkoutFormSchema';
 import { useWhatsApp } from '@/services/whatsAppService';
-import { PaymentMethod } from '@/types/checkout.types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
-
-import { OrderService } from '@/services/orderService';
 import { OrderSummary } from './OrderSummary';
 import { PaymentSelector } from './PaymentSelector';
 import { Steps } from './Steps';
@@ -43,6 +39,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import { useCheckout } from '@/hooks/shared/useCheckout';
 
 interface CheckoutFormProps {
     onSubmitComplete?: () => void;
@@ -52,10 +49,9 @@ export function CheckoutForm({ onSubmitComplete }: CheckoutFormProps) {
     const router = useRouter();
     const [isClient, setIsClient] = useState(false);
     const { sendOrderNotification } = useWhatsApp();
-    const [step, setStep] = useState(1);
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(null);
     const { items, total: subtotal, shipping, clearCart } = useCart();
+
+
 
     const form = useForm<CheckoutFormValues>({
         resolver: zodResolver(checkoutFormSchema),
@@ -74,131 +70,17 @@ export function CheckoutForm({ onSubmitComplete }: CheckoutFormProps) {
         },
     });
 
-
+    const {
+        step,
+        setStep,
+        isSubmitting,
+        paymentMethod,
+        handlePaymentMethodSelect, // Usar el del hook
+        handleFormSubmit
+    } = useCheckout({ form });
     useEffect(() => {
         setIsClient(true);
     }, []);
-
-    if (!isClient) {
-        return null; // O un loading spinner
-    }
-    const handlePaymentMethodSelect = async (method: PaymentMethod) => {
-        try {
-            setPaymentMethod(method);
-            const formData = form.getValues();
-
-            // Log inicial
-            console.group('🛒 Procesando Orden');
-            console.log('Método de pago seleccionado:', method);
-            console.log('Datos del formulario:', formData);
-
-            // Convertir montos a números enteros
-            const shippingCost = formData.shippingMethod === 'express' ? 15000 : 5000;
-            const totalAmount = subtotal + shippingCost;
-
-            // Preparar datos de la orden para el backend
-            const orderData = {
-                customerData: {
-                    nombre: formData.fullName,
-                    email: formData.email,
-                    telefono: formData.phone,
-                    direccion: `${formData.address.street}, ${formData.address.city}`
-                },
-                productos: items.map(item => ({
-                    producto: item._id,
-                    cantidad: item.quantity,
-                    talla: item.selectedSize || '',
-                    color: item.selectedColor || ''
-                })),
-                metodoPago: method.toLowerCase() as 'contraentrega' | 'transferencia' | 'qr',
-                totalPagado: totalAmount,
-                direccionEnvio: {
-                    calle: formData.address.street,
-                    ciudad: formData.address.city,
-                    codigoPostal: formData.address.zipCode,
-                    pais: 'Colombia'
-                }
-            };
-
-            // Log de datos de la orden
-            console.log('📦 Datos de la orden a enviar:', orderData);
-            console.log(`URL de envío: ${process.env.NEXT_PUBLIC_API_URL}/orders`);
-
-            // Crear la orden en el backend
-            const orderResponse = await OrderService.createOrder(orderData);
-            console.log('✅ Respuesta del servidor:', orderResponse);
-
-            if (!orderResponse.success) {
-                console.error('❌ Error en la respuesta:', orderResponse);
-                throw new Error('Error al crear la orden');
-            }
-
-            // Log de respuesta exitosa
-            console.log('✨ Orden creada exitosamente:', {
-                orderNumber: orderResponse.data.orderNumber,
-                orderId: orderResponse.data._id
-            });
-
-            // Si es contra entrega, proceder con WhatsApp
-            if (method === PaymentMethod.CONTRA_ENTREGA) {
-                console.log('📱 Preparando notificación WhatsApp');
-                const customerDetails = {
-                    name: formData.fullName,
-                    phone: formData.phone,
-                    address: `${formData.address.street}, ${formData.address.city}`,
-                    shippingMethod: formData.shippingMethod === 'express'
-                        ? 'Express (2-3 días)'
-                        : 'Estándar (5-7 días)',
-                    orderNumber: orderResponse.data.orderNumber
-                };
-
-                const whatsappResult = await sendOrderNotification(
-                    items.map(item => ({
-                        _id: item._id,
-                        nombre: item.nombre,
-                        precio: item.precio,
-                        quantity: item.quantity,
-                        itemTotal: item.precio * item.quantity
-                    })),
-                    customerDetails
-                );
-
-                console.log('📲 Resultado notificación WhatsApp:', whatsappResult);
-
-                if (!whatsappResult.success) {
-                    console.warn('⚠️ Error en WhatsApp:', whatsappResult.error);
-                    toast.error('No se pudo enviar la notificación de WhatsApp, pero su orden fue registrada');
-                }
-            }
-
-            console.groupEnd();
-
-            toast.success('¡Pedido creado exitosamente!');
-            clearCart();
-            router.push(`/order/success?orderNumber=${orderResponse.data.orderNumber}`);
-
-        } catch (error: any) {
-            console.error('❌ Error procesando el pedido:', error);
-            console.groupEnd();
-            toast.error(error.message || 'Error al procesar el pedido');
-        }
-    };
-
-    const handleFormSubmit = async (data: CheckoutFormValues) => {
-        try {
-            setIsSubmitting(true);
-            await new Promise(resolve => setTimeout(resolve, 1500));
-
-            toast.success('Información guardada correctamente');
-            setStep(2);
-            onSubmitComplete?.();
-        } catch (error) {
-            console.error('Error al procesar el pedido:', error);
-            toast.error('Error al procesar el pedido');
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
 
     // Componentes de formulario divididos para mejor organización
     const renderContactForm = () => (

@@ -14,6 +14,8 @@ const uploadRoutes = require('./src/routes/uploadRoutes');
 const resenaRoutes = require('./src/routes/resenaRoutes');
 const pagoRoutes = require('./src/routes/pagoRoutes');
 const productoRoutes = require('./src/routes/productoRoutes');
+const orderRoutes = require('./src/routes/orderRoutes');
+
 
 const app = express();
 
@@ -57,7 +59,7 @@ app.use('/api/v1/productos', productoRoutes);
 app.use('/api/v1/resenas', resenaRoutes);
 app.use('/api/v1/pagos', pagoRoutes);
 app.use('/api/v1/upload', uploadRoutes); // Agregamos la ruta de upload
-
+app.use('/api/v1/orders', orderRoutes); 
 // Error handling middleware
 app.use(errorHandler);
 
