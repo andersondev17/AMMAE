@@ -9,37 +9,57 @@ export class OrderService {
     static async createOrder(orderDetails: CheckoutOrderData) {
         try {
             console.group('🚀 Enviando Orden al Backend');
-            console.log('URL:', `${API_URL}/orders`);
-            console.log('📦 Payload:', JSON.stringify(orderDetails, null, 2));
+            const url = `${API_URL}/orders`;
+            console.log('URL:', url);
+            
+            // Validación de datos requeridos
+            if (!orderDetails.customerData?.nombre ||
+                !orderDetails.customerData?.email ||
+                !orderDetails.customerData?.telefono ||
+                !orderDetails.productos?.length) {
+                throw new Error('Datos incompletos del pedido');
+            }
 
+            // Formatear la orden según el esquema del backend
             const formattedOrder = {
-                ...orderDetails,
-                estado: 'pendiente',
-                fechaPedido: new Date(),
+                customerData: {
+                    nombre: orderDetails.customerData.nombre.trim(),
+                    email: orderDetails.customerData.email.trim(),
+                    telefono: orderDetails.customerData.telefono.trim()
+                },
                 productos: orderDetails.productos.map(p => ({
-                    ...p,
-                    producto: p.producto, // Aseguramos que el ID del producto esté correcto
+                    producto: p.producto, // MongoDB ObjectId
+                    cantidad: Number(p.cantidad),
+                    talla: p.talla || '',
+                    color: p.color || '',
+                    precioUnitario: Number(p.precioUnitario || 0)
                 })),
-                totalPagado: Number(orderDetails.totalPagado) // Convertimos a número
+                metodoPago: orderDetails.metodoPago.toLowerCase(),
+                totalPagado: Number(orderDetails.totalPagado),
+                costoEnvio: Number(orderDetails.costoEnvio || 5000),
+                direccionEnvio: {
+                    calle: orderDetails.direccionEnvio.calle.trim(),
+                    ciudad: orderDetails.direccionEnvio.ciudad.trim(),
+                    codigoPostal: orderDetails.direccionEnvio.codigoPostal.trim(),
+                    pais: 'Colombia'
+                },
+                estado: 'pendiente'
             };
 
-            const response = await axios.post(`${API_URL}/orders`, formattedOrder, {
+            // Log de verificación
+            console.log('📦 Orden formateada:', formattedOrder);
+
+            // Enviar al backend
+            const response = await axios.post(url, formattedOrder, {
                 headers: {
                     'Content-Type': 'application/json'
                 }
             });
 
             console.log('✅ Respuesta del servidor:', response.data);
-            console.groupEnd();
 
             if (!response.data?.success) {
-                throw new Error(response.data?.message || 'Error al crear el pedido');
-            }
-
-            // Verificar estructura de la respuesta
-            if (!response.data.data?.orderNumber) {
-                console.warn('⚠️ Respuesta sin número de orden:', response.data);
-                throw new Error('No se pudo obtener el número de orden');
+                throw new Error('Error en la respuesta del servidor');
             }
 
             return {
@@ -50,18 +70,27 @@ export class OrderService {
 
         } catch (error: any) {
             console.group('❌ Error en OrderService');
-            console.error('Error:', error);
+            console.error('Tipo de error:', error.name);
+            console.error('Mensaje:', error.message);
             console.error('Respuesta del servidor:', error.response?.data);
+            console.error('Estado HTTP:', error.response?.status);
             console.groupEnd();
-
+            
             const errorMessage = error.response?.data?.message || error.message || 'Error al procesar el pedido';
             toast.error(errorMessage);
+            throw error;
+        } finally {
+            console.groupEnd();
+        }
+    }
 
-            throw {
-                success: false,
-                error: errorMessage,
-                details: error.response?.data
-            };
+    static async getOrder(orderNumber: string) {
+        try {
+            const response = await axios.get(`${API_URL}/orders/${orderNumber}`);
+            return response.data;
+        } catch (error) {
+            console.error('Error al obtener la orden:', error);
+            throw error;
         }
     }
 }

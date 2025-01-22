@@ -54,6 +54,7 @@ export const PaymentSelector = ({ selectedMethod, onSelect }: PaymentSelectorPro
                                     variant={isSelected ? "default" : "outline"}
                                     className="w-full"
                                     onClick={() => onSelect(method.id)}
+                                    disabled={isSelected}
                                 >
                                     {isSelected ? 'Seleccionado' : 'Seleccionar'}
                                 </Button>

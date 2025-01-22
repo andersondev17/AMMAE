@@ -67,33 +67,20 @@ export const DEFAULT_IMAGES = {
     primary: '/assets/images/demo/default-product.jpg',
     hover: '/assets/images/demo/default-product.jpg'
 };
-const processImageUrl = (url: string): string => {
-    if (!url) return `${API_URL}${DEFAULT_IMAGES.primary}`;
 
-    // Si la URL ya es absoluta, la devolvemos tal cual
-    if (url.startsWith('http')) return url;
-
-    // Si empieza con /assets, agregamos la URL base
-    if (url.startsWith('/assets')) {
-        return `${API_URL}${url}`;
-    }
-
-    // Para imágenes subidas desde el backend
-    if (url.includes('image-')) {
-        return `${API_URL}/assets/images/demo/${url}`;
-    }
-
-    // Para imágenes demo
-    return `${API_URL}/assets/images/demo/${url}`;
-};
 export const getProductImages = (product: Product): { primary: string; hover: string } => {
     try {
-        // Si el producto tiene imágenes subidas
+        // Si el producto tiene imágenes válidas, procesarlas
         if (product.imagenes?.length) {
-            const processedImages = product.imagenes.map(processImageUrl);
+            const images = product.imagenes.map(img => {
+                if (img.startsWith('/assets')) return img;
+                if (img.startsWith('http')) return img;
+                return `/assets/images/demo/${img}`;
+            });
+
             return {
-                primary: processedImages[0] || processImageUrl(DEFAULT_IMAGES.primary),
-                hover: processedImages[1] || processedImages[0] || processImageUrl(DEFAULT_IMAGES.hover)
+                primary: images[0] || DEFAULT_IMAGES.primary,
+                hover: images[1] || images[0] || DEFAULT_IMAGES.hover
             };
         }
 
@@ -102,23 +89,18 @@ export const getProductImages = (product: Product): { primary: string; hover: st
         if (categoryImages) {
             const randomIndex = Math.floor(Math.random() * categoryImages.primary.length);
             return {
-                primary: processImageUrl(categoryImages.primary[randomIndex]),
-                hover: processImageUrl(categoryImages.hover[randomIndex])
+                primary: categoryImages.primary[randomIndex],
+                hover: categoryImages.hover[randomIndex]
             };
         }
 
-        return {
-            primary: processImageUrl(DEFAULT_IMAGES.primary),
-            hover: processImageUrl(DEFAULT_IMAGES.hover)
-        };
+        return DEFAULT_IMAGES;
     } catch (error) {
         console.error('Error processing product images:', error);
-        return {
-            primary: processImageUrl(DEFAULT_IMAGES.primary),
-            hover: processImageUrl(DEFAULT_IMAGES.hover)
-        };
+        return DEFAULT_IMAGES;
     }
 };
+
 export const getImageUrl = (imageUrl: string): string => {
     try {
         if (!imageUrl) return DEFAULT_IMAGES.primary;

@@ -84,6 +84,10 @@ export interface ProductFilters {
   search?: string;
   stock?: 'inStock' | 'lowStock' | 'outOfStock';
   enOferta?: boolean;
+  tallas?: string;
+  color?: string;
+  precioMin?: string;
+  precioMax?: string;
   fields: string;
 }
 

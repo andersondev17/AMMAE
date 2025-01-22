@@ -88,6 +88,7 @@ orderSchema.pre('save', async function(next) {
         const month = (date.getMonth() + 1).toString().padStart(2, '0');
         const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
         this.orderNumber = `AM${year}${month}-${random}`;
+        console.log('📝 Número de orden generado:', this.orderNumber);
     }
     next();
 });
@@ -98,5 +99,4 @@ orderSchema.index({ fechaPedido: -1 });
 orderSchema.index({ 'customerData.email': 1 });
 
 const Order = mongoose.model('Order', orderSchema);
-
 module.exports = Order;

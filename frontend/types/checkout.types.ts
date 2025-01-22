@@ -27,9 +27,11 @@ export interface CheckoutOrderData {
         cantidad: number;
         talla: string;
         color: string;
+        precioUnitario: number;
     }>;
     metodoPago: string;
     totalPagado: number;
+    costoEnvio: number;
     direccionEnvio: {
         calle: string;
         ciudad: string;
@@ -37,6 +39,8 @@ export interface CheckoutOrderData {
         pais: string;
     };
 }
+
+
 export interface OrderDetailsData {
     orderId: string;
     orderNumber: string;
@@ -81,6 +85,24 @@ export interface CheckoutFormData extends CustomerFormData {
     subtotal: number;
     shipping: number;
     total: number;
+}
+export interface OrderResponse {
+    success: boolean;
+    data: {
+        orderNumber: string;
+        _id: string;
+        customerData: CheckoutOrderData['customerData'];
+        productos: CheckoutOrderData['productos'];
+        estado: string;
+        metodoPago: string;
+        totalPagado: number;
+        costoEnvio: number;
+        direccionEnvio: CheckoutOrderData['direccionEnvio'];
+        fechaPedido: string;
+        createdAt: string;
+        updatedAt: string;
+    };
+    message?: string;
 }
 
 export interface OrderSummaryProps {

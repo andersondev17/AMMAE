@@ -31,7 +31,8 @@ const CheckoutForm = () => {
                 orderItems: cart.items.map(item => ({
                     productId: item._id,
                     quantity: item.quantity,
-                    price: item.precio
+                    price: item.precio,
+                    name: item.nombre 
                 })),
                 subtotal,
                 shipping,

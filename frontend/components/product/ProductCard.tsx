@@ -4,7 +4,7 @@ import { getImageUrl } from '@/utils/demoImages';
 import { Edit, Trash } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { memo, useCallback, useState } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 
@@ -49,29 +49,41 @@ const ProductImage = memo(({
     product: Product;
     isHovering: boolean;
 }) => {
-    const [imageError, setImageError] = useState(false);
-    const primaryImage = getImageUrl(product.imagenes?.[0] || '');
-    const secondaryImage = getImageUrl(product.imagenes?.[1] || '');
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(false);
+
+    const { primary, hover } = useMemo(() => {
+        const images = product.imagenes?.map(img => getImageUrl(img)) || [];
+        return {
+            primary: images[0] || getImageUrl(`default/${product.categoria.toLowerCase()}.jpg`),
+            hover: images[1] || images[0] || getImageUrl(`default/${product.categoria.toLowerCase()}.jpg`)
+        };
+    }, [product]);
 
     return (
         <div className="relative aspect-[3/4] overflow-hidden bg-gray-100">
+            {/* Primary Image */}
             <Image
-                src={primaryImage}
+                src={primary}
                 alt={product.nombre}
                 className={`
                     absolute inset-0 w-full h-full object-cover
-                    transition-opacity duration-300 ease-out
+                    transition-all duration-300 ease-out
                     ${isHovering ? 'opacity-0' : 'opacity-100'}
+                    ${isLoading ? 'scale-110 blur-sm' : 'scale-100 blur-0'}
                 `}
                 fill
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 priority
-                onError={() => setImageError(true)}
+                onLoad={() => setIsLoading(false)}
+                onError={() => setError(true)}
             />
-            {secondaryImage && (
+
+            {/* Hover Image */}
+            {!error && hover && (
                 <Image
-                    src={secondaryImage}
-                    alt={`${product.nombre} - vista alternativa`}
+                    src={hover}
+                    alt={`${product.nombre} - alternativa`}
                     className={`
                         absolute inset-0 w-full h-full object-cover
                         transition-opacity duration-300 ease-out
@@ -79,8 +91,13 @@ const ProductImage = memo(({
                     `}
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    onError={() => setImageError(true)}
+                    onError={() => setError(true)}
                 />
+            )}
+
+            {/* Loading Indicator */}
+            {isLoading && (
+                <div className="absolute inset-0 bg-gray-100 animate-pulse" />
             )}
         </div>
     );
