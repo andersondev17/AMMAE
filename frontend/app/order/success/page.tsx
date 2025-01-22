@@ -25,7 +25,7 @@ export default function OrderSuccessPage() {
         const fetchOrderDetails = async () => {
             try {
                 const details = await OrderService.getOrder(orderNumber);
-               
+
             } catch (error) {
                 console.error('Error fetching order details:', error);
             } finally {
@@ -43,7 +43,7 @@ export default function OrderSuccessPage() {
     }
 
     return (
-        <div className="container max-w-2xl mx-auto px-4 py-8">
+        <div className="flex items-center justify-center w-screen h-screen px-4">
             <Card>
                 <CardHeader className="text-center">
                     <CheckCircle className="w-16 h-16 mx-auto text-green-500 mb-4" />
