@@ -10,6 +10,7 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { motion } from 'framer-motion';
 import { Package } from 'lucide-react';
 import Link from 'next/link';
+import { Suspense } from 'react';
 
 
 export default function Home() {
@@ -36,6 +37,8 @@ export default function Home() {
         <p className="text-red-500">Algo salió mal. Por favor, intenta recargar la página.</p>
       </div>
     }>
+    <Suspense fallback={<ProductSkeleton />}>
+
       <VideoHero
         videoUrl="/assets/videos/fashion-hero.mp4"
         title="AMMAE COLLECTION"
@@ -103,6 +106,8 @@ export default function Home() {
           )}
         </div>
       </section>
+      </Suspense>
+
     </ErrorBoundary>
   );
 }

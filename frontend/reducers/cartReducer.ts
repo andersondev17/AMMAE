@@ -38,13 +38,14 @@ export const cartReducer = (state: CartState, action: CartAction): CartState => 
                 quantity: options?.quantity || 1,
                 selectedSize: options?.size,
                 selectedColor: options?.color,
-                itemTotal: calculateItemTotal(product.precio, options?.quantity || 1)
+                itemTotal: calculateItemTotal(product.precio, options?.quantity || 1),
+                price: product.precio
             };
 
             return {
                 ...state,
                 items: [...state.items, newItem],
-                total: calculateCartTotal([...state.items, newItem])
+                total: calculateCartTotal([...state.items, newItem]),
             };
         }
         default:
