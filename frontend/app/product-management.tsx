@@ -1,5 +1,5 @@
 import React from 'react';
-import { AdminLayout } from '../components/Layout/AdminLayout';
+import AdminLayout from '../components/Layout/AdminLayout';
 import { ProductManagement } from '../components/ProductManagement';
 
 const ProductManagementPage: React.FC = () => {

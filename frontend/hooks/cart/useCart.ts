@@ -57,7 +57,9 @@ export const useCart = create<CartStore>()(
                         quantity: 1,
                         selectedSize: size,
                         selectedColor: color,
+                        price: product.precio, // Add this line
                         itemTotal: product.precio // Calculado al crear
+                        
                     };
                     updatedItems = [...currentItems, newItem];
                 }
