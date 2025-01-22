@@ -1,4 +1,5 @@
 require('dotenv').config();
+const serverless = require('serverless-http');
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
@@ -75,4 +76,4 @@ process.on('unhandledRejection', (err) => {
     server.close(() => process.exit(1));
 });
 
-module.exports = app;
+module.exports.handler = serverless(app);
