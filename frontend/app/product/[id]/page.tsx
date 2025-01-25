@@ -10,7 +10,21 @@ import { getImageUrl } from '@/utils/demoImages';
 import { ShoppingBag } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { toast } from 'sonner';
+
+const COLOR_MAP = {
+  'Negro': '#000000',
+  'Blanco': '#FFFFFF',
+  'Azul': '#2563EB',
+  'Rojo': '#DC2626',
+  'Verde': '#059669',
+  'Amarillo': '#CA8A04',
+  'Morado': '#7C3AED',
+  'Rosa': '#DB2777',
+  'Gris': '#4B5563',
+  'Beige': '#D4B89C'
+} as const;
 
 export default function ProductPage({ params }: { params: { id: string } }) {
   const [product, setProduct] = useState<Product | null>(null);
@@ -40,30 +54,31 @@ export default function ProductPage({ params }: { params: { id: string } }) {
     fetchProduct();
   }, [params.id, router]);
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Spinner />
-      </div>
-    );
-  }
-
-  if (!product) {
-    return null;
-  }
-
-  const handleAddToCart = () => {
+  const handleAddToCart = useCallback(() => {
+    if (!product) return;
+    
     if (!selectedSize && product.tallas.length > 0) {
-      alert('Por favor selecciona una talla');
+      toast.error('Por favor selecciona una talla');
       return;
     }
     if (!selectedColor && product.colores.length > 0) {
-      alert('Por favor selecciona un color');
+      toast.error('Por favor selecciona un color');
       return;
     }
+  
+    // objeto de opciones
+    const options = {
+      size: selectedSize,
+      color: selectedColor,
+      quantity: 1
+    };
+  
+    addItem(product, options);
+    toast.success('Producto agregado al carrito');
+  }, [product, selectedSize, selectedColor, addItem]);
 
-    addItem(product);
-  };
+  if (isLoading) return <div className="flex items-center justify-center min-h-[60vh]"><Spinner /></div>;
+  if (!product) return null;
 
   return (
     <div className="container mx-auto px-4 py-20">
@@ -84,13 +99,13 @@ export default function ProductPage({ params }: { params: { id: string } }) {
               <button
                 key={idx}
                 onClick={() => setMainImage(getImageUrl(img))}
-                className="aspect-square relative overflow-hidden rounded-md bg-gray-100"
+                className="aspect-square relative overflow-hidden rounded-md bg-gray-100 hover:opacity-75 transition-opacity"
               >
                 <Image
                   src={getImageUrl(img)}
                   alt={`${product.nombre} vista ${idx + 1}`}
                   fill
-                  className="object-cover hover:opacity-75 transition-opacity"
+                  className="object-cover"
                 />
               </button>
             ))}
@@ -127,15 +142,16 @@ export default function ProductPage({ params }: { params: { id: string } }) {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-gray-900">Talla</span>
-                <span className="text-sm text-gray-500">Guía de tallas</span>
+                <span className="text-sm text-gray-500">
+                  {selectedSize || 'Selecciona una talla'}
+                </span>
               </div>
               <div className="grid grid-cols-4 gap-2">
-                {Array.from(new Set(product.tallas)).map((talla) => ( // Aseguramos valores únicos
+                {Array.from(new Set(product.tallas)).map((talla) => (
                   <Button
-                    key={`size-${talla}-${product._id}`} // Key única
+                    key={`size-${talla}`}
                     variant={selectedSize === talla ? "default" : "outline"}
                     onClick={() => setSelectedSize(talla)}
-                    className="relative"
                   >
                     {talla}
                   </Button>
@@ -147,20 +163,31 @@ export default function ProductPage({ params }: { params: { id: string } }) {
           {/* Selector de colores */}
           {product.colores.length > 0 && (
             <div className="space-y-4">
-              <span className="text-sm font-medium text-gray-900">Color</span>
-              <div className="flex flex-wrap gap-2">
-                {product.colores.map((color) => (
-                  <button
-                    key={color}
-                    onClick={() => setSelectedColor(color)}
-                    className={`
-                      w-10 h-10 rounded-full 
-                      ${selectedColor === color ? 'ring-2 ring-blue-500 ring-offset-2' : 'ring-1 ring-gray-200'}
-                    `}
-                    style={{ backgroundColor: color }}
-                    title={color}
-                  />
-                ))}
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-gray-900">Color</span>
+                <span className="text-sm text-gray-500">
+                  {selectedColor || 'Selecciona un color'}
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-3">
+                {product.colores.map((color) => {
+                  const colorValue = COLOR_MAP[color as keyof typeof COLOR_MAP] || color;
+                  const isLight = ['#FFFFFF', '#D4B89C', '#CA8A04'].includes(colorValue);
+                  
+                  return (
+                    <button
+                      key={color}
+                      onClick={() => setSelectedColor(color)}
+                      className={`
+                        w-12 h-12 rounded-full transition-all
+                        ${selectedColor === color ? 'ring-2 ring-blue-500 ring-offset-2 scale-105' : 'hover:scale-105'}
+                        ${isLight ? 'border border-gray-200' : ''}
+                      `}
+                      style={{ backgroundColor: colorValue }}
+                      title={color}
+                    />
+                  );
+                })}
               </div>
             </div>
           )}
@@ -174,7 +201,12 @@ export default function ProductPage({ params }: { params: { id: string } }) {
             <ul className="space-y-2 text-sm text-gray-600">
               <li><strong>Material:</strong> {product.material}</li>
               <li><strong>Estilo:</strong> {product.estilo}</li>
-              <li><strong>Disponibilidad:</strong> {product.stock} unidades</li>
+              <li>
+                <strong>Disponibilidad:</strong>{' '}
+                <span className={product.stock > 0 ? 'text-green-600' : 'text-red-600'}>
+                  {product.stock > 0 ? `${product.stock} unidades disponibles` : 'Agotado'}
+                </span>
+              </li>
             </ul>
           </div>
 

@@ -70,8 +70,13 @@ export const Cart = memo(() => {
                                 {items.map((item) => (
                                     <CartItem
                                         key={`${item._id}-${item.selectedSize}-${item.selectedColor}`}
-                                        product={item}
+                                        product={{
+                                            ...item,
+                                            selectedSize: item.selectedSize,
+                                            selectedColor: item.selectedColor
+                                        }} 
                                         quantity={item.quantity}
+
                                         onRemove={removeItem}
                                         onUpdateQuantity={updateQuantity}
                                     />
@@ -104,7 +109,7 @@ export const Cart = memo(() => {
                                 >
                                     CHECKOUT
                                 </Button>
-                                
+
                                 <Button
                                     onClick={clearCart}
                                     variant="outline"

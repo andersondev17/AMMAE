@@ -40,6 +40,18 @@ export const CartItem = memo(({
                             {product.categoria}
                         </p>
                     </div>
+                    <div className="mt-1 flex flex-wrap gap-2 text-xs text-gray-500">
+                            {product.selectedSize && (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100">
+                                    Talla: {product.selectedSize}
+                                </span>
+                            )}
+                            {product.selectedColor && (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100">
+                                    Color: {product.selectedColor}
+                                </span>
+                            )}
+                        </div>
                     <Button
                         onClick={() => onRemove(product._id)}
                         variant="ghost"

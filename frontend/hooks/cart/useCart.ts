@@ -18,28 +18,28 @@ export const useCart = create<CartStore>()(
             shipping:0,
 
             addItem: (product: Product, options = {}) => {
-                const { size, color } = options;
+                const { size, color, quantity = 1 } = options;
                 const currentItems = get().items;
                 
                 if (product.stock <= 0) {
                     toast.error('Producto agotado');
                     return;
                 }
-
+            
                 const existingItem = currentItems.find(item => 
                     item._id === product._id && 
                     item.selectedSize === size && 
                     item.selectedColor === color
                 );
-
+            
                 let updatedItems: CartItem[];
-
+            
                 if (existingItem) {
                     if (existingItem.quantity >= product.stock) {
                         toast.error('No hay más unidades disponibles');
                         return;
                     }
-
+            
                     updatedItems = currentItems.map(item =>
                         item._id === product._id &&
                         item.selectedSize === size &&
@@ -54,23 +54,22 @@ export const useCart = create<CartStore>()(
                 } else {
                     const newItem: CartItem = {
                         ...product,
-                        quantity: 1,
+                        quantity,
                         selectedSize: size,
                         selectedColor: color,
-                        price: product.precio, // Add this line
-                        itemTotal: product.precio // Calculado al crear
-                        
+                        price: product.precio,
+                        itemTotal: product.precio * quantity
                     };
                     updatedItems = [...currentItems, newItem];
                 }
-
+            
                 set({
                     items: updatedItems,
                     total: calculateTotal(updatedItems),
                     itemCount: calculateItemCount(updatedItems),
                     isOpen: true,
                 });
-
+            
                 toast.success('Producto añadido al carrito');
             },
 

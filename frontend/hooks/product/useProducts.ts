@@ -1,54 +1,27 @@
 // hooks/useProducts.ts
-
-
-/* Las operaciones CRUD se realizan a través de las mutaciones proporcionadas por el hook useProducts, 
-que internamente utiliza react-query para la gestión del estado del servidor. */
-
-// hooks/useProducts.ts
 import { productService } from '@/services/productService';
 import { ProductFilters, ProductFormData } from '@/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
-// Definición de constantes
+// Constantes centralizadas
 const STOCK_THRESHOLDS = {
     LOW_STOCK: 5,
     OUT_OF_STOCK: 0,
-    CACHE_TIME: 5 * 60 * 1000, // 5 minutos
+    CACHE_TIME: 5 * 60 * 1000,
     DEFAULT_PAGE_SIZE: 12
 } as const;
 
-// Función auxiliar para construir los parámetros de consulta
-const buildQueryParams = (filters: Partial<ProductFilters>): URLSearchParams => {
-    const queryParams = new URLSearchParams();
-    const {
-        page,
-        limit = STOCK_THRESHOLDS.DEFAULT_PAGE_SIZE,
-        sortBy = '-createdAt',
-        categoria,
-        search,
-        stock,
-        enOferta
-    } = filters;
-
-    // Mapeo de filtros a parámetros
-    const paramMappings: Record<string, string | undefined> = {
-        page: page?.toString(),
-        limit: limit.toString(),
-        sort: sortBy,
-        categoria,
-        search,
-        stock,
-        enOferta: enOferta ? 'true' : undefined
-    };
-
-    // Agregar parámetros válidos
-    Object.entries(paramMappings).forEach(([key, value]) => {
-        if (value) queryParams.append(key, value);
-    });
-
-    return queryParams;
-};
+// Helper para construir parámetros de consulta
+const buildQueryParams = (filters: Partial<ProductFilters>) => ({
+    page: filters.page || 1,
+    limit: filters.limit || STOCK_THRESHOLDS.DEFAULT_PAGE_SIZE,
+    sortBy: filters.sortBy || '-createdAt',
+    categoria: filters.categoria || '',
+    search: filters.search || '',
+    stock: filters.stock,
+    enOferta: filters.enOferta
+});
 
 export function useProducts(filters: Partial<ProductFilters> = {}) {
     const queryClient = useQueryClient();
@@ -62,35 +35,25 @@ export function useProducts(filters: Partial<ProductFilters> = {}) {
     } = useQuery({
         queryKey: ['products', filters],
         queryFn: async () => {
-            // Ahora pasamos los filtros directamente
-            return await productService.getProducts({
-                page: filters.page || 1,
-                limit: filters.limit || STOCK_THRESHOLDS.DEFAULT_PAGE_SIZE,
-                sortBy: filters.sortBy || '-createdAt',
-                categoria: filters.categoria || '',
-                search: filters.search || '',
-                stock: filters.stock,
-                enOferta: filters.enOferta
-            });
+            return await productService.getProducts(buildQueryParams(filters));
         },
         staleTime: STOCK_THRESHOLDS.CACHE_TIME,
-        refetchInterval: false, // Desactivamos el refresco automático
         refetchOnWindowFocus: true,
     });
-    
-    // Handler genérico para errores de mutación
+
+    // Handler genérico para errores
     const handleMutationError = (error: any, defaultMessage: string) => {
         const errorMessage = error?.response?.data?.message || defaultMessage;
         toast.error(errorMessage);
         console.error('useProducts - Error:', error);
     };
 
-    // Mutaciones CRUD
+    // Mutaciones CRUD optimizadas
     const mutations = {
         create: useMutation({
-            mutationFn: async (formData: ProductFormData) => {
+            mutationFn: (formData: ProductFormData) => {
                 console.log('Iniciando creación de producto:', formData);
-                return await productService.createProduct(formData);
+                return productService.createProduct(formData);
             },
             onSuccess: () => {
                 queryClient.invalidateQueries({ queryKey: ['products'] });
@@ -100,9 +63,9 @@ export function useProducts(filters: Partial<ProductFilters> = {}) {
         }),
 
         update: useMutation({
-            mutationFn: async ({ id, data }: { id: string; data: ProductFormData }) => {
+            mutationFn: ({ id, data }: { id: string; data: ProductFormData }) => {
                 console.log('Iniciando actualización de producto:', { id, data });
-                return await productService.updateProduct(id, data);
+                return productService.updateProduct(id, data);
             },
             onSuccess: () => {
                 queryClient.invalidateQueries({ queryKey: ['products'] });
@@ -112,8 +75,8 @@ export function useProducts(filters: Partial<ProductFilters> = {}) {
         }),
 
         delete: useMutation({
-            mutationFn: async (id: string) => {
-                return await productService.deleteProduct(id);
+            mutationFn: (id: string) => {
+                return productService.deleteProduct(id);
             },
             onSuccess: () => {
                 queryClient.invalidateQueries({ queryKey: ['products'] });
