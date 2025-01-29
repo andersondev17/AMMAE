@@ -17,6 +17,8 @@ export interface WhatsAppOrderItem {
     precio: number;
     quantity: number;
     itemTotal: number;
+    selectedSize?: string;
+    selectedColor?: string;
 }
 
 

@@ -1,17 +1,5 @@
 'use client';
 
-import { useCart } from '@/hooks/cart/useCart';
-import { checkoutFormSchema, type CheckoutFormValues } from '@/lib/validations/checkoutFormSchema';
-import { useWhatsApp } from '@/services/whatsAppService';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { OrderSummary } from './OrderSummary';
-import { PaymentSelector } from './PaymentSelector';
-import { Steps } from './Steps';
-
 import { Button } from '@/components/ui/button';
 import {
     Card,
@@ -39,7 +27,20 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import { useCart } from '@/hooks/cart/useCart';
 import { useCheckout } from '@/hooks/shared/useCheckout';
+import { checkoutFormSchema, type CheckoutFormValues } from '@/lib/validations/checkoutFormSchema';
+import { useWhatsApp } from '@/services/whatsAppService';
+import { PaymentMethod } from '@/types/checkout.types';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { OrderSummary } from './OrderSummary';
+import { PaymentDetails } from './payment/PaymentDetails';
+import { PaymentSelector } from './payment/PaymentSelector';
+import { Steps } from './Steps';
 
 interface CheckoutFormProps {
     onSubmitComplete?: () => void;
@@ -82,6 +83,11 @@ export function CheckoutForm({ onSubmitComplete }: CheckoutFormProps) {
         setIsClient(true);
     }, []);
 
+    const [comprobante, setComprobante] = useState<File | null>(null);
+
+    const handleComprobanteUpload = (file: File) => {
+        setComprobante(file);
+    };
     // Componentes de formulario divididos para mejor organización
     const renderContactForm = () => (
         <div className="space-y-4">
@@ -285,10 +291,25 @@ export function CheckoutForm({ onSubmitComplete }: CheckoutFormProps) {
                     )}
 
                     {step === 2 && (
-                        <PaymentSelector
-                            selectedMethod={paymentMethod}
-                            onSelect={handlePaymentMethodSelect}
-                        />
+                        <div className="space-y-6">
+                            <PaymentSelector
+                                selectedMethod={paymentMethod}
+                                onSelect={handlePaymentMethodSelect}
+                            />
+                            {paymentMethod && (paymentMethod === PaymentMethod.QR || paymentMethod === PaymentMethod.TRANSFERENCIA) && (
+                                <PaymentDetails
+                                    method={paymentMethod}
+                                    onComprobanteUpload={handleComprobanteUpload}
+                                />
+                            )}
+                            <Button
+                                className="w-full"
+                                disabled={!paymentMethod || (paymentMethod !== PaymentMethod.CONTRA_ENTREGA && !comprobante)}
+                                onClick={() => setStep(3)}
+                            >
+                                Continuar
+                            </Button>
+                        </div>
                     )}
                 </div>
 

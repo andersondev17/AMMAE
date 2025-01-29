@@ -25,8 +25,8 @@ export interface CheckoutOrderData {
     productos: Array<{
         producto: string;
         cantidad: number;
-        talla: string;
-        color: string;
+        selectedSize: string;
+        selectedColor: string;
         precioUnitario: number;
     }>;
     metodoPago: string;
@@ -111,8 +111,8 @@ export interface OrderSummaryProps {
         nombre: string;
         precio: number;
         quantity: number;
-        imagenes: string[]; 
-        itemTotal: number; 
+        imagenes: string[];
+        itemTotal: number;
 
     }[];
     subtotal: number;

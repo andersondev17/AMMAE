@@ -54,15 +54,31 @@ export class WhatsAppService {
 
     private static formatOrderMessage(orderDetails: OrderDetails & { orderNumber?: string }): string {
         const { items, customerDetails, orderNumber} = orderDetails;
-
+    
         const itemsList = items
-        .map(item => `• ${item.nombre} x${item.quantity} - $${item.itemTotal.toLocaleString()}`)
-        .join('\n');
-
+            .map(item => {
+                let itemDetails = `• ${item.nombre} x${item.quantity}`;
+                
+                // Agregamos color y talla si existen
+                const details = [];
+                if (item.selectedSize) details.push(`Talla: ${item.selectedSize}`);
+                if (item.selectedColor) details.push(`Color: ${item.selectedColor}`);
+                
+                if (details.length > 0) {
+                    itemDetails += ` (${details.join(' - ')})`;
+                }
+                
+                // Agregamos el precio al final
+                itemDetails += ` - $${item.itemTotal.toLocaleString()}`;
+                
+                return itemDetails;
+            })
+            .join('\n');
+    
         const subtotal = items.reduce((sum, item) => sum + item.itemTotal, 0);
-        const shippingCost = customerDetails.shippingMethod.includes('Express') ? 15000 : 5000;//costo domi delivery
+        const shippingCost = customerDetails.shippingMethod.includes('Express') ? 15000 : 5000;
         const total = subtotal + shippingCost;
-
+    
         return `🛍️ *Nuevo Pedido${orderNumber ? ` #${orderNumber}` : ''}*\n\n` +
             `📋 *Detalles del Cliente:*\n` +
             `• Nombre: ${customerDetails.name}\n` +
@@ -71,9 +87,9 @@ export class WhatsAppService {
             `• Envío: ${customerDetails.shippingMethod}\n\n` +
             `🛒 *Productos:*\n${itemsList}\n\n` +
             `💰 *Resumen:*\n` +
-            `• Subtotal: $${subtotal}\n` +
-            `• Envío: $${shippingCost}\n` +
-            `• Total: $${total}\n\n` +
+            `• Subtotal: $${subtotal.toLocaleString()}\n` +
+            `• Envío: $${shippingCost.toLocaleString()}\n` +
+            `• Total: $${total.toLocaleString()}\n\n` +
             `¡Gracias por tu compra! 🌟`;
     }
 

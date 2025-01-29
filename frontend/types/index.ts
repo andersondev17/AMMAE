@@ -17,6 +17,9 @@ export interface Product {
   material: string;
   createdAt: string;
   updatedAt: string;
+  selectedSize?: string;
+  selectedColor?: string; 
+
 }
 export interface Category {
   id: ProductCategory;

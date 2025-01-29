@@ -70,8 +70,13 @@ export const Cart = memo(() => {
                                 {items.map((item) => (
                                     <CartItem
                                         key={`${item._id}-${item.selectedSize}-${item.selectedColor}`}
-                                        product={item}
+                                        product={{
+                                            ...item,
+                                            selectedSize: item.selectedSize,
+                                            selectedColor: item.selectedColor
+                                        }} 
                                         quantity={item.quantity}
+
                                         onRemove={removeItem}
                                         onUpdateQuantity={updateQuantity}
                                     />
@@ -84,7 +89,7 @@ export const Cart = memo(() => {
                                 <div className="space-y-1">
                                     <div className="flex justify-between text-sm">
                                         <span>Subtotal</span>
-                                        <span>${total.toFixed(2)}</span>
+                                        <span>${total}</span>
                                     </div>
                                     <div className="flex justify-between text-sm">
                                         <span>Envío</span>
@@ -93,7 +98,7 @@ export const Cart = memo(() => {
                                     <Separator className="my-2" />
                                     <div className="flex justify-between text-base font-medium">
                                         <span>Total</span>
-                                        <span>${total.toFixed(2)}</span>
+                                        <span>${total}</span>
                                     </div>
                                 </div>
 
@@ -104,7 +109,7 @@ export const Cart = memo(() => {
                                 >
                                     CHECKOUT
                                 </Button>
-                                
+
                                 <Button
                                     onClick={clearCart}
                                     variant="outline"

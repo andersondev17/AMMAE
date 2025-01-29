@@ -30,8 +30,8 @@ export class OrderService {
                 productos: orderDetails.productos.map(p => ({
                     producto: p.producto, // MongoDB ObjectId
                     cantidad: Number(p.cantidad),
-                    talla: p.talla || '',
-                    color: p.color || '',
+                    talla: p.selectedSize || '',  
+                    color: p.selectedColor || '', 
                     precioUnitario: Number(p.precioUnitario || 0)
                 })),
                 metodoPago: orderDetails.metodoPago.toLowerCase(),
