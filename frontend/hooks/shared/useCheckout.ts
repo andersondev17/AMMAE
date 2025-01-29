@@ -43,28 +43,28 @@ export const useCheckout = ({ form }: UseCheckoutProps): UseCheckoutReturn => {
             
             const orderData = {
                 customerData: {
-                    nombre: formData.fullName.trim(),
-                    email: formData.email.trim(),
-                    telefono: formData.phone.trim(),
-                    direccion: `${formData.address.street}, ${formData.address.city}`,
+                  nombre: formData.fullName.trim(),
+                  email: formData.email.trim(),
+                  telefono: formData.phone.trim(),
+                  direccion: `${formData.address.street}, ${formData.address.city}`,
                 },
                 productos: items.map(item => ({
-                    producto: item._id,
-                    cantidad: item.quantity,
-                    talla: item.selectedSize || '',
-                    color: item.selectedColor || '',
-                    precioUnitario: item.precio,
+                  producto: item._id,
+                  cantidad: item.quantity,
+                  selectedSize: item.selectedSize || '',
+                  selectedColor: item.selectedColor || '',
+                  precioUnitario: item.precio,
                 })),
                 metodoPago: method.toLowerCase().replace('_', ''),
                 totalPagado: totalAmount,
                 costoEnvio: shippingCost,
                 direccionEnvio: {
-                    calle: formData.address.street.trim(),
-                    ciudad: formData.address.city.trim(),
-                    codigoPostal: formData.address.zipCode.trim(),
-                    pais: 'Colombia',
+                  calle: formData.address.street.trim(),
+                  ciudad: formData.address.city.trim(),
+                  codigoPostal: formData.address.zipCode.trim(),
+                  pais: 'Colombia',
                 },
-            };
+              };
 
             const orderResponse = await OrderService.createOrder(orderData);
 
