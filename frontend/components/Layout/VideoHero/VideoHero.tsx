@@ -1,10 +1,11 @@
-// components/Layout/VideoHero/index.tsx
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronDown, Pause, Play, Volume2, VolumeX } from 'lucide-react';
+import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 
 interface VideoHeroProps {
-    videoUrl: string;
+    videoUrl?: string;
+    placeholderImage?: string;
     title: string;
     subtitle?: string;
     ctaText?: string;
@@ -13,6 +14,7 @@ interface VideoHeroProps {
 
 export const VideoHero = ({
     videoUrl,
+    placeholderImage = '/assets/images/hero-preview.jpg',
     title,
     subtitle,
     ctaText = "Explorar Colección",
@@ -23,7 +25,7 @@ export const VideoHero = ({
     const [isLoaded, setIsLoaded] = useState(false);
     const videoRef = useRef<HTMLVideoElement>(null);
 
-    // Aseguramos la reproducción inicial con un manejo adecuado
+    
     useEffect(() => {
         const videoElement = videoRef.current;
         if (videoElement) {
@@ -39,7 +41,6 @@ export const VideoHero = ({
 
             playVideo();
 
-            // Cleanup
             return () => {
                 if (videoElement) {
                     videoElement.pause();
@@ -68,7 +69,26 @@ export const VideoHero = ({
 
     return (
         <div className="relative w-full h-screen overflow-hidden">
-            {/* Video Background con preload */}
+            {/* Imagen de precarga */}
+            <AnimatePresence>
+                {!isLoaded && (
+                    <div
+                        className="absolute inset-0 z-20"
+                    >
+                        <Image
+                            src={placeholderImage}
+                            alt="Preview"
+                            fill
+                            className="object-cover"
+                            priority
+                            sizes="100vw"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/40" />
+                    </div>
+                )}
+            </AnimatePresence>
+
+            {/* Video Background */}
             <video
                 ref={videoRef}
                 className="absolute top-0 left-0 w-full h-full object-cover"
@@ -82,60 +102,59 @@ export const VideoHero = ({
                 <source src={videoUrl} type="video/mp4" />
             </video>
 
-            {/* Overlay optimizado */}
+            {/* Overlay */}
             <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/40 z-10" />
 
-            {/* Content con AnimatePresence optimizado */}
-            
-                {isLoaded && (
-                    <div
-                        className="relative z-20 h-full flex flex-col justify-center items-center text-white px-4 sm:px-6 lg:px-8"
+            {/* Content */}
+            <div className="relative z-20 h-full flex flex-col justify-center items-center text-white px-4 sm:px-6 lg:px-8">
+                <motion.h1
+                    className="text-4xl md:text-6xl lg:text-7xl font-bold text-center mb-6"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.2 }}
+                >
+                    {title}
+                </motion.h1>
+
+                {subtitle && (
+                    <motion.p
+                        className="text-xl md:text-2xl text-center mb-8 max-w-2xl"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.3 }}
                     >
-                        <h1
-                            className="text-4xl md:text-6xl lg:text-7xl font-bold text-center mb-6"
-                        >
-                            {title}
-                        </h1>
-
-                        {subtitle && (
-                            <p
-                                className="text-xl md:text-2xl text-center mb-8 max-w-2xl"
-
-                            >
-                                {subtitle}
-                            </p>
-                        )}
-
-                        <motion.button
-                            className="px-8 py-4 bg-white text-black font-medium rounded-full 
-                                     hover:bg-black hover:text-white transition-all duration-300
-                                     transform hover:scale-105 shadow-lg"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={onCtaClick}
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ duration: 0.3, delay: 0.4 }}
-                        >
-                            {ctaText}
-                        </motion.button>
-
-                        <motion.div
-                            className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ duration: 0.5, delay: 0.5 }}
-                        >
-                            <ChevronDown
-                                className="w-8 h-8 text-white animate-bounce cursor-pointer"
-                                onClick={onCtaClick}
-                            />
-                        </motion.div>
-                    </div>
+                        {subtitle}
+                    </motion.p>
                 )}
-            
 
-            {/* Video Controls optimizados */}
+                <motion.button
+                    className="px-8 py-4 bg-white text-black font-medium rounded-full 
+                             hover:bg-black hover:text-white transition-all duration-300
+                             transform hover:scale-105 shadow-lg"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={onCtaClick}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.3, delay: 0.4 }}
+                >
+                    {ctaText}
+                </motion.button>
+
+                <motion.div
+                    className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.5, delay: 0.5 }}
+                >
+                    <ChevronDown
+                        className="w-8 h-8 text-white animate-bounce cursor-pointer"
+                        onClick={onCtaClick}
+                    />
+                </motion.div>
+            </div>
+
+            {/* Video Controls */}
             <div className="absolute bottom-8 right-8 z-30 flex gap-4">
                 <button
                     onClick={togglePlay}

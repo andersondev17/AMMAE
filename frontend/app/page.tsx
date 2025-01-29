@@ -4,12 +4,13 @@ import ErrorBoundary from '@/components/ErrorBoundary';
 import CategoriesSection from '@/components/Layout/CategoriesSection';
 import { VideoHero } from '@/components/Layout/VideoHero/VideoHero';
 import { ProductSkeleton } from '@/components/skeletons/ProductSkeleton';
+import { BackToTop } from '@/components/ui/backToTop';
 import { useProducts } from '@/hooks/product/useProducts';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { Package } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { Suspense } from 'react';
+import { Suspense, useState } from 'react';
 
 const ProductList = dynamic(() => import('@/components/product/ProductList').then(mod => ({
   default: mod.ProductList
@@ -31,6 +32,8 @@ export default function Home() {
     sortBy: '-createdAt'
   });
 
+  const [loading, setLoading] = useState(true);
+
   // Simplified smooth scroll
   const scrollToProducts = () => {
     document.getElementById('products-section')?.scrollIntoView({ behavior: 'smooth' });
@@ -42,15 +45,26 @@ export default function Home() {
         <p className="text-red-500">Error al cargar la página</p>
       </div>
     }>
+
       <Suspense fallback={<ProductSkeleton />}>
         <VideoHero
-          videoUrl="/assets/videos/fashion-hero.mp4"  
+          videoUrl="/assets/videos/fashion-hero.mp4"
+          placeholderImage="/assets/images/demo/default-product.jpg"
           title="AMMAE COLLECTION"
           subtitle="Descubre nuestra exclusiva colección de moda femenina"
           ctaText="Ver Colección"
+
           onCtaClick={scrollToProducts}
         />
 
+
+        <VideoHero
+          placeholderImage="/assets/images/hero.png"
+          title="Club de San Valentín"
+          subtitle="Coleccion disponible solo por tiempo limitado"
+          ctaText="Ver mas"
+          onCtaClick={scrollToProducts}
+        />
         <CategoriesSection />
 
         <section id="products-section" className="min-h-screen bg-white">
@@ -68,7 +82,7 @@ export default function Home() {
                 )}
               </div>
 
-              <Link 
+              <Link
                 href="/admin/products"
                 className="flex items-center px-8 py-4 bg-blue-600 text-white font-medium rounded-lg
                          hover:bg-blue-700 transition-colors shadow-md"
@@ -101,6 +115,8 @@ export default function Home() {
           </div>
         </section>
       </Suspense>
+      <BackToTop />
+
     </ErrorBoundary>
   );
 }

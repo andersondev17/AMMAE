@@ -149,10 +149,7 @@ const CategoriesSection = () => {
         <section className="relative bg-black min-h-screen">
             <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.02] pointer-events-none" />
 
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 1 }}
+            <div
                 className="text-center py-16 md:py-24 text-white relative z-10"
             >
                 <h2 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-white to-gray-300 
@@ -162,9 +159,9 @@ const CategoriesSection = () => {
                 <p className="text-xl text-gray-300 max-w-3xl mx-auto px-4">
                     Descubre las últimas tendencias en moda femenina
                 </p>
-            </motion.div>
+            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2">
                 {categories.map((category, index) => (
                     <CategoryCard
                         key={category.id}

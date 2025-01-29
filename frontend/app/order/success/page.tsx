@@ -73,13 +73,13 @@ export default function OrderSuccessPage() {
                                         <span>
                                             {item.quantity}x {item.nombre}
                                         </span>
-                                        <span>${(item.precio * item.quantity).toFixed(2)}</span>
+                                        <span>${(item.precio * item.quantity)}</span>
                                     </div>
                                 ))}
                                 <div className="border-t pt-4">
                                     <div className="flex justify-between font-bold">
                                         <span>Total</span>
-                                        <span>${orderDetails.total.toFixed(2)}</span>
+                                        <span>${orderDetails.total}</span>
                                     </div>
                                 </div>
                             </div>

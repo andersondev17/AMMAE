@@ -90,8 +90,9 @@ export default function AnimatedNavbar() {
             <div
                 ref={navContainerRef}
                 className={cn(
-                    "relative z-50 mx-auto max-w-7xl px-4 h-16 transition-all duration-700",
+                    "relative z-50 mx-auto px-4 h-16 transition-all duration-700",
                     "sm:px-6 lg:px-12 xl:px-16 2xl:px-24",
+                    isHomePage ? "mx-auto max-w-7xl" : "w-full",
                     shouldBeTransparent
                         ? "bg-transparent"
                         : "floating-nav bg-white/95 shadow-lg backdrop-blur-sm"

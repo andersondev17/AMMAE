@@ -89,7 +89,7 @@ export const Cart = memo(() => {
                                 <div className="space-y-1">
                                     <div className="flex justify-between text-sm">
                                         <span>Subtotal</span>
-                                        <span>${total.toFixed(2)}</span>
+                                        <span>${total}</span>
                                     </div>
                                     <div className="flex justify-between text-sm">
                                         <span>Envío</span>
@@ -98,7 +98,7 @@ export const Cart = memo(() => {
                                     <Separator className="my-2" />
                                     <div className="flex justify-between text-base font-medium">
                                         <span>Total</span>
-                                        <span>${total.toFixed(2)}</span>
+                                        <span>${total}</span>
                                     </div>
                                 </div>
 

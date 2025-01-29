@@ -190,6 +190,7 @@ export const ProductCard = memo(({
                         </div>
                     </div>
 
+
                     {/* Botones de administrador */}
                     {isAdminView && (
                         <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -231,26 +232,42 @@ export const ProductCard = memo(({
                     )}
                 </div>
 
+
+
                 {/* Información del producto */}
-                <div className="p-4">
-                    <h3 className="text-sm font-medium text-gray-900 line-clamp-1">
-                        {product.nombre}
-                    </h3>
-                    <p className="mt-1 text-sm text-gray-500">{product.estilo}</p>
-                    <div className="mt-1 flex items-center gap-2">
-                        <span className="text-sm font-medium text-gray-900">
-                            ${product.precio.toFixed(2)}
-                        </span>
-                        {product.enOferta && product.precioOferta && (
-                            <span className="text-sm text-red-500 line-through">
-                                ${product.precioOferta.toFixed(2)}
+                <div className="p-4 md:p-6 text-center">
+                    {/* Nombre y categoría */}
+                    <div className="space-y-2">
+                        <h3 className="text-base md:text-sm font-medium text-gray-900 tracking-tight">
+                            {product.nombre}
+                        </h3>
+
+                    </div>
+
+                    {/* Precios */}
+                    <div className="mt-3 flex items-center justify-center gap-3">
+                        {product.enOferta && product.precioOferta ? (
+                            <>
+                                <span className="text-base md:text-sm font-medium text-red-600">
+                                    ${product.precioOferta}
+                                </span>
+                                <span className="text-sm text-gray-600 line-through">
+                                    ${product.precio}
+                                </span>
+                                <span className="px-2 py-0.5 text-xs font-medium text-red-600 border border-red-200 rounded">
+                                    SALE
+                                </span>
+                            </>
+                        ) : (
+                            <span className="text-base md:text-sm font-medium text-gray-600">
+                                ${product.precio}
                             </span>
                         )}
                     </div>
 
                     {/* Información adicional para vista de administrador */}
                     {isAdminView && (
-                        <div className="mt-3 pt-3 border-t border-gray-100">
+                        <div className="mt-4 pt-3 border-t border-gray-100">
                             <StockInfo stock={product.stock} tallas={product.tallas} />
                         </div>
                     )}

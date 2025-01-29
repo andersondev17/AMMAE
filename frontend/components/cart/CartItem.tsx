@@ -86,11 +86,11 @@ export const CartItem = memo(({
                     </div>
                     <div className="text-right">
                         <p className="text-sm font-medium text-gray-900">
-                            ${(product.precio * quantity).toFixed(2)}
+                            ${(product.precio * quantity)}
                         </p>
                         {product.enOferta && product.precioOferta && (
                             <p className="text-xs text-red-500 line-through">
-                                ${(product.precioOferta * quantity).toFixed(2)}
+                                ${(product.precioOferta * quantity)}
                             </p>
                         )}
                     </div>
