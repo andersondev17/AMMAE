@@ -1,24 +1,13 @@
 // components/checkout/PaymentDetails.tsx
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/form/card';
 import { PaymentMethod } from '@/types/checkout.types';
-import { Upload } from 'lucide-react';
 import Image from 'next/image';
-import { useState } from 'react';
 
 interface PaymentDetailsProps {
     method: PaymentMethod;
-    onComprobanteUpload: (file: File) => void;
 }
 
-export const PaymentDetails = ({ method, onComprobanteUpload }: PaymentDetailsProps) => {
-    const [selectedFile, setSelectedFile] = useState<File | null>(null);
-
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            setSelectedFile(e.target.files[0]);
-            onComprobanteUpload(e.target.files[0]);
-        }
-    };
+export const PaymentDetails = ({ method }: PaymentDetailsProps) => {
 
     const renderPaymentDetails = () => {
         switch (method) {
@@ -74,31 +63,11 @@ export const PaymentDetails = ({ method, onComprobanteUpload }: PaymentDetailsPr
             </CardHeader>
             <CardContent className="space-y-6">
                 {renderPaymentDetails()}
+                <p className="text-sm text-gray-600 mb-2">
+                    Una vez realizado el pago, guarda el comprobante. Lo necesitarás en el siguiente paso.
 
-                {(method === PaymentMethod.QR || method === PaymentMethod.TRANSFERENCIA) && (
-                    <div className="mt-6">
-                        <p className="text-sm text-gray-600 mb-2">
-                        Una vez realizado el pago, guarda el comprobante. Lo necesitarás en el siguiente paso.
+                </p>
 
-</p>
-                        <label className="cursor-pointer">
-                            <div className="flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-blue-500 transition-colors">
-                                <div className="space-y-2 text-center">
-                                    <Upload className="mx-auto h-8 w-8 text-gray-400" />
-                                    <p className="text-sm text-gray-600">
-                                        {selectedFile ? selectedFile.name : 'Seleccionar comprobante'}
-                                    </p>
-                                </div>
-                                <input
-                                    type="file"
-                                    className="hidden"
-                                    accept="image/*,.pdf"
-                                    onChange={handleFileChange}
-                                />
-                            </div>
-                        </label>
-                    </div>
-                )}
             </CardContent>
         </Card>
     );
