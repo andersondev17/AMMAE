@@ -40,7 +40,7 @@ export const PaymentDetails = ({ method, onComprobanteUpload }: PaymentDetailsPr
 
             case PaymentMethod.TRANSFERENCIA:
                 return (
-                    <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="bg-gray-50 p-4 rounded-lg">
                             <h4 className="font-medium">Datos bancarios:</h4>
                             <ul className="space-y-2 mt-2">
@@ -51,7 +51,15 @@ export const PaymentDetails = ({ method, onComprobanteUpload }: PaymentDetailsPr
                                 <li>NIT: 900.123.456-7</li>
                             </ul>
                         </div>
+                        <div className="flex justify-center items-center">
+                            <img
+                                src="/assets/images/bancolombia.jpg"
+                                alt="Banco"
+                                className="rounded-lg shadow-lg max-w-full h-auto"
+                            />
+                        </div>
                     </div>
+
                 );
 
             default:
@@ -70,8 +78,9 @@ export const PaymentDetails = ({ method, onComprobanteUpload }: PaymentDetailsPr
                 {(method === PaymentMethod.QR || method === PaymentMethod.TRANSFERENCIA) && (
                     <div className="mt-6">
                         <p className="text-sm text-gray-600 mb-2">
-                            Adjunta tu comprobante de pago:
-                        </p>
+                        Una vez realizado el pago, guarda el comprobante. Lo necesitarás en el siguiente paso.
+
+</p>
                         <label className="cursor-pointer">
                             <div className="flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-blue-500 transition-colors">
                                 <div className="space-y-2 text-center">

@@ -33,10 +33,11 @@ import { checkoutFormSchema, type CheckoutFormValues } from '@/lib/validations/c
 import { useWhatsApp } from '@/services/whatsAppService';
 import { PaymentMethod } from '@/types/checkout.types';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2 } from 'lucide-react';
+import { ChevronLeft, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 import { OrderSummary } from './OrderSummary';
 import { PaymentDetails } from './payment/PaymentDetails';
 import { PaymentSelector } from './payment/PaymentSelector';
@@ -51,8 +52,7 @@ export function CheckoutForm({ onSubmitComplete }: CheckoutFormProps) {
     const [isClient, setIsClient] = useState(false);
     const { sendOrderNotification } = useWhatsApp();
     const { items, total: subtotal, shipping, clearCart } = useCart();
-
-
+    const [comprobante, setComprobante] = useState<File | null>(null);
 
     const form = useForm<CheckoutFormValues>({
         resolver: zodResolver(checkoutFormSchema),
@@ -70,11 +70,14 @@ export function CheckoutForm({ onSubmitComplete }: CheckoutFormProps) {
             saveAddress: false,
         },
     });
+    const { handleConfirmPayment } = useCheckout({ form });
+
 
     const {
         step,
         setStep,
         isSubmitting,
+        setIsSubmitting,
         paymentMethod,
         handlePaymentMethodSelect, // Usar el del hook
         handleFormSubmit
@@ -83,7 +86,6 @@ export function CheckoutForm({ onSubmitComplete }: CheckoutFormProps) {
         setIsClient(true);
     }, []);
 
-    const [comprobante, setComprobante] = useState<File | null>(null);
 
     const handleComprobanteUpload = (file: File) => {
         setComprobante(file);
@@ -197,7 +199,27 @@ export function CheckoutForm({ onSubmitComplete }: CheckoutFormProps) {
             </div>
         </div>
     );
-
+    const BackButton = ({
+        step,
+        onBack
+    }: {
+        step: number;
+        onBack: () => void;
+    }) => (
+        step > 1 ? (
+            <div className="mb-4">
+                <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={onBack}
+                    className="flex items-center gap-2 hover:bg-transparent hover:text-blue-600"
+                >
+                    <ChevronLeft className="h-4 w-4" />
+                    Volver
+                </Button>
+            </div>
+        ) : null
+    );
     const renderShippingOptions = () => (
         <div className="space-y-4">
             <FormField
@@ -292,24 +314,108 @@ export function CheckoutForm({ onSubmitComplete }: CheckoutFormProps) {
 
                     {step === 2 && (
                         <div className="space-y-6">
+                            <BackButton step={step} onBack={() => setStep(1)} />
+
                             <PaymentSelector
                                 selectedMethod={paymentMethod}
-                                onSelect={handlePaymentMethodSelect}
+                                onSelect={(method) => {
+                                    handlePaymentMethodSelect(method);
+                                    // Si es QR o transferencia, avanzar al paso 3
+                                    if (method === PaymentMethod.QR || method === PaymentMethod.TRANSFERENCIA) {
+                                        setStep(3);
+                                    }
+                                    // Si es contra entrega, también avanzar al paso 3
+                                    if (method === PaymentMethod.CONTRA_ENTREGA) {
+                                        setStep(3);
+                                    }
+                                }}
                             />
-                            {paymentMethod && (paymentMethod === PaymentMethod.QR || paymentMethod === PaymentMethod.TRANSFERENCIA) && (
-                                <PaymentDetails
-                                    method={paymentMethod}
-                                    onComprobanteUpload={handleComprobanteUpload}
-                                />
-                            )}
-                            <Button
-                                className="w-full"
-                                disabled={!paymentMethod || (paymentMethod !== PaymentMethod.CONTRA_ENTREGA && !comprobante)}
-                                onClick={() => setStep(3)}
-                            >
-                                Continuar
-                            </Button>
+
                         </div>
+                    )}
+
+                    {step === 3 && (
+                        <Card>
+                            <CardHeader>
+                                <BackButton step={step} onBack={() => setStep(2)} />
+                            </CardHeader>
+                            <CardContent className="space-y-6">
+                                {paymentMethod && (paymentMethod === PaymentMethod.QR ||
+                                    paymentMethod === PaymentMethod.TRANSFERENCIA) && (
+                                        <>
+                                            <PaymentDetails
+                                                method={paymentMethod}
+                                                onComprobanteUpload={handleComprobanteUpload}
+                                            />
+                                            <div className="bg-blue-50 rounded-lg p-4">
+                                                <p className="text-sm text-blue-700">
+                                                    ¡Tu prenda está a punto de ser despachada!
+                                                </p>
+                                            </div>
+                                        </>
+                                    )}
+
+                                <Button
+                                    className="w-full"
+                                    disabled={
+                                        isSubmitting ||
+                                        !paymentMethod ||
+                                        ((paymentMethod === PaymentMethod.QR ||
+                                            paymentMethod === PaymentMethod.TRANSFERENCIA) &&
+                                            !comprobante)
+                                    }
+                                    onClick={async () => {
+                                        console.log("🛒 Botón de 'Confirmar Pedido' presionado");
+
+                                        if (isSubmitting) {
+                                            console.log("🚫 Procesamiento en curso, evitando múltiple envío");
+                                            return;
+                                        }
+
+                                        if (!paymentMethod) {
+                                            console.error("🚨 No hay método de pago seleccionado");
+                                            toast.error("Por favor seleccione un método de pago");
+                                            return;
+                                        }
+
+                                        try {
+                                            setIsSubmitting(true);
+
+                                            if (paymentMethod === PaymentMethod.QR ||
+                                                paymentMethod === PaymentMethod.TRANSFERENCIA) {
+                                                if (!comprobante) {
+                                                    console.error("🚨 Falta comprobante de pago");
+                                                    toast.error("Por favor cargue el comprobante de pago");
+                                                    return;
+                                                }
+                                                console.log("📤 Procesando pago con comprobante", {
+                                                    method: paymentMethod,
+                                                    hasComprobante: !!comprobante
+                                                });
+                                                await handleConfirmPayment(comprobante, paymentMethod);
+                                            }
+                                        } catch (error) {
+                                            console.error('🚨 Error al procesar el pedido:', error);
+                                            toast.error('Error al procesar el pedido');
+                                        } finally {
+                                            setIsSubmitting(false);
+                                        }
+                                    }}
+                                >
+                                    {isSubmitting ? (
+                                        <>
+                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                            Procesando...
+                                        </>
+                                    ) : (
+                                        "Confirmar pedido"
+                                    )}
+                                </Button>
+
+
+
+                            </CardContent>
+                        </Card>
                     )}
                 </div>
 

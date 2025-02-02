@@ -42,6 +42,8 @@ export interface CustomerDetails {
     address: string;
     shippingMethod: string;
     orderNumber?: string; 
+    paymentMethod?: string;
+    hasComprobante: boolean;
 }
 
 export interface CartOptions {

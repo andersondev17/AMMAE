@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/form/card';
 import { PaymentMethod } from '@/types/checkout.types';
-import { CreditCard, QrCode, Truck } from 'lucide-react';
+import { CreditCard, Truck } from 'lucide-react';
 
 interface PaymentSelectorProps {
     selectedMethod: PaymentMethod | null;
@@ -18,22 +18,16 @@ export const PaymentSelector = ({ selectedMethod, onSelect }: PaymentSelectorPro
         },
         {
             id: PaymentMethod.TRANSFERENCIA,
-            title: 'Transferencia bancaria',
+            title: 'Transferencia bancaria o QR',
             description: 'Realiza una transferencia a nuestra cuenta',
-            icon: CreditCard
-        },
-        {
-            id: PaymentMethod.QR,
-            title: 'Pago con QR',
-            description: 'Escanea el código QR para pagar',
-            icon: QrCode
+            icon: CreditCard 
         }
     ];
 
     return (
         <div className="space-y-4">
             <h2 className="text-lg font-semibold">Selecciona tu método de pago</h2>
-            <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-2">
                 {paymentMethods.map((method) => {
                     const Icon = method.icon;
                     const isSelected = selectedMethod === method.id;
