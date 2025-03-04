@@ -6,19 +6,19 @@ import { VideoHero } from '@/components/Layout/VideoHero/VideoHero';
 import { ProductSkeleton } from '@/components/skeletons/ProductSkeleton';
 import { BackToTop } from '@/components/ui/backToTop';
 import { useProducts } from '@/hooks/product/useProducts';
+import { cn } from '@/lib/utils';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { Package } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { Suspense, useState } from 'react';
+import { Suspense, useCallback } from 'react';
 
-const ProductList = dynamic(() => import('@/components/product/ProductList').then(mod => ({
-  default: mod.ProductList
-})), {
-  loading: () => <ProductSkeleton />
-});
+// Carga dinámica optimizada de ProductList
+const ProductList = dynamic(
+  () => import('@/components/product/ProductList').then(mod => ({ default: mod.ProductList })),
+  { loading: () => <ProductSkeleton /> }
+);
 
-// Optimized Home component
 export default function Home() {
   const {
     products,
@@ -32,51 +32,51 @@ export default function Home() {
     sortBy: '-createdAt'
   });
 
-  const [loading, setLoading] = useState(true);
-
-  // Simplified smooth scroll
-  const scrollToProducts = () => {
+  // Función optimizada para scroll suave
+  const scrollToProducts = useCallback(() => {
     document.getElementById('products-section')?.scrollIntoView({ behavior: 'smooth' });
-  };
+  }, []);
 
   return (
     <ErrorBoundary fallback={
-      <div className="flex items-center justify-center min-h-[400px]">
-        <p className="text-red-500">Error al cargar la página</p>
+      <div className="flex-center min-h-[400px]">
+        <p className="text-red-500 font-robert-medium">Error al cargar la página</p>
       </div>
     }>
-
       <Suspense fallback={<ProductSkeleton />}>
+        {/* Primer Hero con video */}
         <VideoHero
           videoUrl="/assets/videos/fashion-hero.mp4"
           placeholderImage="/assets/images/demo/default-product.jpg"
           title="AMMAE COLLECTION"
           subtitle="Descubre nuestra exclusiva colección de moda femenina"
           ctaText="Ver Colección"
-
           onCtaClick={scrollToProducts}
         />
 
-
+        {/* Segundo Hero estático para promoción */}
         <VideoHero
           placeholderImage="/assets/images/hero.png"
           title="Club de San Valentín"
-          subtitle="Coleccion disponible solo por tiempo limitado"
-          ctaText="Ver mas"
+          subtitle="Colección disponible solo por tiempo limitado"
+          ctaText="Ver más"
           onCtaClick={scrollToProducts}
         />
+        
+        {/* Sección de categorías */}
         <CategoriesSection />
 
-        <section id="products-section" className="min-h-screen bg-white">
-          <div className="container mx-auto px-4 py-16">
-            <div className="flex justify-between items-center mb-8">
+        {/* Sección de productos */}
+        <section id="products-section" className="min-h-screen bg-white py-16">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-12">
+            <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-10">
               <div>
-                <h2 className="text-3xl font-bold flex items-center gap-2">
-                  <ArrowForwardIcon />
-                  TE PUEDE INTERESAR
+                <h2 className="font-zentry font-bold text-2xl md:text-3xl flex items-center gap-2 tracking-wide">
+                  <ArrowForwardIcon className="text-blue-600" />
+                  <span className="uppercase">Te puede interesar</span>
                 </h2>
-                {!isLoading && (
-                  <p className="text-sm text-gray-500 mt-1">
+                {!isLoading && totalCount > 0 && (
+                  <p className="text-sm text-gray-500 mt-1 font-robert-regular">
                     {totalCount} productos disponibles
                   </p>
                 )}
@@ -84,14 +84,18 @@ export default function Home() {
 
               <Link
                 href="/admin/products"
-                className="flex items-center px-8 py-4 bg-blue-600 text-white font-medium rounded-lg
-                         hover:bg-blue-700 transition-colors shadow-md"
+                className={cn(
+                  "flex items-center px-6 py-3 bg-blue-600 text-white",
+                  "font-zentry tracking-wide rounded-lg shadow-md",
+                  "hover:bg-blue-700 transition-all duration-300 transform hover:scale-[1.02]"
+                )}
               >
                 <Package className="h-5 w-5 mr-2" />
-                Administrar Productos
+                <span>Administrar Productos</span>
               </Link>
             </div>
 
+            {/* Contenido condicional basado en el estado de carga */}
             {isLoading ? (
               <ProductSkeleton />
             ) : (
@@ -103,20 +107,25 @@ export default function Home() {
               />
             )}
 
+            {/* Botón de reintentar en caso de error */}
             {error && (
-              <button
-                onClick={() => refresh()}
-                className="mx-auto mt-4 px-4 py-2 bg-blue-600 text-white rounded-md 
-                       hover:bg-blue-700 transition-colors"
-              >
-                Reintentar
-              </button>
+              <div className="flex justify-center mt-8">
+                <button
+                  onClick={() => refresh()}
+                  className={cn(
+                    "px-6 py-3 bg-blue-600 text-white font-zentry tracking-wide",
+                    "rounded-lg shadow-md hover:bg-blue-700 transition-all duration-300"
+                  )}
+                >
+                  Reintentar
+                </button>
+              </div>
             )}
           </div>
         </section>
       </Suspense>
+      
       <BackToTop />
-
     </ErrorBoundary>
   );
 }

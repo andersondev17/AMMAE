@@ -63,7 +63,8 @@ export default function AnimatedNavbar() {
         gsap.to(navContainerRef.current, {
             y: isNavVisible ? 0 : -100,
             opacity: isNavVisible ? 1 : 0,
-            duration: 0.2,
+            duration: 0.3,
+            ease: "power3.out"
         });
     }, [isNavVisible]);
 
@@ -98,8 +99,8 @@ export default function AnimatedNavbar() {
                         : "floating-nav bg-white/95 shadow-lg backdrop-blur-sm"
                 )}
             >
-                <nav className="flex h-full items-center justify-between">
-                    <div className="flex items-center gap-6">
+                <nav className="flex h-full items-center justify-between p-4">
+                    <div className="flex items-center gap-7">
                         <button
                             onClick={() => setIsMenuOpen(!isMenuOpen)}
                             className={cn("lg:hidden transition-colors", textColor, hoverTextColor)}
@@ -108,7 +109,13 @@ export default function AnimatedNavbar() {
                         </button>
 
                         <Link href="/" className="flex-shrink-0">
-                            <h1 className={cn("text-2xl font-bold transition-colors", textColor)}>AMMAE</h1>
+                            <h1 className={cn(
+                                "text-2xl font-zentry tracking-wider transition-colors",
+                                textColor,
+                                "uppercase font-black"
+                            )}>
+                                AMMAE
+                            </h1>
                         </Link>
                     </div>
 
@@ -132,62 +139,84 @@ export default function AnimatedNavbar() {
                         </div>
                     </div>
 
-                    <div className="hidden lg:flex items-center space-x-7">
+                    <div className="hidden lg:flex items-center space-x-8">
                         {mainCategories.map((category) => (
                             <Link
                                 key={category.name}
                                 href={category.path}
                                 className={cn(
-                                    "nav-hover-btn",
+                                    "relative tracking-widest text-sm font-zentry group overflow-hidden",
+                                    "transition-colors duration-300 py-1",
                                     pathname === category.path
-                                        ? textColor
-                                        : shouldBeTransparent ? "text-gray-200" : "black-600",
+                                        ? "text-blue-600 font-bold"
+                                        : shouldBeTransparent ? "text-white" : "text-gray-800",
                                     hoverTextColor
                                 )}
+                                style={{ letterSpacing: '0.10em' }}
                             >
-                                {category.name}
+                                <span className="block">
+                                    {category.name}
+                                </span>
+                                <span
+                                    className={cn(
+                                        "absolute bottom-0 left-0 w-full h-0.5 transform scale-x-0 transition-transform duration-300 ease-out",
+                                        pathname === category.path
+                                            ? "bg-blue-600 scale-x-100"
+                                            : "bg-current group-hover:scale-x-100"
+                                    )}
+                                />
                             </Link>
                         ))}
                     </div>
                     {/* Icons */}
 
                     <div className="flex items-center space-x-4">
-                        <button
-                            onClick={handleToggleSearch}
-                            className={cn("nav-hover-btn p-2 transition-colors", textColor)}
-                            aria-label="Buscar"
-                        >
-                            <Search className="h-5 w-5" />
-                        </button>
-
-                        <Link
-                            href="/account"
-                            className={cn("nav-hover-btn p-2", textColor)}
-                            aria-label="Mi cuenta"
-                        >
-                            <User className="h-5 w-5" />
-                        </Link>
-
-                        <Link
-                            href="/admin/products"
-                            className={cn("hidden md:flex items-center nav-hover-btn", textColor)}
-                        >
-                            <Package className="h-5 w-5" />
-                            <span className="ml-2">Admin</span>
-                        </Link>
-
-                        <button
-                            onClick={onOpen}
-                            className={cn("nav-hover-btn p-2", textColor)}
-                            aria-label="Carrito"
-                        >
-                            <ShoppingBag className="h-5 w-5" />
-                            {itemCount > 0 && (
-                                <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-blue-600 flex items-center justify-center text-[10px] text-white">
-                                    {itemCount}
-                                </span>
-                            )}
-                        </button>
+                        {[
+                            { icon: Search, label: "Buscar", action: handleToggleSearch, ariaLabel: "Buscar" },
+                            { icon: User, label: "Cuenta", href: "/account", ariaLabel: "Mi cuenta" },
+                            { icon: Package, label: "Admin", href: "/admin/products", className: "hidden md:flex", ariaLabel: "Administración" },
+                            { icon: ShoppingBag, label: "Carrito", action: onOpen, badge: itemCount > 0, badgeCount: itemCount, ariaLabel: "Carrito" }
+                        ].map((item, index) => (
+                            <div
+                                key={item.label}
+                                className="relative"
+                            >
+                                {item.href ? (
+                                    <Link
+                                        href={item.href}
+                                        className={cn(
+                                            "relative p-2 rounded-full transition-all duration-300",
+                                            "hover:bg-white/10 backdrop-blur-sm",
+                                            item.className || "",
+                                            textColor
+                                        )}
+                                        aria-label={item.ariaLabel}
+                                    >
+                                        <item.icon className="h-5 w-5" />
+                                        {item.label !== "Admin" ? null : (
+                                            <span className="ml-2 text-sm font-robert-medium">{item.label}</span>
+                                        )}
+                                    </Link>
+                                ) : (
+                                    <button
+                                        onClick={item.action}
+                                        className={cn(
+                                            "relative p-2 rounded-full transition-all duration-300",
+                                            "hover:bg-white/10 backdrop-blur-sm",
+                                            textColor
+                                        )}
+                                        aria-label={item.ariaLabel}
+                                    >
+                                        <item.icon className="h-5 w-5" />
+                                        {item.badge && (
+                                            <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-blue-600 flex items-center justify-center text-[10px] text-white font-robert-medium">
+                                                {item.badgeCount}
+                                            </span>
+                                        )}
+                                    </button>
+                                )}
+                            </div>
+                        ))}
                     </div>
                 </nav>
             </div>

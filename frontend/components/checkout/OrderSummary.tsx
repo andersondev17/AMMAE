@@ -43,8 +43,8 @@ export function OrderSummary({ showShippingMethod = true, shippingMethod = 'stan
                                     {item.selectedSize && ` • Talla: ${item.selectedSize}`}
                                     {item.selectedColor && ` • Color: ${item.selectedColor}`}
                                 </p>
-                                <div className="flex justify-between">
-                                    <p className="text-sm text-gray-500">
+                                <div className="flex justify-between font-bold">
+                                    <p className="text-sm font-bold text-gray-500">
                                         {formatPrice(String(item.precio))} x {item.quantity}
                                     </p>
                                     <p className="text-sm font-medium">

@@ -42,9 +42,9 @@ export const SearchBar = memo(({
                         value={searchTerm}
                         onChange={(e) => onChange(e.target.value)}
                         placeholder="Buscar productos..."
-                        className="w-full pl-10 pr-10"
+                        className="w-full h-12 pl-12 pr-12 border-none bg-gray-100/80 focus:bg-white transition-colors rounded-full text-base font-robert-regular shadow-inner"
                         autoFocus={autoFocus}
-                        
+                    
                         disabled={isLoading}
                     />
 

@@ -48,7 +48,7 @@ const CheckoutForm = () => {
     };
 
     return (
-        <div className="max-w-4xl mx-auto p-6">
+        <div className="font-zentry tracking-wider transition-colors max-w-4xl mx-auto p-6">
             <div className="space-y-8">
                 {step === 1 && (
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">

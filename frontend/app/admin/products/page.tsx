@@ -113,7 +113,7 @@ export default function AdminProductsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 font-zentry tracking-wider transition-colors">
       <div className="bg-white border-b">
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">

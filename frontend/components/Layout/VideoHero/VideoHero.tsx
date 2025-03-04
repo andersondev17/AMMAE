@@ -1,7 +1,7 @@
-import { AnimatePresence, motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
 import { ChevronDown, Pause, Play, Volume2, VolumeX } from 'lucide-react';
 import Image from 'next/image';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 interface VideoHeroProps {
     videoUrl?: string;
@@ -20,163 +20,151 @@ export const VideoHero = ({
     ctaText = "Explorar Colección",
     onCtaClick
 }: VideoHeroProps) => {
-    const [isPlaying, setIsPlaying] = useState(true);
+    const [isPlaying, setIsPlaying] = useState(false);
     const [isMuted, setIsMuted] = useState(true);
     const [isLoaded, setIsLoaded] = useState(false);
     const videoRef = useRef<HTMLVideoElement>(null);
+    const playAttempted = useRef(false);
 
-    
-    useEffect(() => {
-        const videoElement = videoRef.current;
-        if (videoElement) {
-            const playVideo = async () => {
-                try {
-                    await videoElement.play();
-                    setIsPlaying(true);
-                } catch (error) {
-                    console.log('Error al reproducir video:', error);
-                    setIsPlaying(false);
-                }
-            };
+    const handlePlayback = useCallback(async (play = true) => {
+        if (!videoRef.current) return;
 
-            playVideo();
-
-            return () => {
-                if (videoElement) {
-                    videoElement.pause();
-                }
-            };
+        try {
+            play ? await videoRef.current.play() : videoRef.current.pause();
+            setIsPlaying(play);
+        } catch (error) {
+            if (play) {
+                const retryPlay = async () => {
+                    await videoRef.current?.play();
+                    document.removeEventListener('click', retryPlay);
+                    document.removeEventListener('touchstart', retryPlay);
+                };
+                document.addEventListener('click', retryPlay);
+                document.addEventListener('touchstart', retryPlay);
+            }
         }
     }, []);
 
-    const togglePlay = () => {
-        if (videoRef.current) {
-            if (isPlaying) {
-                videoRef.current.pause();
-            } else {
-                videoRef.current.play();
-            }
-            setIsPlaying(!isPlaying);
-        }
-    };
+    useEffect(() => {
+        const video = videoRef.current;
+        if (!video) return;
 
-    const toggleMute = () => {
-        if (videoRef.current) {
-            videoRef.current.muted = !isMuted;
-            setIsMuted(!isMuted);
-        }
-    };
+        const handleLoad = () => {
+            setIsLoaded(true);
+            handlePlayback(true);
+        };
+
+        video.addEventListener('loadeddata', handleLoad);
+        video.readyState >= 3 && handleLoad();
+
+        return () => {
+            video.removeEventListener('loadeddata', handleLoad);
+            video.pause();
+            playAttempted.current = false;
+        };
+    }, [handlePlayback]);
+
+    useEffect(() => {
+        const handleVisibility = () => {
+            document.visibilityState === 'visible' &&
+                !isPlaying &&
+                videoRef.current?.play().then(() => setIsPlaying(true));
+        };
+
+        document.addEventListener('visibilitychange', handleVisibility);
+        return () => document.removeEventListener('visibilitychange', handleVisibility);
+    }, [isPlaying]);
+
+    const controlButton = "p-2 rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-300 hover:shadow-lg";
 
     return (
         <div className="relative w-full h-screen overflow-hidden">
-            {/* Imagen de precarga */}
-            <AnimatePresence>
-                {!isLoaded && (
-                    <div
-                        className="absolute inset-0 z-20"
-                    >
-                        <Image
-                            src={placeholderImage}
-                            alt="Preview"
-                            fill
-                            className="object-cover"
-                            priority
-                            sizes="100vw"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/40" />
-                    </div>
-                )}
-            </AnimatePresence>
+            {/* Preload Image with Transition */}
+            <div className={cn(
+                "absolute inset-0 z-20 transition-opacity duration-500",
+                isLoaded ? "opacity-0 pointer-events-none" : "opacity-100"
+            )}>
+                <Image
+                    src={placeholderImage}
+                    alt="Preview"
+                    fill
+                    className="object-cover"
+                    priority
+                    sizes="100vw"
+                />
+                <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/40" />
+            </div>
 
-            {/* Video Background */}
+            {/* Video Element */}
             <video
                 ref={videoRef}
-                className="absolute top-0 left-0 w-full h-full object-cover"
+                className="absolute inset-0 w-full h-full object-cover"
                 autoPlay
                 loop
                 muted={isMuted}
                 playsInline
                 preload="auto"
-                onLoadedData={() => setIsLoaded(true)}
             >
-                <source src={videoUrl} type="video/mp4" />
+                {videoUrl && <source src={videoUrl} type="video/mp4" />}
             </video>
 
-            {/* Overlay */}
+            {/* Content Overlay */}
             <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/40 z-10" />
 
-            {/* Content */}
+            {/* Main Content */}
             <div className="relative z-20 h-full flex flex-col justify-center items-center text-white px-4 sm:px-6 lg:px-8">
-                <motion.h1
-                    className="text-4xl md:text-6xl lg:text-7xl font-bold text-center mb-6"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.2 }}
-                >
+                <h1 className="special-font hero-heading max-w-3xl text-center mb-6">
                     {title}
-                </motion.h1>
+                </h1>
 
                 {subtitle && (
-                    <motion.p
-                        className="text-xl md:text-2xl text-center mb-8 max-w-2xl"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5, delay: 0.3 }}
-                    >
+                    <p className="mb-6 max-w-xl text-center font-robert-regular text-blue-100">
                         {subtitle}
-                    </motion.p>
+                    </p>
                 )}
 
-                <motion.button
-                    className="px-8 py-4 bg-white text-black font-medium rounded-full 
-                             hover:bg-black hover:text-white transition-all duration-300
-                             transform hover:scale-105 shadow-lg"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                <button
                     onClick={onCtaClick}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.3, delay: 0.4 }}
+                    className="px-8 py-4 bg-white text-black font-medium rounded-full hover:bg-black hover:text-white 
+                               transition-all duration-300 transform hover:scale-105 shadow-lg relative overflow-hidden group"
                 >
-                    {ctaText}
-                </motion.button>
+                    <span className="absolute inset-0 w-full h-full bg-black scale-x-0 origin-left transition-transform 
+                                  duration-300 group-hover:scale-x-100" />
+                    <span className="relative z-10 transition-colors duration-300 group-hover:text-white font-zentry tracking-wide">
+                        {ctaText}
+                    </span>
+                </button>
 
-                <motion.div
-                    className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.5, delay: 0.5 }}
-                >
-                    <ChevronDown
-                        className="w-8 h-8 text-white animate-bounce cursor-pointer"
-                        onClick={onCtaClick}
-                    />
-                </motion.div>
+                <ChevronDown
+                    onClick={onCtaClick}
+                    className="absolute bottom-8 left-1/2 -translate-x-1/2 w-8 h-8 text-white animate-bounce cursor-pointer 
+                             transition-opacity duration-300 hover:opacity-80"
+                />
             </div>
 
-            {/* Video Controls */}
+            {/* Media Controls */}
             <div className="absolute bottom-8 right-8 z-30 flex gap-4">
                 <button
-                    onClick={togglePlay}
-                    className="p-2 rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 
-                             transition-all duration-300 group"
-                    aria-label={isPlaying ? 'Pausar video' : 'Reproducir video'}
+                    onClick={() => handlePlayback(!isPlaying)}
+                    className={controlButton}
+                    aria-label={isPlaying ? 'Pausar' : 'Reproducir'}
                 >
-                    {isPlaying ?
-                        <Pause className="w-6 h-6 text-white group-hover:scale-110 transition-transform" /> :
-                        <Play className="w-6 h-6 text-white group-hover:scale-110 transition-transform" />
-                    }
+                    {isPlaying ? (
+                        <Pause className="w-6 h-6 text-white hover:scale-110 transition-transform" />
+                    ) : (
+                        <Play className="w-6 h-6 text-white hover:scale-110 transition-transform" />
+                    )}
                 </button>
                 <button
-                    onClick={toggleMute}
-                    className="p-2 rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 
-                             transition-all duration-300 group"
-                    aria-label={isMuted ? 'Activar sonido' : 'Silenciar video'}
+                    onClick={() => setIsMuted(!isMuted)}
+                    className={controlButton}
+                    aria-label={isMuted ? 'Activar sonido' : 'Silenciar'}
                 >
-                    {isMuted ?
-                        <VolumeX className="w-6 h-6 text-white group-hover:scale-110 transition-transform" /> :
-                        <Volume2 className="w-6 h-6 text-white group-hover:scale-110 transition-transform" />
-                    }
+                    {isMuted ? (
+                        <VolumeX className="w-6 h-6 text-white hover:scale-110 transition-transform" />
+                    ) : (
+                        <Volume2 className="w-6 h-6 text-white hover:scale-110 transition-transform" />
+                    )}
                 </button>
             </div>
         </div>

@@ -3,7 +3,7 @@ import { CheckoutOrderData } from '@/types/checkout.types';
 import axios from 'axios';
 import { toast } from 'sonner';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export class OrderService {
     static async createOrder(orderDetails: CheckoutOrderData) {

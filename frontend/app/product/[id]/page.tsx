@@ -82,49 +82,49 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   if (!product) return null;
 
   return (
-    <div className="container mx-auto max-w-7xl px-4 py-20">
+    <div className="container mx-auto max-w-7xl px-4 py-24">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Galería de imágenes */}
         {/* Galería de imágenes */}
-<div className="flex gap-4">
-  {/* Miniaturas verticales */}
-  <div className="flex flex-col gap-2 w-20">
-    {product.imagenes.map((img, idx) => (
-      <button
-        key={idx}
-        onClick={() => setMainImage(getImageUrl(img))}
-        className={`
+        <div className="flex gap-4">
+          {/* Miniaturas verticales */}
+          <div className="flex flex-col gap-2 w-20">
+            {product.imagenes.map((img, idx) => (
+              <button
+                key={idx}
+                onClick={() => setMainImage(getImageUrl(img))}
+                className={`
           relative aspect-square w-20 overflow-hidden rounded-md bg-gray-100
           hover:opacity-75 transition-opacity focus:ring-2 focus:ring-blue-500
           ${mainImage === getImageUrl(img) ? 'ring-2 ring-blue-500' : ''}
         `}
-      >
-        <Image
-          src={getImageUrl(img)}
-          alt={`${product.nombre} vista ${idx + 1}`}
-          fill
-          className="object-cover"
-        />
-      </button>
-    ))}
-  </div>
+              >
+                <Image
+                  src={getImageUrl(img)}
+                  alt={`${product.nombre} vista ${idx + 1}`}
+                  fill
+                  className="object-cover"
+                />
+              </button>
+            ))}
+          </div>
 
-  {/* Imagen principal */}
-  <div className="flex-1">
-    <div className="aspect-square relative overflow-hidden rounded-lg bg-gray-100">
-      <Image
-        src={mainImage}
-        alt={product.nombre}
-        fill
-        className="object-cover"
-        priority
-      />
-    </div>
-  </div>
-</div>
+          {/* Imagen principal */}
+          <div className="flex-1">
+            <div className="aspect-square relative overflow-hidden rounded-lg bg-gray-100">
+              <Image
+                src={mainImage}
+                alt={product.nombre}
+                fill
+                className="object-cover"
+                priority
+              />
+            </div>
+          </div>
+        </div>
 
         {/* Información del producto */}
-        <div className="space-y-6">
+        <div className="space-y-6 font-robert-medium tracking-wider ">
           <div>
             <h1 className="text-3xl font-sans text-gray-900">{product.nombre}</h1>
             <p className="text-lg text-gray-600 mt-2">{product.categoria}</p>
