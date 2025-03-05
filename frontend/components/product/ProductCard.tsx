@@ -59,7 +59,7 @@ export const ProductCard = memo(({ product, onEdit, onDelete, isAdminView = fals
 
     return (
         <article
-            className="group relative bg-white rounded-xl overflow-hidden transition-shadow"
+            className="group relative bg-white overflow-hidden transition-shadow"
         >
             <Link href={`/product/${product._id}`} className="block h-full">
                 <div className="relative aspect-[3/4] bg-gray-50 overflow-hidden"
@@ -139,7 +139,6 @@ export const ProductCard = memo(({ product, onEdit, onDelete, isAdminView = fals
                         )}>
                             <Link rel="stylesheet" href={`/product/${product._id}`} >
                                 <Button
-                                    onClick={(e) => { e.preventDefault(); }}
                                     className="w-full bg-white/90 text-gray-500 backdrop-blur-sm hover:bg-black hover:text-white font-zentry"
                                 >
                                     Seleccionar opciones
