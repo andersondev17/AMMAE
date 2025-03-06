@@ -35,15 +35,16 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-      <Providers>
-          <Suspense fallback={<div>Loading...</div>}>
-            <Navbar />
+        <Providers>
+        <Suspense >
+        <Navbar />
             {children}
             <Cart />
             <Footer />
-          </Suspense>
-        </Providers>
-      </body>
-    </html>
-  );
+            </Suspense>
+
+            </Providers>
+          </body>
+        </html>
+        );
 }

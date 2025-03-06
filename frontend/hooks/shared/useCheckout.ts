@@ -20,7 +20,7 @@ interface UseCheckoutReturn {
     paymentMethod: PaymentMethod | null;
     handlePaymentMethodSelect: (method: PaymentMethod) => Promise<void>;
     handleFormSubmit: (data: CheckoutFormValues) => Promise<void>;
-    handleConfirmPayment: (comprobante: File, method: PaymentMethod) => Promise<void>;
+    handleConfirmPayment: ( method: PaymentMethod) => Promise<void>;
 }
 
 export const useCheckout = ({ form }: UseCheckoutProps): UseCheckoutReturn => {
@@ -31,15 +31,13 @@ export const useCheckout = ({ form }: UseCheckoutProps): UseCheckoutReturn => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(null);
 
-    const processOrder = async (method: PaymentMethod, comprobante?: File) => {
+    const processOrder = async (method: PaymentMethod) => {
         if (isSubmitting) return;
 
         try {
             setIsSubmitting(true);
             const formData = form.getValues();
-            console.log("📦 Datos del formulario:", formData);
-
-
+            
             const shippingCost = formData.shippingMethod === 'express' ? 15000 : 5000;
             const totalAmount = subtotal + shippingCost;
 
@@ -66,32 +64,24 @@ export const useCheckout = ({ form }: UseCheckoutProps): UseCheckoutReturn => {
                     codigoPostal: formData.address.zipCode.trim(),
                     pais: 'Colombia',
                 },
-                comprobante: comprobante ? 'uploaded' : undefined, // Asegurar que se subió comprobante
+                estado: method === PaymentMethod.CONTRA_ENTREGA ? 'pendiente' : 'pendiente_confirmacion'
             };
 
             const orderResponse = await OrderService.createOrder(orderData);
-            console.log("📦 Datos de la orden a enviar:", orderData);
-            console.log("🛒 Respuesta del servidor:", orderResponse);
 
             if (orderResponse.success) {
-                try {
-                    await sendOrderNotification(items, {
-                        name: formData.fullName,
-                        phone: formData.phone,
-                        address: `${formData.address.street}, ${formData.address.city}`,
-                        shippingMethod: formData.shippingMethod,
-                        orderNumber: orderResponse.data.orderNumber,
-                        paymentMethod: method,
-                        hasComprobante: !!comprobante,
-                    });
+                await sendOrderNotification(items, {
+                    name: formData.fullName,
+                    phone: formData.phone,
+                    address: `${formData.address.street}, ${formData.address.city}`,
+                    shippingMethod: formData.shippingMethod,
+                    orderNumber: orderResponse.data.orderNumber,
+                    paymentMethod: method,
+                });
 
-                    clearCart();
-                    router.push(`/order/success?orderNumber=${orderResponse.data.orderNumber}`);
-                    toast.success('¡Pedido creado exitosamente!');
-                } catch (whatsappError) {
-                    console.error('Error WhatsApp:', whatsappError);
-                    toast.error('Error al enviar notificación por WhatsApp');
-                }
+                clearCart();
+                router.push(`/order/success?orderNumber=${orderResponse.data.orderNumber}`);
+                toast.success('¡Pedido creado exitosamente!');
             }
         } catch (error) {
             console.error('Error al procesar el pedido:', error);
@@ -101,7 +91,6 @@ export const useCheckout = ({ form }: UseCheckoutProps): UseCheckoutReturn => {
             setIsSubmitting(false);
         }
     };
-
 
 
     const handlePaymentMethodSelect = async (method: PaymentMethod) => {
@@ -118,7 +107,6 @@ export const useCheckout = ({ form }: UseCheckoutProps): UseCheckoutReturn => {
                 console.log("🚚 Procesando orden contra entrega");
                 await processOrder(method);
             } else if (method === PaymentMethod.QR || method === PaymentMethod.TRANSFERENCIA) {
-                console.log("💳 Avanzando al paso de comprobante");
                 setStep(3);
             }
         } catch (error) {
@@ -129,7 +117,7 @@ export const useCheckout = ({ form }: UseCheckoutProps): UseCheckoutReturn => {
         }
     };
 
-    const handleConfirmPayment = async (comprobante: File, method: PaymentMethod) => {
+    const handleConfirmPayment = async ( method: PaymentMethod) => {
         if (isSubmitting) return;
 
         try {
@@ -137,7 +125,7 @@ export const useCheckout = ({ form }: UseCheckoutProps): UseCheckoutReturn => {
             
             // Solo procesar si es un método que requiere comprobante
             if (method === PaymentMethod.QR || method === PaymentMethod.TRANSFERENCIA) {
-                await processOrder(method, comprobante);
+                await processOrder(method);
             }
         } catch (error) {
             console.error('Error en confirmación de pago:', error);

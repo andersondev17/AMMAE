@@ -52,7 +52,6 @@ export function CheckoutForm({ onSubmitComplete }: CheckoutFormProps) {
     const [isClient, setIsClient] = useState(false);
     const { sendOrderNotification } = useWhatsApp();
     const { items, total: subtotal, shipping, clearCart } = useCart();
-    const [comprobante, setComprobante] = useState<File | null>(null);
 
     const form = useForm<CheckoutFormValues>({
         resolver: zodResolver(checkoutFormSchema),
@@ -87,9 +86,6 @@ export function CheckoutForm({ onSubmitComplete }: CheckoutFormProps) {
     }, []);
 
 
-    const handleComprobanteUpload = (file: File) => {
-        setComprobante(file);
-    };
     // Componentes de formulario divididos para mejor organización
     const renderContactForm = () => (
         <div className="space-y-4">
@@ -345,7 +341,6 @@ export function CheckoutForm({ onSubmitComplete }: CheckoutFormProps) {
                                         <>
                                             <PaymentDetails
                                                 method={paymentMethod}
-                                                onComprobanteUpload={handleComprobanteUpload}
                                             />
                                             <div className="bg-blue-50 rounded-lg p-4">
                                                 <p className="text-sm text-blue-700">
@@ -357,13 +352,7 @@ export function CheckoutForm({ onSubmitComplete }: CheckoutFormProps) {
 
                                 <Button
                                     className="w-full"
-                                    disabled={
-                                        isSubmitting ||
-                                        !paymentMethod ||
-                                        ((paymentMethod === PaymentMethod.QR ||
-                                            paymentMethod === PaymentMethod.TRANSFERENCIA) &&
-                                            !comprobante)
-                                    }
+                                    disabled={isSubmitting || !paymentMethod}
                                     onClick={async () => {
                                         console.log("🛒 Botón de 'Confirmar Pedido' presionado");
 
@@ -383,17 +372,10 @@ export function CheckoutForm({ onSubmitComplete }: CheckoutFormProps) {
 
                                             if (paymentMethod === PaymentMethod.QR ||
                                                 paymentMethod === PaymentMethod.TRANSFERENCIA) {
-                                                if (!comprobante) {
-                                                    console.error("🚨 Falta comprobante de pago");
-                                                    toast.error("Por favor cargue el comprobante de pago");
-                                                    return;
-                                                }
-                                                console.log("📤 Procesando pago con comprobante", {
-                                                    method: paymentMethod,
-                                                    hasComprobante: !!comprobante
-                                                });
-                                                await handleConfirmPayment(comprobante, paymentMethod);
+                                                console.log("💳 Procesando pago con transferencia/QR");
+                                                await handleConfirmPayment(paymentMethod);
                                             }
+
                                         } catch (error) {
                                             console.error('🚨 Error al procesar el pedido:', error);
                                             toast.error('Error al procesar el pedido');

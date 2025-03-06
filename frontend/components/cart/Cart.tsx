@@ -43,7 +43,7 @@ export const Cart = memo(() => {
         <Sheet open={isOpen} onOpenChange={onClose}>
             <SheetContent className="flex w-full flex-col pr-0 sm:max-w-lg">
                 <SheetHeader className="space-y-2.5 pr-6">
-                    <SheetTitle className="flex items-center gap-2">
+                    <SheetTitle className=" font-zentry tracking-wider flex items-center gap-2">
                         <ShoppingBag className="h-5 w-5" />
                         Mi Carrito ({itemCount})
                     </SheetTitle>
@@ -57,7 +57,7 @@ export const Cart = memo(() => {
                         </p>
                         <Button
                             onClick={onClose}
-                            className="rounded-full"
+                            className="font-zentry tracking-wider rounded-full"
                             size="sm"
                         >
                             Continuar comprando
@@ -84,40 +84,40 @@ export const Cart = memo(() => {
                             </div>
                         </div>
 
-                        <div className="sticky bottom-0 w-full bg-white p-6 shadow-lg">
+                        <div className="sticky bottom-0 w-full bg-white pr-4 ">
                             <div className="space-y-4">
                                 <div className="space-y-1">
-                                    <div className="flex justify-between text-sm">
+                                    <div className="font-zentry tracking-wider flex justify-between text-sm space-y-1">
                                         <span>Subtotal</span>
-                                        <span>${total}</span>
+                                        <span className="font-bold">${total}</span>
                                     </div>
-                                    <div className="flex justify-between text-sm">
+                                    <div className="flex justify-between text-sm ">
                                         <span>Envío</span>
                                         <span className="text-green-500">Gratis</span>
                                     </div>
                                     <Separator className="my-2" />
-                                    <div className="flex justify-between text-base font-medium">
+                                    <div className="font-zentry font-bold tracking-wider flex justify-between text-base ">
                                         <span>Total</span>
-                                        <span>${total}</span>
+                                        <span >${total}</span>
                                     </div>
                                 </div>
 
                                 <Button
                                     onClick={handleCheckout}
-                                    className="w-full rounded-full bg-black hover:bg-gray-800"
+                                    className="font-zentry tracking-wider w-full rounded-full bg-black hover:bg-gray-800"
                                     disabled={isEmpty}
                                 >
                                     CHECKOUT
                                 </Button>
 
-                                <Button
+                               {/*  <Button
                                     onClick={clearCart}
                                     variant="outline"
-                                    className="w-full rounded-full"
+                                    className="font-zentry tracking-wider w-full rounded-full"
                                     disabled={isEmpty}
                                 >
                                     Vaciar carrito
-                                </Button>
+                                </Button> */}
                             </div>
                         </div>
                     </>

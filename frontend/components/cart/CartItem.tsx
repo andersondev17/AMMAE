@@ -33,7 +33,7 @@ export const CartItem = memo(({
             <div className="ml-4 flex flex-1 flex-col">
                 <div className="flex justify-between">
                     <div>
-                        <h3 className="text-sm font-medium text-gray-900">
+                        <h3 className="font-zentry text-sm font-medium text-gray-900">
                             {product.nombre}
                         </h3>
                         <p className="mt-1 text-sm text-gray-500">

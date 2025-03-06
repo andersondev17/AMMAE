@@ -6,7 +6,7 @@ export default function AdminLayout({
     children: React.ReactNode;
 }) {
     return (
-        <div className="min-h-screen bg-gradient-to-tr from-gray-50 via-gray-100 to-gray-200">
+        <div className="font-zentry tracking-wider transition-colors min-h-screen bg-gradient-to-tr from-gray-50 via-gray-100 to-gray-200">
             {/* Barra superior de administrador */}
             <header 
                 className="bg-gradient-to-r from-blue-600 via-blue-500 to-blue-400 
