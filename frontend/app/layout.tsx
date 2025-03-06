@@ -1,6 +1,7 @@
 
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { Suspense } from "react";
 import { Footer } from '../components/Layout/Footer';
 import Navbar from '../components/Layout/Navbar/Navbar';
 import { Cart } from "../components/cart/Cart";
@@ -34,13 +35,16 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-      <Providers>
-            <Navbar />
+        <Providers>
+        <Suspense >
+        <Navbar />
             {children}
             <Cart />
             <Footer />
-        </Providers>
-      </body>
-    </html>
-  );
+            </Suspense>
+
+            </Providers>
+          </body>
+        </html>
+        );
 }
