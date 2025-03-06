@@ -34,7 +34,7 @@ const ErrorMessage = ({ message, onRetry }: { message: string; onRetry: () => vo
 
 const ProductCount = ({ count }: { count: number }) => (
   <p className="font-inter text-gray-600 mb-6">
-    {count > 0 
+    {count > 0
       ? `${count} productos encontrados`
       : 'No hay productos disponibles en esta categoría'
     }
@@ -44,7 +44,7 @@ const ProductCount = ({ count }: { count: number }) => (
 export default function CategoryPage({ params }: { params: { categoria: string } }) {
   // Normalize and validate category
   const categoria = capitalize(params.categoria);
-  
+
   if (!VALID_CATEGORIES.has(categoria)) {
     notFound();
   }

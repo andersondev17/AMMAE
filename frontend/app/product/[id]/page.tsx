@@ -1,21 +1,15 @@
 'use client';
 
+import ProductHeader from '@/components/product/ProductHeader';
+import VariantSelectors from '@/components/product/VariantSelectors';
 import { ProductSkeleton } from '@/components/skeletons/ProductSkeleton';
 import { BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-  Badge,
-  Breadcrumb,
-  Button,
-  Skeleton
-} from '@/components/ui/index';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Breadcrumb, Button, Skeleton } from '@/components/ui/index';
+import QuantitySelector from '@/components/ui/QuantitySelector';
 import { useCart } from '@/hooks/cart/useCart';
 import { Product } from '@/types';
 import { getImageUrl } from '@/utils/demoImages';
-import { Heart, ShoppingBag } from 'lucide-react';
+import { ShoppingBag } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Suspense, lazy, memo, useCallback, useEffect, useMemo, useState } from 'react';
@@ -23,20 +17,6 @@ import { toast } from 'sonner';
 
 const ProductRecommendations = lazy(() => import('@/components/product/ProductRecommendations'));
 const ProductGallery = lazy(() => import('@/components/product/ProductGallery'));
-
-const COLOR_MAP = {
-  'Negro': '#000000',
-  'Blanco': '#FFFFFF',
-  'Azul': '#2563EB',
-  'Rojo': '#DC2626',
-  'Verde': '#059669',
-  'Amarillo': '#CA8A04',
-  'Morado': '#7C3AED',
-  'Rosa': '#DB2777',
-  'Gris': '#4B5563',
-  'Beige': '#D4B89C'
-} as const;
-
 export default function ProductPage({ params }: { params: { id: string } }) {
   const [product, setProduct] = useState<Product | null>(null);
   const [selectedSize, setSelectedSize] = useState('');
@@ -160,7 +140,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
             onQuantityChange={setQuantity}
           />
 
-          <div className="grid grid-cols-1 md:grid-cols-10 gap-3 pt-2">
+          <div className="grid grid-cols-4 gap-3 pt-2">
             <Button
               onClick={handleAddToCart}
               className="md:col-span-7 py-6 text-base"
@@ -170,9 +150,6 @@ export default function ProductPage({ params }: { params: { id: string } }) {
               {product.stock === 0 ? 'Agotado' : 'Agregar al carrito'}
             </Button>
 
-            <Button variant="outline" className="md:col-span-3 py-6">
-              <Heart className="h-5 w-5" />
-            </Button>
           </div>
 
           <ProductAccordions product={product} />
@@ -188,134 +165,6 @@ export default function ProductPage({ params }: { params: { id: string } }) {
     </div>
   );
 }
-
-// Componentes secundarios
-const ProductHeader = memo(({ product, discount }: {
-  product: Product;
-  discount: number;
-}) => (
-  <div className="space-y-2">
-    <h1 className="text-3xl font-bold">{product.nombre}</h1>
-    <p className="text-lg text-muted-foreground">{product.categoria}</p>
-
-    <div className="flex items-center gap-3">
-      <span className="text-2xl font-bold">
-        ${product.enOferta ? product.precioOferta?.toFixed(2) : product.precio.toFixed(2)}
-      </span>
-      {discount > 0 && <Badge variant="destructive">-{discount}%</Badge>}
-      <StockStatus stock={product.stock} />
-    </div>
-  </div>
-));
-
-const VariantSelectors = memo(({
-  product,
-  selectedSize,
-  selectedColor,
-  onSizeChange,
-  onColorChange
-}: {
-  product: Product;
-  selectedSize: string;
-  selectedColor: string;
-  onSizeChange: (size: string) => void;
-  onColorChange: (color: string) => void;
-}) => (
-  <>
-    {product.tallas.length > 0 && (
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <span className="text-sm font-medium">Talla</span>
-          <Button
-            variant="link"
-            className="text-sm h-auto p-0"
-            onClick={() => window.open('/size-guide', '_blank')}
-          >
-            Guía de tallas
-          </Button>
-        </div>
-
-        <div className="grid grid-cols-4 gap-2">
-          {product.tallas.map((talla) => (
-            <Button
-              key={talla}
-              variant={selectedSize === talla ? 'default' : 'outline'}
-              onClick={() => onSizeChange(talla)}
-              className="h-12"
-            >
-              {talla}
-            </Button>
-          ))}
-        </div>
-      </div>
-    )}
-
-    {product.colores.length > 0 && (
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <span className="text-sm font-medium">Color</span>
-          <span className="text-sm text-muted-foreground">
-            {selectedColor || 'Selecciona un color'}
-          </span>
-        </div>
-
-        <div className="flex flex-wrap gap-2">
-          {product.colores.map((color) => {
-            const colorValue = COLOR_MAP[color as keyof typeof COLOR_MAP] || color;
-            return (
-              <button
-                key={color}
-                onClick={() => onColorChange(color)}
-                className={`w-10 h-10 rounded-full border-2 ${selectedColor === color
-                  ? 'border-primary scale-110'
-                  : 'border-transparent hover:scale-105'
-                  } ${colorValue === '#FFFFFF' ? 'bg-gray-100' : ''}`}
-                style={{ backgroundColor: colorValue }}
-                aria-label={`Color ${color}`}
-              />
-            );
-          })}
-        </div>
-      </div>
-    )}
-  </>
-));
-
-const QuantitySelector = memo(({
-  quantity,
-  stock,
-  onQuantityChange
-}: {
-  quantity: number;
-  stock: number;
-  onQuantityChange: (q: number) => void;
-}) => (
-  <div className="space-y-3">
-    <span className="text-sm font-medium">Cantidad</span>
-    <div className="flex items-center border rounded-md w-fit">
-      <button
-        onClick={() => onQuantityChange(Math.max(1, quantity - 1))}
-        className="w-10 h-10 flex items-center justify-center"
-        disabled={quantity <= 1}
-        aria-label="Disminuir cantidad"
-      >
-        -
-      </button>
-      <span className="w-10 h-10 flex items-center justify-center font-medium">
-        {quantity}
-      </span>
-      <button
-        onClick={() => onQuantityChange(Math.min(stock, quantity + 1))}
-        className="w-10 h-10 flex items-center justify-center"
-        disabled={quantity >= stock}
-        aria-label="Aumentar cantidad"
-      >
-        +
-      </button>
-    </div>
-  </div>
-));
-
 const ProductAccordions = memo(({ product }: { product: Product }) => (
   <Accordion type="multiple" defaultValue={['details']}>
     <AccordionItem value="details">
@@ -345,11 +194,3 @@ const ProductAccordions = memo(({ product }: { product: Product }) => (
   </Accordion>
 ));
 
-const StockStatus = memo(({ stock }: { stock: number }) => (
-  <div className={`text-sm font-medium ${stock > 10 ? 'text-green-600' :
-    stock > 0 ? 'text-orange-600' : 'text-destructive'
-    }`}>
-    {stock > 10 ? 'En stock' :
-      stock > 0 ? `¡Últimas ${stock} unidades!` : 'Agotado'}
-  </div>
-));
