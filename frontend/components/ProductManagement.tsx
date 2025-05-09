@@ -107,7 +107,7 @@ export const ProductManagement: React.FC<ProductManagementProps> = ({
     };
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-9">
             {/* Lista de productos */}
             <ProductList
                 products={products || []}

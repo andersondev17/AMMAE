@@ -1,172 +1,110 @@
+'use client';
+
 import { cn } from '@/lib/utils';
-import { ChevronDown, Pause, Play, Volume2, VolumeX } from 'lucide-react';
+import { VideoHeroProps } from '@/types/index';
 import Image from 'next/image';
-import { useCallback, useEffect, useRef, useState } from 'react';
-
-interface VideoHeroProps {
-    videoUrl?: string;
-    placeholderImage?: string;
-    title: string;
-    subtitle?: string;
-    ctaText?: string;
-    onCtaClick?: () => void;
-}
-
-export const VideoHero = ({
-    videoUrl,
-    placeholderImage = '/assets/images/hero-preview.jpg',
-    title,
-    subtitle,
-    ctaText = "Explorar Colección",
-    onCtaClick
-}: VideoHeroProps) => {
-    const [isPlaying, setIsPlaying] = useState(false);
-    const [isMuted, setIsMuted] = useState(true);
-    const [isLoaded, setIsLoaded] = useState(false);
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
+export const VideoHero = memo(({ videoUrl, placeholderImage, title, subtitle, ctaText = "Explorar Colección", onCtaClick }: VideoHeroProps) => {
+    const [isVisible, setIsVisible] = useState(false);
+    const [videoLoaded, setVideoLoaded] = useState(false);
     const videoRef = useRef<HTMLVideoElement>(null);
-    const playAttempted = useRef(false);
+    const containerRef = useRef<HTMLDivElement>(null);
 
-    const handlePlayback = useCallback(async (play = true) => {
-        if (!videoRef.current) return;
+    // IntersectionObserver para lazy-loading
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) {
+                    setIsVisible(true);
+                    observer.disconnect();
+                }
+            },
+            { threshold: 0.1 }
+        );
 
-        try {
-            play ? await videoRef.current.play() : videoRef.current.pause();
-            setIsPlaying(play);
-        } catch (error) {
-            if (play) {
-                const retryPlay = async () => {
-                    await videoRef.current?.play();
-                    document.removeEventListener('click', retryPlay);
-                    document.removeEventListener('touchstart', retryPlay);
-                };
-                document.addEventListener('click', retryPlay);
-                document.addEventListener('touchstart', retryPlay);
-            }
+        if (containerRef.current) {
+            observer.observe(containerRef.current);
         }
+
+        return () => observer.disconnect();
     }, []);
 
+    // Video loading optimizado
     useEffect(() => {
-        const video = videoRef.current;
-        if (!video) return;
+        if (!isVisible || !videoUrl || !videoRef.current) return;
 
-        const handleLoad = () => {
-            setIsLoaded(true);
-            handlePlayback(true);
-        };
+        // Precargar solo cuando sea visible
+        const handleLoad = () => setVideoLoaded(true);
+        const video = videoRef.current;
 
         video.addEventListener('loadeddata', handleLoad);
-        video.readyState >= 3 && handleLoad();
 
-        return () => {
-            video.removeEventListener('loadeddata', handleLoad);
-            video.pause();
-            playAttempted.current = false;
-        };
-    }, [handlePlayback]);
+        if (video.readyState >= 3) {
+            setVideoLoaded(true);
+        }
 
-    useEffect(() => {
-        const handleVisibility = () => {
-            document.visibilityState === 'visible' &&
-                !isPlaying &&
-                videoRef.current?.play().then(() => setIsPlaying(true));
-        };
+        return () => video.removeEventListener('loadeddata', handleLoad);
+    }, [isVisible, videoUrl]);
 
-        document.addEventListener('visibilitychange', handleVisibility);
-        return () => document.removeEventListener('visibilitychange', handleVisibility);
-    }, [isPlaying]);
-
-    const controlButton = "p-2 rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-300 hover:shadow-lg";
+    // Handler para el CTA
+    const handleCtaClick = useCallback(() => {
+        onCtaClick?.();
+    }, [onCtaClick]);
 
     return (
-        <div className="relative w-full h-screen overflow-hidden">
-            {/* Preload Image with Transition */}
+        <div ref={containerRef} className="relative w-full h-[90vh] overflow-hidden">
             <div className={cn(
-                "absolute inset-0 z-20 transition-opacity duration-500",
-                isLoaded ? "opacity-0 pointer-events-none" : "opacity-100"
+                "absolute inset-0 z-10 transition-opacity duration-700",
+                videoLoaded && videoUrl ? "opacity-0" : "opacity-100"
             )}>
                 <Image
                     src={placeholderImage}
-                    alt="Preview"
+                    alt={title}
                     fill
-                    className="object-cover"
                     priority
                     sizes="100vw"
+                    className="object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/40" />
+                <div className="absolute inset-0 bg-black/40" />
             </div>
 
-            {/* Video Element */}
-            <video
-                ref={videoRef}
-                className="absolute inset-0 w-full h-full object-cover"
-                autoPlay
-                loop
-                muted={isMuted}
-                playsInline
-                preload="auto"
-            >
-                {videoUrl && <source src={videoUrl} type="video/mp4" />}
-            </video>
+            {/* Video - renderizado condicionalmente */}
+            {isVisible && videoUrl && (
+                <video
+                    ref={videoRef}
+                    className="absolute inset-0 w-full h-full object-cover"
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                >
+                    <source src={videoUrl} type="video/mp4" />
+                </video>
+            )}
 
-            {/* Content Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/40 z-10" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent z-20" />
 
-            {/* Main Content */}
-            <div className="relative z-20 h-full flex flex-col justify-center items-center text-white px-4 sm:px-6 lg:px-8">
-                <h1 className="special-font hero-heading max-w-3xl text-center mb-6">
+            <div className="relative z-30 h-full flex flex-col justify-center items-center text-white px-4">
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-center mb-4 max-w-3xl">
                     {title}
                 </h1>
 
                 {subtitle && (
-                    <p className="mb-6 max-w-xl text-center font-robert-regular text-blue-100">
+                    <p className="text-lg md:text-xl text-center mb-8 max-w-2xl">
                         {subtitle}
                     </p>
                 )}
 
                 <button
-                    onClick={onCtaClick}
-                    className="px-8 py-4 bg-white text-black font-medium rounded-full hover:bg-black hover:text-white 
-                               transition-all duration-300 transform hover:scale-105 shadow-lg relative overflow-hidden group"
+                    onClick={handleCtaClick}
+                    className="px-8 py-3 bg-white text-black font-medium rounded-full 
+                     hover:bg-black hover:text-white transition-colors duration-300"
                 >
-                    <span className="absolute inset-0 w-full h-full bg-black scale-x-0 origin-left transition-transform 
-                                  duration-300 group-hover:scale-x-100" />
-                    <span className="relative z-10 transition-colors duration-300 group-hover:text-white font-zentry tracking-wide">
-                        {ctaText}
-                    </span>
-                </button>
-
-                <ChevronDown
-                    onClick={onCtaClick}
-                    className="absolute bottom-8 left-1/2 -translate-x-1/2 w-8 h-8 text-white animate-bounce cursor-pointer 
-                             transition-opacity duration-300 hover:opacity-80"
-                />
-            </div>
-
-            {/* Media Controls */}
-            <div className="absolute bottom-8 right-8 z-30 flex gap-4">
-                <button
-                    onClick={() => handlePlayback(!isPlaying)}
-                    className={controlButton}
-                    aria-label={isPlaying ? 'Pausar' : 'Reproducir'}
-                >
-                    {isPlaying ? (
-                        <Pause className="w-6 h-6 text-white hover:scale-110 transition-transform" />
-                    ) : (
-                        <Play className="w-6 h-6 text-white hover:scale-110 transition-transform" />
-                    )}
-                </button>
-                <button
-                    onClick={() => setIsMuted(!isMuted)}
-                    className={controlButton}
-                    aria-label={isMuted ? 'Activar sonido' : 'Silenciar'}
-                >
-                    {isMuted ? (
-                        <VolumeX className="w-6 h-6 text-white hover:scale-110 transition-transform" />
-                    ) : (
-                        <Volume2 className="w-6 h-6 text-white hover:scale-110 transition-transform" />
-                    )}
+                    {ctaText}
                 </button>
             </div>
         </div>
     );
-};
+});
+
+VideoHero.displayName = 'VideoHero';
