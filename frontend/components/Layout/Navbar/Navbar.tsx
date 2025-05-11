@@ -2,6 +2,7 @@
 import { useCart } from '@/hooks/cart/useCart';
 import { cn } from '@/lib/utils';
 
+import { mainCategories } from '@/constants';
 import { useSearch } from '@/hooks/product/useSearch';
 import gsap from 'gsap';
 import { Menu, Package, Search, ShoppingBag, User } from 'lucide-react';
@@ -12,12 +13,6 @@ import { useWindowScroll } from 'react-use';
 import { MobileMenu } from './MobileMenu';
 import { SearchBar } from './SearchBar';
 
-const mainCategories = [
-    { name: 'JEANS', path: '/categoria/jeans', apiValue: 'Jeans' },
-    { name: 'BLUSAS', path: '/categoria/blusas', apiValue: 'Blusas' },
-    { name: 'VESTIDOS', path: '/categoria/vestidos', apiValue: 'Vestidos' },
-    { name: 'ACCESORIOS', path: '/categoria/accesorios', apiValue: 'Accesorios' },
-] as const;
 
 export default function AnimatedNavbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -145,11 +140,11 @@ export default function AnimatedNavbar() {
                                 key={category.name}
                                 href={category.path}
                                 className={cn(
-                                    "relative tracking-widest text-sm font-zentry group overflow-hidden",
+                                    "relative tracking-widest text-xs font-zentry font-bold group overflow-hidden",
                                     "transition-colors duration-300 py-1",
                                     pathname === category.path
                                         ? "text-blue-600 font-bold"
-                                        : shouldBeTransparent ? "text-white" : "text-gray-800",
+                                        : shouldBeTransparent ? "text-gray-200" : "text-gray-500",
                                     hoverTextColor
                                 )}
                                 style={{ letterSpacing: '0.10em' }}
@@ -194,7 +189,7 @@ export default function AnimatedNavbar() {
                                     >
                                         <item.icon className="h-5 w-5" />
                                         {item.label !== "Admin" ? null : (
-                                            <span className="ml-2 text-sm font-robert-medium">{item.label}</span>
+                                            <span className="ml-2 text-xs font-robert-medium">{item.label}</span>
                                         )}
                                     </Link>
                                 ) : (
@@ -206,10 +201,11 @@ export default function AnimatedNavbar() {
                                             textColor
                                         )}
                                         aria-label={item.ariaLabel}
+                                        tabIndex={0}
                                     >
                                         <item.icon className="h-5 w-5" />
                                         {item.badge && (
-                                            <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-blue-600 flex items-center justify-center text-[10px] text-white font-robert-medium">
+                                            <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-blue-600 flex items-center justify-center text-xs text-white font-robert-medium">
                                                 {item.badgeCount}
                                             </span>
                                         )}
