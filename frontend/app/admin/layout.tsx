@@ -1,40 +1,35 @@
+// app/admin/layout.tsx
 "use client";
 
-export default function AdminLayout({
-    children,
-}: {
-    children: React.ReactNode;
-}) {
-    return (
-        <div className="font-zentry tracking-wider transition-colors min-h-screen bg-gradient-to-tr from-gray-50 via-gray-100 to-gray-200">
-            {/* Barra superior de administrador */}
-            <header 
-                className="bg-gradient-to-r from-blue-600 via-blue-500 to-blue-400 
-                         text-white pt-20 pb-5 px-6 shadow-xl"
-            >
-                <div className="container mx-auto flex items-center justify-between">
-                    <h1 className="text-xl font-semibold tracking-wide flex items-center gap-2">
-                        <span className="text-blue-100">⚙️</span> 
-                        Modo Administrador
-                    </h1>
-                    <p className="text-sm italic text-blue-50 border-b border-blue-200">
-                        GESTIONA TU CONTENIDO
-                    </p>
-                </div>
-            </header>
+import Sidebar from "@/components/admin/Sidebar";
+import { cn } from "@/lib/utils";
+import { ReactNode, useEffect, useState } from "react";
 
-            {/* Contenido principal */}
-            <main className="relative">
-                <div 
-                    className="absolute inset-0 bg-gradient-to-bl from-blue-200/40 
-                             via-white/30 to-transparent"
-                    aria-hidden="true"
-                />
-                
-                <div className="relative z-10 container mx-auto p-6 animate-fadeIn">
+const AdminLayout = ({ children }: { children: ReactNode }) => {
+    // Estado para detectar si la página ha cargado completamente
+    const [isLoaded, setIsLoaded] = useState(false);
+
+    useEffect(() => {
+        setIsLoaded(true);
+    }, []);
+
+    return (
+        <main className="flex min-h-screen bg-white">
+            <Sidebar />
+            
+            {/* Contenido principal con transición de carga */}
+            <div className={cn(
+                "flex-1 ml-16 lg:ml-20 transition-all duration-300",
+                "min-h-screen overflow-x-hidden",
+                isLoaded ? "opacity-100" : "opacity-0"
+            )}>
+                {/* Contenedor de contenido principal */}
+                <div className="min-h-screen px-4 py-6 md:px-6 lg:px-8 lg:py-8">
                     {children}
                 </div>
-            </main>
-        </div>
+            </div>
+        </main>
     );
 }
+
+export default AdminLayout;

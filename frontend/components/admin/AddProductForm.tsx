@@ -3,13 +3,7 @@ import { ColorPicker } from '@/components/shared/ColorPicker';
 import { ImageUpload } from '@/components/shared/ImageUpload';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/form/input';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from "@/components/ui/select";
 import { ProductFormSchema } from '@/lib/validations/product';
 import { Product, ProductFormData, ProductFormInput } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -38,7 +32,7 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
     const [uploadProgress, setUploadProgress] = useState(0);
     const [uploadingImages, setUploadingImages] = useState<File[]>([]);
 
-    
+
     const {
         register,
         control,

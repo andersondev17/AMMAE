@@ -1,28 +1,10 @@
+import { COLOR_MAP } from "@/constants";
 import { Product } from "@/types/product.types";
 import { memo } from "react";
-import { Button } from "../ui";
+import { Button } from "../../ui";
 
-// Mapa de colores con nombres en español a valores hexadecimales
-const COLOR_MAP: Record<string, string> = {
-    'Negro': '#000000',
-    'Blanco': '#FFFFFF',
-    'Azul': '#2563EB',
-    'Rojo': '#DC2626',
-    'Verde': '#059669',
-    'Amarillo': '#CA8A04',
-    'Morado': '#7C3AED',
-    'Rosa': '#DB2777',
-    'Gris': '#4B5563',
-    'Beige': '#D4B89C'
-};
 
-const VariantSelectors = memo(({
-    product,
-    selectedSize,
-    selectedColor,
-    onSizeChange,
-    onColorChange
-}: {
+const VariantSelectors = memo(({    product,    selectedSize,    selectedColor,    onSizeChange,    onColorChange}: {
     product: Product;
     selectedSize: string;
     selectedColor: string;
@@ -69,7 +51,6 @@ const VariantSelectors = memo(({
 
                 <div className="flex flex-wrap gap-2">
                     {product.colores.map((color) => {
-                        // Intentar obtener el valor del color desde el mapa o usar un fallback seguro
                         const colorValue = COLOR_MAP[color] || '#CCCCCC';
                         
                         return (

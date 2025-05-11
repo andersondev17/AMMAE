@@ -32,6 +32,15 @@ export type CategoryCardProps = {
   category: Category;
   index: number;
 };
+export interface VideoHeroProps {
+    videoUrl?: string;
+    placeholderImage: string;
+    title: string;
+    subtitle?: string;
+    ctaText?: string;
+    onCtaClick?: () => void;
+		onLoad?: () => void
+}
 
 // Nueva interfaz para el formulario de entrada
 export interface ProductFormInput {
