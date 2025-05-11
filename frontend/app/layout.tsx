@@ -1,20 +1,23 @@
 
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import { Suspense } from "react";
+import { ReactNode, Suspense } from "react";
 import { Cart } from "../components/cart/Cart";
-import { Providers } from './Providers';
+import Providers from './Providers';
 import "./globals.css";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",
   weight: "100 900",
+  preload: true
+
 });
 const geistMono = localFont({
   src: "./fonts/GeistMonoVF.woff",
   variable: "--font-geist-mono",
   weight: "100 900",
+  preload: true 
 });
 
 export const metadata: Metadata = {
@@ -25,11 +28,8 @@ export const metadata: Metadata = {
   }
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+const RootLayout = ({ children }: { children: ReactNode }) => {
+
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
@@ -44,3 +44,5 @@ export default function RootLayout({
         </html>
         );
 }
+
+export default RootLayout

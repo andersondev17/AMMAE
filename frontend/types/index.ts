@@ -39,6 +39,7 @@ export interface VideoHeroProps {
     subtitle?: string;
     ctaText?: string;
     onCtaClick?: () => void;
+		onLoad?: () => void
 }
 
 // Nueva interfaz para el formulario de entrada

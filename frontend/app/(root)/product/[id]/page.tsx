@@ -1,7 +1,7 @@
 // app/(root)/product/[id]/page.tsx
 'use client';
 
-import ProductDetail from '@/components/product/ProductDetail';
+import ProductDetail from '@/components/product/detail/ProductDetail';
 import { ProductSkeleton } from '@/components/skeletons/ProductSkeleton';
 import { useProductById } from '@/hooks/product/useProductById';
 import { useRouter } from 'next/navigation';
