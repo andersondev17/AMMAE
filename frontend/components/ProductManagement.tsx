@@ -4,7 +4,7 @@ import { useProducts } from '@/hooks/product/useProducts';
 import { Product, ProductFilters, ProductFormData } from '@/types';
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { AddProductForm } from './product/AddProductForm';
+import { AddProductForm } from './admin/AddProductForm';
 import { ProductList } from './product/ProductList';
 
 /**
@@ -76,17 +76,10 @@ export const ProductManagement: React.FC<ProductManagementProps> = ({
         }
     };
 
-    /**
-     * Prepara un producto para edición
-     */
     const handleEdit = (product: Product) => {
         setEditingProduct(product);
         setIsFormOpen(true);
     };
-
-    /**
-     * Maneja la eliminación de un producto
-     */
     const handleDelete = async (id: string) => {
         if (window.confirm('¿Estás seguro de que deseas eliminar este producto?')) {
             try {
@@ -108,7 +101,6 @@ export const ProductManagement: React.FC<ProductManagementProps> = ({
 
     return (
         <div className="space-y-9">
-            {/* Lista de productos */}
             <ProductList
                 products={products || []}
                 isLoading={isLoading}
@@ -119,7 +111,6 @@ export const ProductManagement: React.FC<ProductManagementProps> = ({
                 isAdminView={true}
             />
 
-            {/* Diálogo de formulario */}
             <Dialog
                 open={isFormOpen}
                 onOpenChange={handleDialogChange}
