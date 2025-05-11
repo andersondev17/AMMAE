@@ -25,9 +25,11 @@ const ProductDetail = memo(({ product }: ProductDetailProps) => {
                 <ProductContent product={product} discount={discount} />
             </div>
 
-            <ProductRecommendations
-                categoryId={product.categoria}
-                currentProductId={product._id}
+            <ProductRecommendations 
+                title="PRODUCTOS SIMILARES"
+                subtitle={`Más productos en ${product.categoria}`}
+                filter="popular"
+                excludeProductId={product._id}
             />
         </div>
     );
