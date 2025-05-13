@@ -65,6 +65,38 @@ exports.getOrder = asyncHandler(async (req, res, next) => {
         data: order
     });
 });
+exports.getOrders = asyncHandler(async (req, res, next) => {
+    try {
+        // Extraer parámetros de consulta
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
+
+        // Consultar órdenes con paginación
+        const orders = await Order.find()
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit);
+            
+        const total = await Order.countDocuments();
+        
+        // Responder con éxito
+        res.status(200).json({
+            success: true,
+            count: orders.length,
+            total,
+            pagination: {
+                page,
+                pages: Math.ceil(total / limit)
+            },
+            data: orders
+        });
+    } catch (error) {
+        console.error('Error obteniendo órdenes:', error);
+        next(new ErrorResponse('Error al obtener órdenes', 500));
+    }
+});
+
 
 exports.updateOrderStatus = asyncHandler(async (req, res, next) => {
     const { orderNumber } = req.params;

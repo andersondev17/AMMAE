@@ -3,25 +3,18 @@ const express = require('express');
 const router = express.Router();
 const {
     createOrder,
-    getOrders,
     getOrder,
-    updateOrderStatus,
-    confirmPayment
+    getOrders, // Importante: importar esta función del controlador
+    updateOrderStatus
 } = require('../controllers/orderController');
+
+// Usar la función getOrders del controlador en lugar de definir lógica aquí
+router.get('/', getOrders);
 
 router.post('/', createOrder);
 
-router.route('/:id')
-    .get(getOrder);
+router.get('/:orderNumber', getOrder);
 
-router.get('/:orderNumber')
-    .get(getOrder)
-    .patch(updateOrderStatus);
-    
 router.patch('/:orderNumber/status', updateOrderStatus);
-
-router.route('/:id/status')
-    .patch(updateOrderStatus);
-
 
 module.exports = router;
