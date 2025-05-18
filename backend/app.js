@@ -1,68 +1,81 @@
 require('dotenv').config();
-const serverless = require('serverless-http');
 const express = require('express');
-const multer = require('multer');
-const fs = require('fs');
-const path = require('path');
 const morgan = require('morgan');
 const cors = require('cors');
-const cookieParser = require('cookie-parser'); // Añadido para manejar cookies JWT
-const passport = require('./src/config/passport'); // Añadido para autenticación
+const cookieParser = require('cookie-parser');
+const session = require('express-session');
+const passport = require('passport');
+const path = require('path');
+const fs = require('fs');
 const dbconnect = require('./src/config/dbconnect');
 const errorHandler = require('./src/middleware/errorHandler');
 
-// Import routes
-const authRoutes = require('./src/routes/authRoutes'); // Nueva ruta de autenticación
+require('./src/config/passport');
+
+const authRoutes = require('./src/routes/authRoutes');
 const pagoRoutes = require('./src/routes/pagoRoutes');
 const productoRoutes = require('./src/routes/productoRoutes');
 const orderRoutes = require('./src/routes/orderRoutes');
 const uploadRoutes = require('./src/routes/uploadRoutes');
 
 const app = express();
+const SESSION_SECRET = process.env.SESSION_SECRET || 'ammae_session_secret_key_2025';
 
-// Database connection
 dbconnect().catch(console.error);
 
 // Middleware
 app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-    credentials: true // Importante para cookies de autenticación
+    origin: process.env.FRONTEND_URL,
+    credentials: true, // Permitir cookies
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use(express.json());
-app.use(cookieParser()); // Añadido para manejar cookies JWT
+app.use(cookieParser());
 app.use(morgan('dev'));
-app.use(passport.initialize()); // Inicializar passport para autenticación
 
-// Directorio de uploads (sin cambios)
+// Configuración de sesión
+app.use(session({
+    secret: SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    proxy: true,
+    cookie: {
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 24 * 60 * 60 * 1000, // 1 día
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    }
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Directorio de uploads
 const uploadDir = path.join(__dirname, 'public', 'assets', 'images', 'demo');
 try {
     fs.mkdirSync(uploadDir, { recursive: true });
     console.log(`Directorio de subida asegurado: ${uploadDir}`);
 } catch (error) {
     console.error(`Error al crear el directorio de subida: ${error.message}`);
-    process.exit(1); // Salir si no se puede crear el directorio
 }
 
-// Configuración para archivos estáticos (sin cambios)
+// Configuración para archivos estáticos
 app.use('/assets', express.static(path.join(__dirname, 'public', 'assets')));
 
-// Logging para debugging (simplificado para evitar exponer datos sensibles)
+// Logging básico
 app.use((req, res, next) => {
+    res.setHeader('Content-Type', 'application/json');
     console.log(`${req.method} ${req.url}`);
     next();
 });
 
-// Rutas de autenticación (nueva)
-app.use('/api/auth', authRoutes);
-
-// Rutas existentes (sin cambios)
+app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/productos', productoRoutes);
 app.use('/api/v1/pagos', pagoRoutes);
 app.use('/api/v1/upload', uploadRoutes);
 app.use('/api/v1/orders', orderRoutes);
 
-// Ruta de salud (nueva para validar funcionamiento de la API)
 app.get('/api/health', (req, res) => {
     res.json({
         success: true,
@@ -71,28 +84,23 @@ app.get('/api/health', (req, res) => {
     });
 });
 
-// Ruta de dashboard (sin cambios)
 app.get('/api/v1/dashboard/summary', async (req, res) => {
     try {
-        // Importar modelos
         const Order = require('./src/models/Order');
         const Producto = require('./src/models/productos');
-        
-        // Calcular resumen
+
         const totalOrders = await Order.countDocuments();
         const totalProductos = await Producto.countDocuments();
         const enStock = await Producto.countDocuments({ stock: { $gt: 0 } });
-        
-        // Calcular ingresos
+
         const orders = await Order.find();
         const ingresos = orders.reduce((sum, order) => sum + (order.totalPagado || 0), 0);
-        
-        // Clientes únicos
+
         const emails = new Set();
         orders.forEach(order => {
             if (order.customerData?.email) emails.add(order.customerData.email);
         });
-        
+
         res.json({
             success: true,
             data: {
@@ -109,21 +117,19 @@ app.get('/api/v1/dashboard/summary', async (req, res) => {
     }
 });
 
-// Error handling middleware (sin cambios)
 app.use(errorHandler);
 
 const port = process.env.PORT || 3001;
 
 const server = app.listen(port, () => {
-    console.log(`🚀 Servidor desplegado en puerto ${port}. De nada.`);
+    console.log(`🚀 Servidor desplegado en puerto ${port}`);
     console.log(`🔒 Sistema de autenticación ACTIVADO`);
-    console.log(`🔗 Conectado al frontend en ${process.env.FRONTEND_URL}`);
+    console.log(`🔗 Conectado al frontend en ${process.env.FRONTEND_URL || 'http://localhost:3000'}`);
 });
 
-// Manejo de errores no capturados (sin cambios)
 process.on('unhandledRejection', (err) => {
     console.log(`Error: ${err.message}`);
     server.close(() => process.exit(1));
 });
 
-module.exports.handler = serverless(app);
+module.exports = app;

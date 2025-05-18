@@ -12,14 +12,14 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useRef } from 'react';
 
-const ProductRecommendations = dynamic(() => 
+const ProductRecommendations = dynamic(() =>
   import('@/components/product/detail/ProductRecommendations'), {
-    ssr: false, 
-    loading: () => (
-      <div className="min-h-[400px] flex items-center justify-center">
-        <div className="w-8 h-8 border-t-2 border-blue-500 rounded-full animate-spin"></div>
-      </div>
-    )
+  ssr: false,
+  loading: () => (
+    <div className="min-h-[400px] flex items-center justify-center">
+      <div className="w-8 h-8 border-t-2 border-blue-500 rounded-full animate-spin"></div>
+    </div>
+  )
 });
 
 if (typeof window !== 'undefined') {
@@ -31,7 +31,7 @@ export default function Home() {
   const productsRef = useRef<HTMLDivElement>(null);
 
   const scrollToProducts = () => {
-    document.getElementById('products-section')?.scrollIntoView({ 
+    document.getElementById('products-section')?.scrollIntoView({
       behavior: 'smooth',
       block: 'start'
     });
@@ -61,35 +61,35 @@ export default function Home() {
       <main ref={pageRef} className="relative overflow-hidden">
         {/* Hero principal */}
         <VideoHero
-          videoUrl="/assets/videos/fashion-hero.mp4"
-          placeholderImage="/assets/images/demo/default-product.jpg"
+          placeholderImage="/assets/images/hero.png"
           title="AMMAE COLLECTION"
           subtitle="Descubre nuestra exclusiva colección de moda femenina"
           ctaText="Ver Colección"
           onCtaClick={scrollToProducts}
         />
 
+
         <div
           ref={productsRef}
           id="products-section"
           className="relative z-30 bg-black -mt-24 sm:-mt-28 md:-mt-32 shadow-xl transform-gpu will-change-transform min-h-[600px]"
         >
-         <div className="w-full h-24 flex items-center justify-center">
+          <div className="w-full h-24 flex items-center justify-center">
             <div className="h-1 w-16 bg-gradient-to-r from-blue-500 via-gray-200 to-transparent rounded-full" />
           </div>
 
           <CategoriesSection />
-          
+
           <div className="mt-12">
             <VideoHero
-              placeholderImage="/assets/images/hero.png"
+              placeholderImage="/assets/images/demo/accesorios/accesorio-1.png"
               title="Club de San Valentín"
               subtitle="Colección disponible solo por tiempo limitado"
               ctaText="Ver más"
               onCtaClick={scrollToProducts}
             />
           </div>
-          
+
           <div className="mt-12">
             <ProductRecommendations />
           </div>

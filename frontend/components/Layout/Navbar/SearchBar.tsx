@@ -4,8 +4,8 @@ import { Loader2, Search, X } from 'lucide-react';
 import { memo, useCallback } from 'react';
 
 interface SearchBarProps {
-    searchTerm?: string;
-    onChange?: (value: string) => void;
+    searchTerm: string;
+    onChange: (value: string) => void;
     onClear?: () => void;
     isOpen: boolean;
     isLoading?: boolean;
@@ -15,7 +15,7 @@ interface SearchBarProps {
 
 export const SearchBar = memo(({
     searchTerm = '',
-    onChange = () => {},
+    onChange = () => { },
     onClear,
     isOpen,
     isLoading = false,
@@ -24,7 +24,8 @@ export const SearchBar = memo(({
 }: SearchBarProps) => {
     const handleSubmit = useCallback((e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-    }, []);
+        console.log('Buscar:', searchTerm);
+    }, [searchTerm]);
 
     if (!isOpen) return null;
 
@@ -40,6 +41,7 @@ export const SearchBar = memo(({
                 <Input
                     value={searchTerm}
                     onChange={(e) => onChange(e.target.value)}
+                    name='search'
                     placeholder="¿Qué estás buscando?"
                     className="w-full h-14 pl-12 pr-12 border border-gray-200 focus:border-black focus:ring-0 shadow-none text-base transition-colors bg-transparent"
                     autoFocus={autoFocus}
@@ -56,7 +58,7 @@ export const SearchBar = memo(({
                     </button>
                 )}
             </form>
-            
+
             {searchTerm && (
                 <div className="mt-4 text-sm text-gray-500">
                     Pulsa Enter para buscar "{searchTerm}"

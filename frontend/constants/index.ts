@@ -111,3 +111,24 @@ export const categories: Category[] = [
         link: '/categoria/accesorios'
     }
 ];
+
+//authform 
+// Definición de tipos para campos
+export const FIELD_TYPES: Record<string, string> = {
+    email: "email",
+    password: "password",
+    confirmPassword: "password",
+    username: "text",
+    firstName: "text",
+    lastName: "text",
+};
+
+// Definición de etiquetas para campos
+export const FIELD_LABELS: Record<string, string> = {
+    email: "Correo electrónico",
+    password: "Contraseña",
+    confirmPassword: "Confirmar contraseña",
+    username: "Nombre de usuario",
+    firstName: "Nombre",
+    lastName: "Apellido",
+};

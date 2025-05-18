@@ -2,8 +2,7 @@ const express = require('express');
 const router = express.Router();
 const ModelTienda = require('../models/productos');
 const { default: mongoose } = require('mongoose');
-const resenaRoutes = require('./resenaRoutes');
-const pagoRoutes = require('./pagoRoutes');
+
 const productoRoutes = require('./productoRoutes');
 
 router.get('/', async (req, res) => {

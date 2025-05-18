@@ -17,7 +17,7 @@ const geistMono = localFont({
   src: "./fonts/GeistMonoVF.woff",
   variable: "--font-geist-mono",
   weight: "100 900",
-  preload: true 
+  preload: true
 });
 
 export const metadata: Metadata = {
@@ -34,15 +34,15 @@ const RootLayout = ({ children }: { children: ReactNode }) => {
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <Providers>
-        <Suspense >
+          <Suspense >
             {children}
             <Cart />
-            </Suspense>
+          </Suspense>
 
-            </Providers>
-          </body>
-        </html>
-        );
+        </Providers>
+      </body>
+    </html>
+  );
 }
 
 export default RootLayout

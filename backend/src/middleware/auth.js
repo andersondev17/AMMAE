@@ -2,8 +2,6 @@ const passport = require('passport');
 const ErrorResponse = require('../utils/errorResponse');
 const { getArcjetInstance } = require('../config/arcjet');
 
-//  Verifica autenticación y permisos
-
 exports.authRateLimiter = async (req, res, next) => {// Middleware para rutas de autenticación (login/registro)
 
     try {
@@ -39,20 +37,16 @@ exports.authRateLimiter = async (req, res, next) => {// Middleware para rutas de
     }
 };
 
-exports.protect = (req, res, next) => {// Proteccion de rutas
-
-    passport.authenticate('jwt', { session: false }, (err, user, info) => {
-        if (err)
-            return next(new ErrorResponse('Error de autenticación', 500));
-
-        if (!user)
-            return next(new ErrorResponse('No estás autorizado para acceder a esta ruta', 401));
-
+exports.protect = (req, res, next) => {
+    passport.authenticate('jwt', { session: false }, (err, user) => {
+        if (err || !user) return res.status(401).json({
+            success: false,
+            error: 'Acceso no autorizado'
+        });
         req.user = user;
         next();
     })(req, res, next);
 };
-
 exports.authorize = (...roles) => {
     return (req, res, next) => {
         if (!roles.includes(req.user.role)) {

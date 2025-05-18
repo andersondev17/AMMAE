@@ -1,3 +1,4 @@
+// src/config/arcjet.js
 let arcjetInstance = null;
 
 const getArcjetInstance = async () => {
@@ -12,8 +13,8 @@ const getArcjetInstance = async () => {
         }
 
         arcjetInstance = arcjet({
-            key: process.env.ARCJET_KEY || 'aj_test123456789',
-            characteristics: ["ip.src"],
+            key: process.env.ARCJET_KEY ,
+            characteristics: ["ip.src", "method", "path"],
             rules: [
                 arcjetModule.shield({ mode: "LIVE" }),
                 arcjetModule.detectBot({
@@ -22,24 +23,36 @@ const getArcjetInstance = async () => {
                 }),
                 arcjetModule.tokenBucket({
                     mode: "LIVE",
-                    refillRate: 5,      // a 1 token por intervalo
-                    interval: 15,       // cada  30 segundos 
-                    capacity: 30,        //  solicitudes máximas
+                    refillRate: 5,     // 5 tokens por intervalo
+                    interval: 15,       // Cada 15 segundos
+                    capacity: 30,       // Máximo 30 solicitudes acumuladas
                 }),
             ],
         });
 
+        console.log('✅ Arcjet inicializado correctamente');
         return arcjetInstance;
     } catch (error) {
-        console.error('❌ Error al inicializar Arcjet:', error);
-        // Mock con límite básico para pruebas (manual)
+        console.error('❌ Error al inicializar Arcjet:', error.message);
+                
         const requestCounts = {};
+        const lastResetTime = {};
+        const RATE_LIMIT = 30; // Solicitudes por ventana
+        const WINDOW_MS = 60000; // 1 minuto
 
         return {
             protect: async (req) => {
                 const ip = req.ip || '127.0.0.1';
-                requestCounts[ip] = (requestCounts[ip] || 0) + 1;
-                const isBlocked = requestCounts[ip] > 3;
+                const now = Date.now();
+                
+                if (!lastResetTime[ip] || now - lastResetTime[ip] > WINDOW_MS) {
+                    requestCounts[ip] = 1;
+                    lastResetTime[ip] = now;
+                } else {
+                    requestCounts[ip] = (requestCounts[ip] || 0) + 1;
+                }
+                
+                const isBlocked = requestCounts[ip] > RATE_LIMIT;
 
                 return {
                     isDenied: () => isBlocked,
@@ -48,10 +61,6 @@ const getArcjetInstance = async () => {
                         isBot: () => false
                     }
                 };
-            },
-            project: async (req) => {
-                // Mismo comportamiento
-                return this.protect(req);
             }
         };
     }

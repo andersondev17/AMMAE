@@ -1,5 +1,8 @@
 // @/types/index.ts
 
+import { useRouter } from "next/navigation";
+import { AuthUser } from "./auth.types";
+
 
 export interface Product {
   _id: string;
@@ -21,6 +24,40 @@ export interface Product {
   selectedColor?: string; 
 
 }
+
+export interface CartIconProps {
+  onOpen: () => void;
+  itemCount: number;
+  textColor: string;
+}
+export interface SearchIconProps {
+  isOpen: boolean;
+  toggle: () => void;
+  color: string;
+}
+export interface AuthLinkProps {
+  textColor: string;
+}
+export interface NavLinkProps {
+  href: string;
+  currentPath: string;
+  isHome: boolean;
+  textColor: string;
+  children: React.ReactNode;
+}
+export interface SearchPanelProps {
+  isOpen: boolean;
+  searchTerm: string;
+  handleSearch: (value: string) => void;
+  handleClear: () => void;
+  isLoading: boolean;
+}
+export interface UserMenuProps {
+  user: AuthUser | null;
+  isAdmin: boolean;
+  router: ReturnType<typeof useRouter>;
+  logout: () => Promise<void>;
+}
 export interface Category {
   id: ProductCategory;
   name: string;
@@ -33,7 +70,6 @@ export type CategoryCardProps = {
   index: number;
 };
 export interface VideoHeroProps {
-    videoUrl?: string;
     placeholderImage: string;
     title: string;
     subtitle?: string;

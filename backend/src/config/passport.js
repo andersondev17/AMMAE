@@ -1,14 +1,11 @@
+// src/config/passport.js
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const JwtStrategy = require('passport-jwt').Strategy;
 const { ExtractJwt } = require('passport-jwt');
 const User = require('../models/User');
 
-/**
- * - Local: username/password para login inicial
- * - JWT: Tokens para rutas protegidas
- */
-
+// Estrategia email/password
 passport.use(
     new LocalStrategy(
         {
@@ -20,17 +17,24 @@ passport.use(
                 const normalizedEmail = email.toLowerCase().trim();
                 const user = await User.findOne({ email: normalizedEmail }).select('+password');
 
-                if (!user)
+                if (!user) {
                     return done(null, false, { message: 'Credenciales inválidas' });
+                }
 
                 const isMatch = await user.comparePassword(password);
 
-                if (!isMatch)
+                if (!isMatch) {
                     return done(null, false, { message: 'Credenciales inválidas' });
+                }
 
-                if (!user.active)
-                    return done(null, false, { message: 'Esta cuenta ha sido desactivada' });
-
+                if (user.active === false) {
+                    return done(null, false, { message: 'Cuenta desactivada' });
+                }
+                
+                // Actualizar último login
+                user.lastLogin = Date.now();
+                await user.save({ validateBeforeSave: false });
+                
                 return done(null, user);
             } catch (error) {
                 return done(error);
@@ -39,46 +43,27 @@ passport.use(
     )
 );
 
-const jwtOptions = {
-    jwtFromRequest: ExtractJwt.fromExtractors([
-        ExtractJwt.fromAuthHeaderAsBearerToken(),   // Extraer de Authorization Bearer
-
-        req => { // Extraer de cookie
-
-            let token = null;
-            if (req && req.cookies) {
-                token = req.cookies['token'];
-            }
-            return token;
-        },
-        // Extraer de query param 
-        req => {
-            let token = null;
-            if (req && req.query && req.query.token) {
-                token = req.query.token;
-            }
-            return token;
-        }
-    ]),
-    secretOrKey: process.env.JWT_SECRET || 'gymshock_secret_dev'
-};
-
+// Estrategia JWT
 passport.use(
-    new JwtStrategy(jwtOptions, async (jwtPayload, done) => {
-        try {
-            const user = await User.findById(jwtPayload.id);
-
-            if (!user)
-                return done(null, false);
-
-            if (!user.active)
-                return done(null, false);
-
-            return done(null, user);
-        } catch (error) {
-            return done(error, false);
+    new JwtStrategy(
+        {
+            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+            secretOrKey: process.env.JWT_SECRET || 'ammae_jwt_secret_key'
+        },
+        async (jwtPayload, done) => {
+            try {
+                const user = await User.findById(jwtPayload.id);
+                
+                if (!user) {
+                    return done(null, false);
+                }
+                
+                return done(null, user);
+            } catch (error) {
+                return done(error, false);
+            }
         }
-    })
+    )
 );
 
 // Serialización/deserialización para sesiones
