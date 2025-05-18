@@ -39,6 +39,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             })
           });
 
+          if (response.status === 429) {
+            throw new Error('Woow no tan rapido. Por favor, espera un momento.');
+          }
           const data = await response.json();
 
           if (!response.ok || !data.success) {
@@ -86,11 +89,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           name: token.user.name,
         } as AuthUser & AdapterUser;
       }
-      
+
       if (token?.accessToken) {
         session.accessToken = token.accessToken;
       }
-      
+
       return session;
     }
   }

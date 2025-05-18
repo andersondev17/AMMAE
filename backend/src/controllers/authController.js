@@ -25,10 +25,35 @@ exports.register = asyncHandler(async (req, res, next) => {
     });
 });
 
-// En authController.js (login/register)
-// Modificar la respuesta para incluir el token
 exports.login = asyncHandler(async (req, res, next) => {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+        return res.status(400).json({
+            success: false,
+            message: 'El email y la contraseña son obligatorios'
+        });
+    }
     passport.authenticate('local', (err, user, info) => {
+        if (err) {
+            return res.status(500).json({
+                success: false,
+                message: 'Error del servidor al procesar la solicitud. Intenta nuevamente.'
+            });
+        }
+        if (!user) {
+            // Mensaje más específico según la información disponible
+            const errorMessage = info?.message === 'Incorrect password'
+                ? 'Contraseña incorrecta'
+                : (info?.message === 'User not found'
+                    ? 'Usuario no encontrado'
+                    : 'Credenciales incorrectas');
+
+            return res.status(401).json({
+                success: false,
+                message: errorMessage
+            });
+        }
         if (err || !user) {
             return res.status(401).json({
                 success: false,
@@ -37,7 +62,25 @@ exports.login = asyncHandler(async (req, res, next) => {
         }
 
         const token = user.getSignedJwtToken(); // Generar token
+        if (!loginField || !password) {
+            return res.status(400).json({
+                success: false,
+                message: "Usuario/email y contraseña son requeridos"
+            });
+        }
+        if (!user) {
+            return res.status(401).json({
+                success: false,
+                message: "Usuario no encontrado"
+            });
+        }
 
+        if (user.password !== password) {
+            return res.status(401).json({
+                success: false,
+                message: "Contraseña incorrecta"
+            });
+        }
         req.login(user, (err) => {
             if (err) return next(err);
             res.cookie('jwt', token, { // Opcional: enviar en cookie
@@ -61,7 +104,6 @@ exports.logout = asyncHandler(async (req, res) => {
     });
 });
 
-// Cambiar de getUser a getMe
 exports.getMe = asyncHandler(async (req, res) => {
     res.status(200).json({
         success: true,
@@ -69,7 +111,6 @@ exports.getMe = asyncHandler(async (req, res) => {
     });
 });
 
-// Controlador para actualizar detalles del usuario
 exports.updateDetails = asyncHandler(async (req, res, next) => {
     const fieldsToUpdate = {
         firstName: req.body.firstName,
@@ -94,7 +135,6 @@ exports.updateDetails = asyncHandler(async (req, res, next) => {
     });
 });
 
-// Controlador para actualizar contraseña
 exports.updatePassword = asyncHandler(async (req, res, next) => {
     const { currentPassword, newPassword } = req.body;
 
@@ -103,7 +143,6 @@ exports.updatePassword = asyncHandler(async (req, res, next) => {
         return next(new ErrorResponse("Debes proporcionar la contraseña actual y la nueva", 400));
     }
 
-    // Buscar usuario
     const user = await User.findById(req.user.id).select("+password");
 
     // Verificar contraseña actual

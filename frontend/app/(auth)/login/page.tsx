@@ -1,4 +1,3 @@
-// Archivo: app/login/page.tsx
 'use client';
 
 import AuthForm from '@/components/AuthForm';
@@ -18,7 +17,6 @@ export default function LoginPage() {
     const router = useRouter();
     const [formSubmitting, setFormSubmitting] = useState(false);
 
-    // Redirección automática si ya está autenticado
     useEffect(() => {
         if (sessionStatus === 'authenticated') {
             router.push('/');
@@ -26,45 +24,43 @@ export default function LoginPage() {
     }, [sessionStatus, router]);
 
     const handleLogin = async (data: LoginFormValues) => {
-        setFormSubmitting(true);
+    setFormSubmitting(true);
+    
+    try {
+        const result = await login({
+            email: data.email,
+            password: data.password
+        });
         
-        try {
-            console.log('LoginPage: Iniciando proceso de login con:', data.email);
-            
-            const result = await login({
-                email: data.email,
-                password: data.password
-            });
-            
-            console.log('LoginPage: Resultado de login:', result);
-            
-            if (result.success) {
-                toast.success('¡Inicio de sesión exitoso!');
-                router.push('/');
-            } else {
-                toast.error(result.error || 'Error al iniciar sesión');
+        if (result.success) {
+            toast.success('¡Inicio de sesión exitoso!');
+            router.push('/');
+        } else {
+            let errorMessage = result.error;
+    
+            // Si el error menciona "rate" o contiene 429, es un límite de tasa
+            if (errorMessage?.toLowerCase().includes('demasiados') || 
+                errorMessage?.toLowerCase().includes('espera')) {
+                errorMessage = 'Has excedido el número de intentos. Por favor, espera unos minutos.';
             }
             
-            return result;
-        } catch (error) {
-            console.error('LoginPage: Error inesperado:', error);
-            
-            const errorMessage = error instanceof Error 
-                ? error.message 
-                : 'Error de conexión';
-                
             toast.error(errorMessage);
-            
-            return {
-                success: false,
-                error: errorMessage
-            };
-        } finally {
-            setFormSubmitting(false);
         }
-    };
+        
+        return result;
+    } catch (error) {
+        // Simplificar mensaje de error para el usuario
+        toast.error('Error de conexión. Verifica tu internet e intenta de nuevo.');
+        
+        return {
+            success: false,
+            error: 'Error de conexión'
+        };
+    } finally {
+        setFormSubmitting(false);
+    }
+};
 
-    // Estado de carga básico
     if (isLoading && !formSubmitting) {
         return (
             <div className="flex justify-center items-center min-h-screen">

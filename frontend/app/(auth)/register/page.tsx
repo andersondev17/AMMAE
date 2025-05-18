@@ -5,6 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { registerSchema } from '@/lib/validations/auth';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 export default function RegisterPage() {
     const { register, isAuthenticated, isLoading } = useAuth();
@@ -34,15 +35,25 @@ export default function RegisterPage() {
             setIsSubmitting(false);
             
             if (result.success) {
+                toast.success('Cuenta creada exitosamente');
                 router.push('/login');
+            } else {
+                toast.error(result.error || 'Error al crear la cuenta');
             }
             
             return result;
         } catch (error) {
             setIsSubmitting(false);
+            
+            const errorMessage = error instanceof Error 
+                ? error.message 
+                : 'Error inesperado';
+                
+            toast.error(errorMessage);
+            
             return {
                 success: false,
-                error: error instanceof Error ? error.message : 'Error inesperado'
+                error: errorMessage
             };
         }
     };

@@ -5,17 +5,14 @@ import { AuthSubmitResult } from '@/types/auth.types';
 import { AuthUser } from '@/types/next-auth';
 import { signIn, signOut, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 
 export function useAuth() {
     const { data: session, status, update } = useSession();
     const router = useRouter();
-    const [lastError, setLastError] = useState<string | null>(null);
 
     const login = useCallback(async (credentials: { email: string; password: string }): Promise<AuthSubmitResult> => {
         try {
-            setLastError(null);
-            
             const result = await signIn('credentials', {
                 redirect: false,
                 email: credentials.email,
@@ -23,7 +20,14 @@ export function useAuth() {
             });
 
             if (result?.error) {
-                setLastError(result.error);
+                
+                if (result.error === "Configuration") {
+                    return {
+                        success: false,
+                        error: "Credenciales incorrectas"
+                    };
+                }
+
                 return { success: false, error: result.error };
             }
 
@@ -33,8 +37,6 @@ export function useAuth() {
             return { success: true };
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Error de conexión';
-            setLastError(errorMessage);
-            
             return {
                 success: false,
                 error: errorMessage
@@ -44,21 +46,12 @@ export function useAuth() {
 
     const register = useCallback(async (userData: { email: string; password: string }): Promise<AuthSubmitResult> => {
         try {
-            setLastError(null);
             const result = await AuthService.register(userData);
-            
-            if (!result.success && result.error) {
-                setLastError(result.error);
-            }
-            
             return result;
         } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'Error al registrar';
-            setLastError(errorMessage);
-            
             return {
                 success: false,
-                error: errorMessage
+                error: error instanceof Error ? error.message : 'Error al registrar'
             };
         }
     }, []);
@@ -68,7 +61,7 @@ export function useAuth() {
             await signOut({ redirect: false });
             router.push('/login');
         } catch (error) {
-            console.error('Error en logout:', error);
+            console.error('Logout error:', error);
         }
     }, [router]);
 
@@ -77,7 +70,6 @@ export function useAuth() {
         isAuthenticated: !!session?.user,
         isAdmin: session?.user?.role === 'admin',
         isLoading: status === 'loading',
-        error: lastError,
         login,
         register,
         logout,

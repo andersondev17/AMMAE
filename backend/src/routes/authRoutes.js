@@ -1,11 +1,12 @@
+// src/routes/authRoutes.js
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');
-const { protect } = require('../middleware/auth');
+const { protect, authRateLimiter } = require('../middleware/auth');
 
-// Rutas públicas
-router.post('/register', authController.register);
-router.post('/login', authController.login);
+// Aplicar rate limiting a las rutas de autenticación
+router.post('/register', authRateLimiter, authController.register);
+router.post('/login', authRateLimiter, authController.login);
 router.get('/logout', authController.logout);
 
 // Rutas protegidas
