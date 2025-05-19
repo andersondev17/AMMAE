@@ -8,16 +8,14 @@ import { FIELD_LABELS, FIELD_TYPES } from "@/constants";
 import { AuthFormProps } from "@/types/auth.types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
-import { toast } from "sonner";
+
 /**
  * Componente de formulario de autenticación
  * Soporta login y registro con validación Zod
  */
 const AuthForm = <T extends FieldValues>({ type, schema, defaultValues, onSubmit, isLoading: externalLoading}: AuthFormProps<T>) => {
-  const router = useRouter();
   const isLogin = type === "LOGIN";
   const [internalLoading, setInternalLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -30,23 +28,19 @@ const AuthForm = <T extends FieldValues>({ type, schema, defaultValues, onSubmit
     defaultValues,
   });
 
-    const handleSubmit: SubmitHandler<T> = async (data) => {
+  const handleSubmit: SubmitHandler<T> = async (data) => {
     if (!externalLoading) setInternalLoading(true);
 
     try {
+      // Llamar al onSubmit proporcionado por el padre y devolver el resultado
       const result = await onSubmit(data);
-
-      if (result.success) {
-        toast.success(isLogin ? "¡Inicio de sesión exitoso!" : "¡Cuenta creada exitosamente!");
-        router.push(isLogin ? "/" : "/login");
-      } else if (result.error) {
-        toast.error(result.error);
-      }
+      return result;
     } catch (error: unknown) {
       console.error("Auth error:", error);
-      toast.error(
-        error instanceof Error ? error.message : "Ocurrió un error inesperado"
-      );
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Ocurrió un error inesperado"
+      };
     } finally {
       if (!externalLoading) setInternalLoading(false);
     }
@@ -55,14 +49,9 @@ const AuthForm = <T extends FieldValues>({ type, schema, defaultValues, onSubmit
   return (
     <div className="w-full">
       <div className="flex flex-col items-center mb-8">
-        <h1 className="text-2xl md:text-3xl font-bold text-white">
+        <h1 className="text-2xl md:text-3xl font-bold tracking-wider text-black">
           {isLogin ? "Inicia sesión" : "Crea tu cuenta"}
         </h1>
-        <p className="text-gray-300 mt-2 text-center">
-          {isLogin
-            ? "Accede para personalizar tu experiencia de fitness"
-            : "Comienza tu viaje fitness con nosotros"}
-        </p>
       </div>
 
       <Form {...form}>
@@ -77,7 +66,7 @@ const AuthForm = <T extends FieldValues>({ type, schema, defaultValues, onSubmit
               name={fieldName as any}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-gray-200">
+                  <FormLabel className="text-gray-700 text-xs font-bold uppercase tracking-wide">
                     {FIELD_LABELS[fieldName] || fieldName}
                   </FormLabel>
                   <FormControl>
@@ -90,7 +79,7 @@ const AuthForm = <T extends FieldValues>({ type, schema, defaultValues, onSubmit
                               ? (isLogin ? "Tu contraseña" : "Mínimo 8 caracteres")
                               : "Confirma tu contraseña"
                           }
-                          className="bg-gray-700/50 border-gray-600 text-white placeholder:text-gray-400 focus:ring-red-500 focus:border-red-500 pr-10"
+                          className="bg-white border-black text-black placeholder:text-gray-400 focus:ring-black focus:border-black py-3"
                           autoComplete={
                             fieldName === "password"
                               ? (isLogin ? "current-password" : "new-password")
@@ -101,7 +90,7 @@ const AuthForm = <T extends FieldValues>({ type, schema, defaultValues, onSubmit
                         />
                         <button
                           type="button"
-                          className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-300"
+                          className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700"
                           onClick={() => setShowPassword(!showPassword)}
                           tabIndex={-1}
                         >
@@ -125,14 +114,14 @@ const AuthForm = <T extends FieldValues>({ type, schema, defaultValues, onSubmit
                             ? "tu@email.com"
                             : `Ingresa tu ${FIELD_LABELS[fieldName] || fieldName}`
                         }
-                        className="bg-gray-700/50 border-gray-600 text-white placeholder:text-gray-400 focus:ring-red-500 focus:border-red-500"
+                        className="bg-white border-black text-black placeholder:text-gray-400 focus:ring-black focus:border-black py-3"
                         autoComplete={fieldName}
                         disabled={isLoading}
                         {...field}
                       />
                     )}
                   </FormControl>
-                  <FormMessage className="text-red-400" />
+                  <FormMessage className="text-red-600" />
                 </FormItem>
               )}
             />
@@ -141,12 +130,12 @@ const AuthForm = <T extends FieldValues>({ type, schema, defaultValues, onSubmit
           {isLogin && (
             <div className="flex items-center justify-between">
               <div className="flex items-center">
-                <Checkbox id="remember" className="text-red-500 focus:ring-red-500" />
-                <label htmlFor="remember" className="ml-2 text-sm text-gray-300">
+                <Checkbox id="remember" className="text-black focus:ring-black" />
+                <label htmlFor="remember" className="ml-2 text-xs text-gray-700">
                   Recordar sesión
                 </label>
               </div>
-              <a href="#" className="text-sm text-red-500 hover:text-red-400">
+              <a href="#" className="text-xs text-gray-700 hover:text-black">
                 ¿Olvidaste tu contraseña?
               </a>
             </div>
@@ -154,7 +143,7 @@ const AuthForm = <T extends FieldValues>({ type, schema, defaultValues, onSubmit
 
           <Button
             type="submit"
-            className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2.5 transition-all duration-300 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+            className="w-full border border-black bg-black hover:bg-white hover:text-black text-white font-medium py-3 tracking-wider text-xs transition-all duration-300"
             disabled={isLoading}
           >
             {isLoading ? (
@@ -166,16 +155,16 @@ const AuthForm = <T extends FieldValues>({ type, schema, defaultValues, onSubmit
                 Procesando...
               </span>
             ) : (
-              isLogin ? "Iniciar Sesión" : "Crear Cuenta"
+              isLogin ? "INICIAR SESIÓN" : "CREAR CUENTA"
             )}
           </Button>
 
           {/* Enlaces para alternar entre login y registro */}
-          <p className="text-center text-sm text-gray-400 mt-4">
+          <p className="text-center text-sm text-gray-600 mt-4">
             {isLogin ? "¿No tienes una cuenta?" : "¿Ya tienes una cuenta?"}
             <Link
               href={isLogin ? "/register" : "/login"}
-              className="ml-1 text-red-500 hover:text-red-400 font-medium"
+              className="ml-1 text-black hover:underline font-medium"
             >
               {isLogin ? "Regístrate" : "Inicia sesión"}
             </Link>
@@ -183,9 +172,8 @@ const AuthForm = <T extends FieldValues>({ type, schema, defaultValues, onSubmit
         </form>
       </Form>
 
-      <div className="mt-8 border-t border-gray-700 pt-6 text-center text-xs text-gray-500">
-        <p>GymShock © {new Date().getFullYear()} - Todos los derechos reservados</p>
-        <p className="mt-1">Al continuar, aceptas nuestros <a href="#" className="text-red-500 hover:text-red-400">Términos y Condiciones</a> y <a href="#" className="text-red-500 hover:text-red-400">Política de Privacidad</a></p>
+      <div className="mt-8 border-t border-gray-200 pt-6 text-center text-xs text-gray-500">
+        <p>AMMAE © {new Date().getFullYear()} - Todos los derechos reservados</p>
       </div>
     </div>
   );

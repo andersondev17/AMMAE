@@ -17,6 +17,7 @@ const pagoRoutes = require('./src/routes/pagoRoutes');
 const productoRoutes = require('./src/routes/productoRoutes');
 const orderRoutes = require('./src/routes/orderRoutes');
 const uploadRoutes = require('./src/routes/uploadRoutes');
+const dashboardRoutes = require('./src/routes/dashboardRoutes');
 
 const app = express();
 const SESSION_SECRET = process.env.SESSION_SECRET || 'ammae_session_secret_key_2025';
@@ -75,6 +76,8 @@ app.use('/api/v1/productos', productoRoutes);
 app.use('/api/v1/pagos', pagoRoutes);
 app.use('/api/v1/upload', uploadRoutes);
 app.use('/api/v1/orders', orderRoutes);
+app.use('/api/v1/dashboard', dashboardRoutes);
+
 
 app.get('/api/health', (req, res) => {
     res.json({
@@ -85,36 +88,8 @@ app.get('/api/health', (req, res) => {
 });
 
 app.get('/api/v1/dashboard/summary', async (req, res) => {
-    try {
-        const Order = require('./src/models/Order');
-        const Producto = require('./src/models/productos');
-
-        const totalOrders = await Order.countDocuments();
-        const totalProductos = await Producto.countDocuments();
-        const enStock = await Producto.countDocuments({ stock: { $gt: 0 } });
-
-        const orders = await Order.find();
-        const ingresos = orders.reduce((sum, order) => sum + (order.totalPagado || 0), 0);
-
-        const emails = new Set();
-        orders.forEach(order => {
-            if (order.customerData?.email) emails.add(order.customerData.email);
-        });
-
-        res.json({
-            success: true,
-            data: {
-                ingresos,
-                totalPedidos: totalOrders,
-                clientesUnicos: emails.size,
-                productosTotal: totalProductos,
-                productosEnStock: enStock
-            }
-        });
-    } catch (error) {
-        console.error('Error en dashboard:', error);
-        res.status(500).json({ success: false, error: 'Error interno del servidor' });
-    }
+    const { getDashboardSummary } = require('./src/controllers/dashboardController');
+    getDashboardSummary(req, res);
 });
 
 app.use(errorHandler);

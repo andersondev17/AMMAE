@@ -5,7 +5,7 @@ import { useMemo } from 'react';
 import { ProductSkeleton } from '../skeletons/ProductSkeleton';
 import { ProductCard } from './ProductCard';
 
-export const ProductList: React.FC<ProductListProps> = ({
+const ProductList: React.FC<ProductListProps> = ({
   products = [],
   isLoading,
   error,
@@ -24,13 +24,13 @@ export const ProductList: React.FC<ProductListProps> = ({
         return acc;
       }, {} as Record<string, Product[]>);
     }
-    
+
     // Para vista de cliente, dejar como lista plana
     return { products };
   }, [products, isAdminView]);
 
   if (isLoading) return <ProductSkeleton count={8} />;
-  
+
   if (error) {
     return (
       <div className="text-center py-12">
@@ -41,7 +41,7 @@ export const ProductList: React.FC<ProductListProps> = ({
       </div>
     );
   }
-  
+
   if (!products?.length) {
     return (
       <div className="text-center py-16 bg-gray-50">
@@ -108,4 +108,6 @@ export const ProductList: React.FC<ProductListProps> = ({
   );
 };
 
-ProductList.displayName = 'ProductList';
+export { ProductList };
+export default ProductList;
+

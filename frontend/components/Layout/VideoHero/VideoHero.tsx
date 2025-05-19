@@ -1,7 +1,5 @@
 'use client';
 import { VideoHeroProps } from '@/types/index';
-import { useGSAP } from '@gsap/react';
-import gsap from 'gsap';
 import { memo, useEffect, useRef } from 'react';
 
 export const VideoHero = memo(({
@@ -18,22 +16,6 @@ export const VideoHero = memo(({
     useEffect(() => {
         if (onLoad) onLoad();
     }, [onLoad]);
-
-    // Animación GSAP existente
-    useGSAP(() => {
-        if (!containerRef.current) return;
-
-        gsap.to(containerRef.current.querySelector('.hero-content'), {
-            y: 300,
-            opacity: 0,
-            scrollTrigger: {
-                trigger: containerRef.current,
-                start: 'top top',
-                end: '60% top',
-                scrub: 0.8,
-            }
-        });
-    }, { scope: containerRef, dependencies: [] });
 
     return (
         <div ref={containerRef} className="relative w-full h-[90vh] overflow-hidden">

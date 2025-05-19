@@ -2,10 +2,22 @@
 import { Product } from '@/types';
 import { memo } from 'react';
 import { ProductBreadcrumb } from './ProductBreadcrumb';
-import ProductContent from './ProductContent';
-import ProductGallery from './ProductGallery';
+
+import { Skeleton } from '@/components/ui';
+import dynamic from 'next/dynamic';
 import ProductRecommendations from './ProductRecommendations';
 
+const ProductGallery = dynamic(
+    () => import('@/components/product/detail/ProductGallery'),
+    {
+        loading: () => <Skeleton />,
+        ssr: false
+    }
+);
+const ProductContent = dynamic( () => import('./ProductContent'), {
+    loading: () => <Skeleton />,
+    ssr: false
+} )
 interface ProductDetailProps {
     product: Product;
 }
@@ -25,7 +37,7 @@ const ProductDetail = memo(({ product }: ProductDetailProps) => {
                 <ProductContent product={product} discount={discount} />
             </div>
 
-            <ProductRecommendations 
+            <ProductRecommendations
                 title="PRODUCTOS SIMILARES"
                 subtitle={`Más productos en ${product.categoria}`}
                 filter="popular"

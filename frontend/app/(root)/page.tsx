@@ -61,7 +61,7 @@ export default function Home() {
       <main ref={pageRef} className="relative overflow-hidden">
         {/* Hero principal */}
         <VideoHero
-          placeholderImage="/assets/images/hero.png"
+          placeholderImage="/assets/images/hero.avif"
           title="AMMAE COLLECTION"
           subtitle="Descubre nuestra exclusiva colección de moda femenina"
           ctaText="Ver Colección"

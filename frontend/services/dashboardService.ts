@@ -68,17 +68,16 @@ export async function getDashboardSummary(): Promise<DashboardSummary> {
  */
 export async function getRecentOrders(limit = 5): Promise<Order[]> {
     try {
-        // Usar la API existente de pedidos, con límite
-        const response = await axios.get<{ success: boolean; data: Order[] }>(`${API_URL}/pedidos?limit=${limit}`);
-
-        if (response.data.success) {
-            // Ordenar por fecha más reciente
-            return (response.data.data || [])
-                .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-                .slice(0, limit);
-        }
-
-        return [];
+        console.log(`Solicitando pedidos recientes, límite: ${limit}`);
+        
+        const response = await axios.get(`${API_URL}/dashboard/recent-orders?limit=${limit}`, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        console.log('Respuesta pedidos recientes:', response.data);
+        return response.data.data || [];
     } catch (error) {
         console.error('Error en getRecentOrders:', error);
         return [];
