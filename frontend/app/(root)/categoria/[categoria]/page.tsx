@@ -2,11 +2,20 @@
 'use client';
 
 import ErrorBoundary from '@/components/ErrorBoundary';
-import { ProductList } from '@/components/product/ProductList';
+import { Skeleton } from '@/components/ui';
 import { useProducts } from '@/hooks/product/useProducts';
 import { PRODUCT_CATEGORIES, ProductCategory } from '@/types/product.types';
+import dynamic from 'next/dynamic';
 import { notFound } from 'next/navigation';
 import { memo, useCallback } from 'react';
+
+const ProductList = dynamic(
+    () => import('@/components/product/ProductList'),
+    {
+        loading: () => <Skeleton />,
+        ssr: false
+    }
+);
 
 const ErrorFallback = memo(({ message, onRetry }: { message: string; onRetry: () => void }) => (
   <div className="container mx-auto px-4 py-16 text-center">

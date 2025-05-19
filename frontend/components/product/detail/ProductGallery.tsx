@@ -32,8 +32,9 @@ const ProductGallery = memo(({ product }: { product: Product }) => {
                 <Image
                     src={mainImage}
                     alt={product.nombre}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 50vw"
+                    
+                    width={600}  // Dimensiones reales
+                    height={400}
                     className={`object-cover transition-transform duration-200 ${isZoomed ? 'scale-150' : 'scale-100'
                         }`}
                     style={{ transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%` }}
@@ -48,8 +49,8 @@ const ProductGallery = memo(({ product }: { product: Product }) => {
                         key={idx}
                         onClick={() => setMainImage(getImageUrl(img))}
                         className={`relative aspect-square rounded-md overflow-hidden ${mainImage === getImageUrl(img)
-                                ? 'ring-2 ring-primary'
-                                : 'opacity-75 hover:opacity-100'
+                            ? 'ring-2 ring-primary'
+                            : 'opacity-75 hover:opacity-100'
                             }`}
                         aria-label={`Vista previa ${idx + 1}`}
                     >
