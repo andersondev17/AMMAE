@@ -26,47 +26,18 @@ exports.register = asyncHandler(async (req, res, next) => {
 });
 
 exports.login = asyncHandler(async (req, res, next) => {
-    const { email, password } = req.body;
-
-    // 1. Validación básica
-    if (!email || !password) {
-        return res.status(400).json({
-            success: false,
-            error: 'Email y contraseña son requeridos'
+    passport.authenticate('local', { session: false }, (err, user, info) => {
+        if (err) return next(new ErrorResponse('Error de autenticación', 500));
+        if (!user) return next(new ErrorResponse(info.message || 'Credenciales inválidas', 401));
+        
+        const token = user.getSignedJwtToken();
+        
+        res.status(200).json({
+            success: true,
+            token,
+            user: user.toAuthJSON()
         });
-    }
-
-    // 2. Buscar usuario
-    const user = await User.findOne({ email }).select('+password');
-    if (!user) {
-        return res.status(401).json({
-            success: false,
-            error: 'Credenciales inválidas'
-        });
-    }
-
-    // 3. Verificar contraseña
-    const isMatch = await user.comparePassword(password);
-    if (!isMatch) {
-        return res.status(401).json({
-            success: false,
-            error: 'Credenciales inválidas'
-        });
-    }
-
-    // 4. Actualizar último login
-    user.lastLogin = Date.now();
-    await user.save({ validateBeforeSave: false });
-
-    // 5. Generar token
-    const token = user.getSignedJwtToken();
-
-    // 6. Responder con éxito
-    res.status(200).json({
-        success: true,
-        token,
-        user: user.toAuthJSON()
-    });
+    })(req, res, next);
 });
     
 exports.logout = asyncHandler(async (req, res) => {

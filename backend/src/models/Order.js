@@ -98,5 +98,5 @@ orderSchema.index({ orderNumber: 1 }, { unique: true });
 orderSchema.index({ fechaPedido: -1 });
 orderSchema.index({ 'customerData.email': 1 });
 
-const Order = mongoose.model('Order', orderSchema);
+const Order = mongoose.model('Order', orderSchema, 'orders');
 module.exports = Order;

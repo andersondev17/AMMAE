@@ -114,6 +114,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* Pedidos recientes */}
+            {/* Pedidos recientes */}
             <div className="border border-gray-100 p-6 hover:border-black transition-colors duration-300">
                 <h3 className="font-medium mb-4">Pedidos recientes</h3>
                 <div className="space-y-4">
@@ -127,15 +128,15 @@ export default function AdminDashboard() {
                                 <div className="h-6 w-16 bg-gray-200 rounded"></div>
                             </div>
                         ))
-                    ) : pedidosRecientes.length === 0 ? (
+                    ) : pedidosRecientes?.length === 0 ? (
                         <p className="text-center text-gray-500 py-4">No hay pedidos recientes</p>
                     ) : (
-                        pedidosRecientes.map((pedido: any) => (
-                            <div key={pedido._id} className="flex justify-between pb-3 border-b border-gray-100">
+                        pedidosRecientes.map((pedido) => (
+                            <div key={pedido._id || `order-${Math.random()}`} className="flex justify-between pb-3 border-b border-gray-100">
                                 <div>
-                                    <p className="font-medium">{pedido.orderNumber}</p>
+                                    <p className="font-medium">{pedido.orderNumber || `Pedido #${pedido._id?.slice(-6) || '000000'}`}</p>
                                     <p className="text-sm text-gray-500">
-                                        {pedido.customerData?.nombre}
+                                        {pedido.customerData?.nombre || 'Cliente'}
                                     </p>
                                 </div>
                                 <div className="flex flex-col items-end">
@@ -143,10 +144,10 @@ export default function AdminDashboard() {
                                             pedido.estado === 'cancelado' ? 'bg-red-100 text-red-800' :
                                                 'bg-blue-100 text-blue-800'
                                         }`}>
-                                        {pedido.estado}
+                                        {pedido.estado || 'pendiente'}
                                     </span>
                                     <span className="text-sm font-medium mt-1">
-                                        {formatPrice(pedido.totalPagado.toString())}
+                                        {formatPrice((pedido.totalPagado || 0).toString())}
                                     </span>
                                 </div>
                             </div>
