@@ -137,14 +137,13 @@ const NavLink = ({ href, currentPath, children }: { href: string; currentPath: s
 
 const UserMenu = ({ user, isAdmin, router, logout }: { user: any; isAdmin: boolean; router: any; logout: () => void }) => (
     <DropdownMenu>
-        <DropdownMenuTrigger>
-            <button className="p-0 m-0 border-0 bg-transparent">
-                <Avatar className="cursor-pointer border-2 border-red-500 hover:border-red-600">
-                    <AvatarFallback className="bg-red-500 text-white">
-                        {user?.name?.split(' ').slice(0, 2).map((n: string) => n[0]).join('').toUpperCase() || 'US'}
-                    </AvatarFallback>
-                </Avatar>
-            </button>
+        <DropdownMenuTrigger asChild={false}>
+            {/* O simplemente elimina el prop asChild por completo */}
+            <Avatar className="cursor-pointer border-2 border-red-500 hover:border-red-600">
+                <AvatarFallback className="bg-red-500 text-white">
+                    {user?.name?.split(' ').slice(0, 2).map((n: string) => n[0]).join('').toUpperCase() || 'US'}
+                </AvatarFallback>
+            </Avatar>
         </DropdownMenuTrigger>
 
         <DropdownMenuContent className="w-48 rounded-lg shadow-lg">

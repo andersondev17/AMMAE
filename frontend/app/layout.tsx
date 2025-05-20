@@ -1,4 +1,5 @@
 
+import { WebVitalsTracker } from "@/components/analytics/WebVitalsTracker";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { ReactNode, Suspense } from "react";
@@ -29,7 +30,6 @@ export const metadata: Metadata = {
 };
 
 const RootLayout = ({ children }: { children: ReactNode }) => {
-
   return (
     <html lang="es">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
@@ -37,6 +37,8 @@ const RootLayout = ({ children }: { children: ReactNode }) => {
           <Suspense >
             {children}
             <Cart />
+            <WebVitalsTracker />
+
           </Suspense>
 
         </Providers>
