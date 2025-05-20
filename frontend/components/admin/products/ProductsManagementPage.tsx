@@ -108,7 +108,7 @@ export default function ProductsManagementPage() {
                         </SelectContent>
                     </Select>
 
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm" aria-label="Filtros" onClick={() => setIsFormOpen(true)}>
                         <Filter className="mr-2 h-4 w-4" />
                         Filtros
                     </Button>

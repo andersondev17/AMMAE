@@ -49,6 +49,7 @@ export const PaymentSelector = ({ selectedMethod, onSelect }: PaymentSelectorPro
                                     className="w-full"
                                     onClick={() => onSelect(method.id)}
                                     disabled={isSelected}
+                                    aria-label={`Seleccionar ${method.title}`}
                                 >
                                     {isSelected ? 'Seleccionado' : 'Seleccionar'}
                                 </Button>

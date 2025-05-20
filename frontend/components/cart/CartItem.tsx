@@ -56,6 +56,7 @@ export const CartItem = memo(({
                         onClick={() => onRemove(product._id)}
                         variant="ghost"
                         className="text-gray-500 hover:text-gray-700"
+                        aria-label={`Eliminar ${product.nombre} del carrito`}
                     >
                         <X className="h-4 w-4" />
                     </Button>

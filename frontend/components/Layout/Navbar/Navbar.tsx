@@ -137,12 +137,14 @@ const NavLink = ({ href, currentPath, children }: { href: string; currentPath: s
 
 const UserMenu = ({ user, isAdmin, router, logout }: { user: any; isAdmin: boolean; router: any; logout: () => void }) => (
     <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-            <Avatar className="cursor-pointer border-2 border-red-500 hover:border-red-600">
-                <AvatarFallback className="bg-red-500 text-white">
-                    {user?.name?.split(' ').slice(0, 2).map((n: string) => n[0]).join('').toUpperCase() || 'US'}
-                </AvatarFallback>
-            </Avatar>
+        <DropdownMenuTrigger>
+            <button className="p-0 m-0 border-0 bg-transparent">
+                <Avatar className="cursor-pointer border-2 border-red-500 hover:border-red-600">
+                    <AvatarFallback className="bg-red-500 text-white">
+                        {user?.name?.split(' ').slice(0, 2).map((n: string) => n[0]).join('').toUpperCase() || 'US'}
+                    </AvatarFallback>
+                </Avatar>
+            </button>
         </DropdownMenuTrigger>
 
         <DropdownMenuContent className="w-48 rounded-lg shadow-lg">
@@ -165,7 +167,7 @@ const UserMenu = ({ user, isAdmin, router, logout }: { user: any; isAdmin: boole
 
 const SearchIcon = ({ toggle }: { toggle: () => void }) => (
     <div className="h-10 border border-black ">
-        <button onClick={toggle} className="flex items-center justify-center w-full h-full px-4 text-gray-700 hover:bg-gray-50">
+        <button onClick={toggle} className="flex items-center justify-center w-full h-full px-4 text-gray-700 hover:bg-gray-50" aria-label="Abrir búsqueda de productos">
             <Search className="h-5 w-5" />
             <span className="ml-2 hidden md:inline font-semibold text-xs tracking-wide">BUSCAR AQUÍ</span>
         </button>
@@ -179,13 +181,13 @@ const AuthLink = () => (
 )
 
 const AdminLink = () => (
-    <Link href="/admin/products" className="p-2 rounded-full text-gray-800 hover:text-black hidden md:flex">
+    <Link href="/admin/products" className="p-2 rounded-full text-gray-800 hover:text-black hidden md:flex" aria-label="Abrir Panel Admin">
         <Package className="h-5 w-5" />
     </Link>
 )
 
 const CartIcon = ({ onOpen, itemCount }: { onOpen: () => void; itemCount: number }) => (
-    <button onClick={onOpen} className="relative p-2 rounded-full text-gray-800 hover:text-black">
+    <button onClick={onOpen} className="relative p-2 rounded-full text-gray-800 hover:text-black" aria-label="Abrir Carrito de compras">
         <ShoppingBag className="h-5 w-5" />
         {itemCount > 0 && (
             <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-blue-600 text-xs text-white">
@@ -195,14 +197,14 @@ const CartIcon = ({ onOpen, itemCount }: { onOpen: () => void; itemCount: number
     </button>
 )
 
-const SearchPanel = ({ isOpen, ...props }: { isOpen: boolean; [key: string]: any }) => (
+const SearchPanel = ({ isOpen, ...props }: { isOpen: boolean;[key: string]: any }) => (
     <div className={cn(
         "absolute left-0 right-0 z-40 bg-white backdrop-blur-sm border",
         "transform transition-all duration-300 ease-in-out",
         isOpen ? "translate-y-0 opacity-100" : "-translate-y-2 opacity-0 pointer-events-none"
     )}>
         <div className="container mx-auto">
-            <SearchBar 
+            <SearchBar
                 isOpen={isOpen}
                 searchTerm={props.searchTerm}
                 onChange={props.handleSearch}

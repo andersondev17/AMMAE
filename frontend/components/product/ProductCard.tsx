@@ -22,7 +22,7 @@ export const ProductCard = memo(({ product, onEdit, onDelete, isAdminView = fals
         const imgPath = product.imagenes?.length > 0
             ? getImageUrl(product.imagenes[0])
             : getImageUrl(`default/${product.categoria.toLowerCase()}.jpg`);
-            
+
         const secondImg = product.imagenes?.length > 1
             ? getImageUrl(product.imagenes[1])
             : imgPath;
@@ -135,6 +135,7 @@ export const ProductCard = memo(({ product, onEdit, onDelete, isAdminView = fals
                             <button
                                 onClick={(e) => e.preventDefault()}
                                 className="w-full py-2 border border-black bg-white hover:bg-black hover:text-white transition-colors duration-300"
+                                aria-label="Ver detalles"
                             >
                                 Ver detalles
                             </button>
@@ -163,7 +164,7 @@ export const ProductCard = memo(({ product, onEdit, onDelete, isAdminView = fals
                         )}
                     </div>
 
-                    <h3 className="font-normal text-sm text-gray-900 truncate">
+                   <h3 className="font-normal text-sm text-gray-900 truncate">
                         {product.nombre}
                     </h3>
 

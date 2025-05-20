@@ -326,6 +326,7 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
                             type="submit"
                             disabled={isButtonDisabled}
                             className="min-w-[150px]"
+                            aria-label='Guardar producto'
                         >
                             {(isSubmitting || submitting) ? (
                                 <div className="flex items-center justify-center space-x-2">

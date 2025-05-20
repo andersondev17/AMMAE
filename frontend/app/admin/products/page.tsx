@@ -124,6 +124,7 @@ export default function AdminProductsPage() {
             variant={filter === id ? "default" : "ghost"}
             className="whitespace-nowrap"
             onClick={() => handleFilterChange(id)}
+            atoria-label={`Filtrar por ${label}`}
           >
             {label}
           </Button>

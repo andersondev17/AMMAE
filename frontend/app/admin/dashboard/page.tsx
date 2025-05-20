@@ -38,6 +38,7 @@ export default function AdminDashboard() {
                     size="sm"
                     onClick={() => refreshDashboard()}
                     disabled={isLoading}
+                    aria-label="Actualizar dashboard"
                 >
                     <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
                     Actualizar
@@ -87,6 +88,8 @@ export default function AdminDashboard() {
                     <Link
                         href="/admin/products"
                         className="text-sm font-medium px-4 py-2 border border-black hover:bg-black hover:text-white transition-colors duration-300"
+                        aria-label="Panel de administración de productos"
+                        
                     >
                         Ver todos los productos
                     </Link>

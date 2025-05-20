@@ -8,7 +8,7 @@ import { Skeleton } from '../ui';
 const CategoryCard = ({ category, index }: { category: Category; index: number }) => {
     const [isLoading, setIsLoading] = useState(true);
     const imageRef = useRef<HTMLImageElement>(null);
-    
+
     useEffect(() => {
         if (imageRef.current?.complete) {
             setIsLoading(false);
@@ -25,20 +25,18 @@ const CategoryCard = ({ category, index }: { category: Category; index: number }
                     <Image
                         ref={imageRef}
                         src={category.image}
-                        alt={category.name}
+                        alt={`Categoría de ${category.name}`}
                         fill
-                        className={`object-cover object-center transition-opacity duration-300 ${
-                            isLoading ? 'opacity-0' : 'opacity-100'
-                        }`}
+                        className={`object-cover object-center transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'
+                            }`}
                         sizes="(max-width: 768px) 100vw, 33vw"
                         priority={index < 3}
                         quality={80}
                         onLoad={() => setIsLoading(false)}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                    <h3 className="absolute bottom-4 left-4 text-xl font-bold text-white z-20">
-                        {category.name}
-                    </h3>
+<h2 className="font-normal text-sm text-gray-900 truncate">                        {category.name}
+                    </h2>
                 </div>
             </Link>
         </div>

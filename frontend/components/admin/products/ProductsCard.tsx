@@ -50,14 +50,14 @@ export function ProductsCard({
                         {products.map(product => {
                             const { primary: imageUrl } = getProductImages(product);
                             return (
-                                <Link 
+                                <Link
                                     key={product._id}
                                     href={`/admin/products?edit=${product._id}`}
                                     className="flex items-center p-4 hover:bg-gray-50 transition-colors duration-300"
                                 >
                                     <div className="w-12 h-12 rounded-none overflow-hidden mr-4 relative">
-                                        <Image 
-                                            src={imageUrl} 
+                                        <Image
+                                            src={imageUrl}
                                             alt={product.nombre}
                                             fill
                                             className="object-cover"
@@ -72,14 +72,14 @@ export function ProductsCard({
                                         </div>
                                     </div>
                                     <div className={cn(
-                                        "text-sm",
-                                        product.stock <= 0 ? "text-red-600" : 
-                                        product.stock <= 5 ? "text-amber-600" : 
-                                        "text-green-600"
+                                        "text-sm font-medium",
+                                        product.stock <= 0 ? "text-red-700" :
+                                            product.stock <= 5 ? "text-amber-700" :
+                                                "text-green-700"
                                     )}>
-                                        {product.stock <= 0 ? "Sin stock" : 
-                                         product.stock <= 5 ? "Bajo stock" : 
-                                         "En stock"}
+                                        {product.stock <= 0 ? "Sin stock" :
+                                            product.stock <= 5 ? "Bajo stock" :
+                                                "En stock"}
                                     </div>
                                 </Link>
                             );

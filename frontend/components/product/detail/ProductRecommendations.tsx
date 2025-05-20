@@ -71,6 +71,7 @@ export const ProductRecommendations = ({
                             size="icon"
                             onClick={() => scroll('left')}
                             className="rounded-full border-gray-300 hover:border-gray-900 transition-colors"
+                            aria-label='Desplazar a la izquierda'
                         >
                             <ChevronLeft className="h-4 w-4" />
                         </Button>
@@ -79,6 +80,7 @@ export const ProductRecommendations = ({
                             size="icon"
                             onClick={() => scroll('right')}
                             className="rounded-full border-gray-300 hover:border-gray-900 transition-colors"
+                            aria-label='Desplazar a la derecha'
                         >
                             <ChevronRight className="h-4 w-4" />
                         </Button>
