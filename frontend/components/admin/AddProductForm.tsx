@@ -65,7 +65,6 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
     const handleFormSubmit = async (data: ProductFormInput) => {
         try {
             setSubmitting(true);
-            console.log('AddProductForm handleFormSubmit iniciado con datos:', data);
 
             if (!data.nombre || !data.descripcion || !data.categoria) {
                 toast.error('Por favor complete todos los campos requeridos');

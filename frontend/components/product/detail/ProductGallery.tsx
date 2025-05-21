@@ -32,13 +32,13 @@ const ProductGallery = memo(({ product }: { product: Product }) => {
                 <Image
                     src={mainImage}
                     alt={product.nombre}
-                    
                     width={600}  // Dimensiones reales
                     height={400}
                     className={`object-cover transition-transform duration-200 ${isZoomed ? 'scale-150' : 'scale-100'
                         }`}
                     style={{ transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%` }}
-                    priority
+                    loading='lazy'
+                
                 />
             </div>
 
