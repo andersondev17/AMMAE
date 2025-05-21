@@ -66,7 +66,7 @@ export default function Navbar() {
                         </button>
 
                         <Link href="/" aria-label="Inicio">
-                            <h1 className="text-2xl font-zentry tracking-wider uppercase font-black text-black">
+                            <h1 className="uppercase font-black text-2xl   tracking-wider  text-black">
                                 AMMAE
                             </h1>
                         </Link>
@@ -121,7 +121,7 @@ const NavLink = ({ href, currentPath, children }: { href: string; currentPath: s
     <Link
         href={href}
         className={cn(
-            "relative tracking-widest text-xs font-zentry font-bold group",
+            "relative tracking-widest text-xs font-general font-bold group",
             "transition-colors duration-300 py-1 text-gray-500 hover:text-black",
             currentPath === href && "text-black font-bold"
         )}
@@ -146,7 +146,7 @@ const UserMenu = ({ user, isAdmin, router, logout }: { user: any; isAdmin: boole
             </Avatar>
         </DropdownMenuTrigger>
 
-        <DropdownMenuContent className="w-48 rounded-lg shadow-lg">
+        <DropdownMenuContent className="w-48 rounded-lg shadow-lg font-robert-medium">
             <div className="px-3 py-2">
                 <p className="font-medium truncate">{user?.name || user?.email || 'Usuario'}</p>
                 <p className="text-xs text-gray-500">{isAdmin ? 'Administrador' : 'Usuario'}</p>
@@ -166,15 +166,15 @@ const UserMenu = ({ user, isAdmin, router, logout }: { user: any; isAdmin: boole
 
 const SearchIcon = ({ toggle }: { toggle: () => void }) => (
     <div className="h-10 border border-black ">
-        <button onClick={toggle} className="flex items-center justify-center w-full h-full px-4 text-gray-700 hover:bg-gray-50" aria-label="Abrir búsqueda de productos">
+        <button onClick={toggle} className="flex items-center justify-center w-full h-full px-4 text-gray-900 hover:bg-gray-50" aria-label="Abrir búsqueda de productos">
             <Search className="h-5 w-5" />
-            <span className="ml-2 hidden md:inline font-semibold text-xs tracking-wide">BUSCAR AQUÍ</span>
+            <span className="ml-2 hidden md:inline font-general font-semibold text-xs tracking-wide">BUSCAR AQUÍ</span>
         </button>
     </div>
 )
 
 const AuthLink = () => (
-    <Link href="/login" className="p-2 text-xs font-bold text-gray-700 hover:text-black rounded-full">
+    <Link href="/login" className="p-2 text-xs font-general tracking-widest font-bold text-gray-700 hover:text-black rounded-full">
         INICIAR SESION
     </Link>
 )

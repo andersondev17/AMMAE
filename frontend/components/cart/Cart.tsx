@@ -43,7 +43,7 @@ export const Cart = memo(() => {
         <Sheet open={isOpen} onOpenChange={onClose}>
             <SheetContent className="flex w-full flex-col pr-0 sm:max-w-lg">
                 <SheetHeader className="space-y-2.5 pr-6">
-                    <SheetTitle className=" font-zentry tracking-wider flex items-center gap-2">
+                    <SheetTitle className=" font-general tracking-wider flex items-center gap-2">
                         <ShoppingBag className="h-5 w-5" />
                         Mi Carrito ({itemCount})
                     </SheetTitle>
@@ -52,12 +52,12 @@ export const Cart = memo(() => {
                 {isEmpty ? (
                     <div className="flex h-full flex-col items-center justify-center space-y-4">
                         <ShoppingBag className="h-12 w-12 text-gray-400" />
-                        <p className="text-lg font-medium text-gray-600">
+                        <p className="text-lg font-robert-regular font-medium text-gray-600">
                             Tu carrito está vacío
                         </p>
                         <Button
                             onClick={onClose}
-                            className="font-zentry tracking-wider rounded-full"
+                            className="font-general tracking-wider rounded-full"
                             size="sm"
                         >
                             Continuar comprando

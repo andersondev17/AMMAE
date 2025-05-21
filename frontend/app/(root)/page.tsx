@@ -83,7 +83,7 @@ export default function Home() {
           <div className="mt-12">
             <VideoHero
               placeholderImage="/assets/images/demo/accesorios/accesorio-1.png"
-              title="Club de San Valentín"
+              title="Club de San Valentin"
               subtitle="Colección disponible solo por tiempo limitado"
               ctaText="Ver más"
               onCtaClick={scrollToProducts}

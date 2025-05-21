@@ -8,7 +8,7 @@ import { toast } from 'sonner';
 const STOCK_THRESHOLDS = {
     LOW_STOCK: 5,
     OUT_OF_STOCK: 0,
-    CACHE_TIME: 5 * 60 * 1000,
+    CACHE_TIME:60_000,
     DEFAULT_PAGE_SIZE: 12
 } as const;
 
@@ -37,7 +37,7 @@ export function useProducts(filters: Partial<ProductFilters> = {}) {
         queryFn: async () => {
             return await productService.getProducts(buildQueryParams(filters));
         },
-        staleTime: STOCK_THRESHOLDS.CACHE_TIME,
+        staleTime:60_000,
         refetchOnWindowFocus: true,
     });
 

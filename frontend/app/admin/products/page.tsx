@@ -106,18 +106,18 @@ export default function AdminProductsPage() {
               placeholder="Buscar productos..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              className="pl-10"
+              className="pl-10 font-robert-regular"
             />
           </div>
 
           <Button onClick={handleNewProduct} className="gap-2">
             <Plus className="h-4 w-4" />
-            <span>Nuevo Producto</span>
+            <span className='font-general'>Nuevo Producto</span>
           </Button>
         </div>
       </div>
 
-      <div className="flex gap-4 overflow-x-auto pb-2">
+      <div className="flex gap-4 font-robert-regular overflow-x-auto pb-2">
         {FILTERS.map(({ id, label }) => (
           <Button
             key={id || 'all'}

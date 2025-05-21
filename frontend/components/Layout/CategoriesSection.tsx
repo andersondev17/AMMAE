@@ -54,10 +54,10 @@ const CategoriesSection = () => {
                 ))}
             </div>
             <div className="container mx-auto py-6 px-4 text-white">
-                <h2 className="text-4xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                <h2 className="text-4xl font-general tracking-widest font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
                     NUESTRAS COLECCIONES
                 </h2>
-                <p className="mt-2 text-gray-300 uppercase text-sm">
+                <p className="mt-2 font-sans text-gray-300 uppercase text-sm">
                     DESCUBRE LAS ÚLTIMAS TENDENCIAS EN MODA FEMENINA <b>@AMMAE.CO</b>
                 </p>
             </div>

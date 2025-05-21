@@ -10,7 +10,7 @@ import { notFound } from 'next/navigation';
 import { memo, useCallback } from 'react';
 
 const ProductList = dynamic(
-    () => import('@/components/product/ProductList'),
+    () => import('@/components/product/ProductList').then(mod => mod.ProductList),
     {
         loading: () => <Skeleton />,
         ssr: false

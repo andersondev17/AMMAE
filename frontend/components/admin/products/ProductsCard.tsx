@@ -25,7 +25,7 @@ export function ProductsCard({
         <Card className={cn("overflow-hidden", className)}>
             {title && (
                 <CardHeader className="pb-2">
-                    <CardTitle className="text-lg font-medium">{title}</CardTitle>
+                    <CardTitle className="text-lg font-medium font">{title}</CardTitle>
                 </CardHeader>
             )}
             <CardContent className="p-0">
@@ -64,8 +64,8 @@ export function ProductsCard({
                                         />
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <h4 className="font-medium truncate">{product.nombre}</h4>
-                                        <div className="flex items-center text-sm text-gray-500">
+                                        <h4 className="font-medium font-robert-regular truncate">{product.nombre}</h4>
+                                        <div className="flex items-center font-general text-sm text-gray-500">
                                             <span>${product.precio.toFixed(2)}</span>
                                             <span className="mx-2">•</span>
                                             <span>{product.categoria}</span>

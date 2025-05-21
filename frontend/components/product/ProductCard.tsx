@@ -37,11 +37,11 @@ export const ProductCard = memo(({ product, onEdit, onDelete, isAdminView = fals
             ? { sale: product.precioOferta.toFixed(2), regular: product.precio.toFixed(2) }
             : { regular: product.precio.toFixed(2) };
 
-        return { 
-            primaryImage: imgPath, 
+        return {
+            primaryImage: imgPath,
             secondaryImage: secondImg,
-            discount: disc, 
-            price: priceData 
+            discount: disc,
+            price: priceData
         };
     }, [product]);
 
@@ -57,6 +57,7 @@ export const ProductCard = memo(({ product, onEdit, onDelete, isAdminView = fals
             onDelete?.(product._id);
         }
     };
+    const isFirstImage = product.imagenes?.[0] === primaryImage;
 
     return (
         <article className="group relative bg-white border-b hover:border-black transition-colors duration-300">
@@ -77,7 +78,8 @@ export const ProductCard = memo(({ product, onEdit, onDelete, isAdminView = fals
                             "object-cover transition-opacity duration-500",
                             isHovering && product.imagenes?.length > 1 ? "opacity-0" : "opacity-100"
                         )}
-                        loading="lazy"
+                        priority={isFirstImage} // Determinar lógicamente la primera imagen
+
                     />
 
                     {/* Imagen secundaria (visible en hover) */}
@@ -164,11 +166,11 @@ export const ProductCard = memo(({ product, onEdit, onDelete, isAdminView = fals
                         )}
                     </div>
 
-                   <h3 className="font-normal text-sm text-gray-900 truncate">
+                    <h3 className="font-robert-regular text-sm text-gray-900 truncate">
                         {product.nombre}
                     </h3>
 
-                    <div className="mt-1 flex items-center gap-2">
+                    <div className="mt-1 font-general flex items-center gap-2">
                         {price.sale ? (
                             <>
                                 <span className="font-medium text-black">${price.sale}</span>

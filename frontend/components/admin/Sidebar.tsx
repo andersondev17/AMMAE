@@ -23,15 +23,10 @@ const Sidebar = () => {
 
     return (
         <>
-            {/* Sidebar con diseño minimalista inspirado en la identidad AMMAE */}
             <aside className={cn(
-                // Base y grupo para efectos hover
                 "group fixed lg:sticky top-0 h-dvh flex flex-col z-10",
-                // Estilo minimalista con fondo blanco semitransparente
                 "bg-white/90 backdrop-blur-md border-r border-gray-100",
-                // En hover, sutilmente más oscuro
                 " hover:bg-black/10 transition-colors",
-                // Transiciones suaves
                 "transition-all duration-300 ease-in-out",
                 // Ancho base y estados
                 "w-16 lg:w-20", 
@@ -52,13 +47,13 @@ const Sidebar = () => {
                             "lg:opacity-0 lg:w-0 group-hover:opacity-100 group-hover:w-auto",
                             !isCollapsed && "lg:opacity-100 lg:w-auto"
                         )}>
-                            <p className="text-xs text-gray-500">Admin Panel</p>
+                            <p className="text-xs font-robert-medium text-gray-500">Admin Panel</p>
                         </div>
                     </Link>
                 </div>
 
                 {/* Navegación con estilo minimalista */}
-                <nav className="flex-1 p-2 overflow-y-auto">
+                <nav className="flex-1 p-2 overflow-y-auto font-general">
                     {adminSideBarLinks.map(({ route, text, img }) => {
                         const isSelected = pathname.startsWith(route);
 

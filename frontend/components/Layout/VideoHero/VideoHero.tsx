@@ -21,24 +21,24 @@ export const VideoHero = memo(({
         <div ref={containerRef} className="relative w-full h-[90vh] overflow-hidden">
             <div
                 className="absolute inset-0 bg-cover bg-center"
-                style={{ backgroundImage: `url(${placeholderImage})` }}
+                style={{ backgroundImage: `url(${placeholderImage})` }} 
             />
 
             <div className="absolute inset-0 bg-black/30" aria-hidden="true" />
 
             <div className="hero-content absolute inset-0 z-10 flex flex-col justify-center items-center text-white px-4">
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-center mb-4 max-w-3xl">
+                <h1 className="text-5xl md:text-5xl lg:text-7xl font-zentry font-black text-center mb-4 max-w-3xl">
                     {title}
                 </h1>
                 {subtitle && (
-                    <p className="text-lg md:text-xl text-center mb-8 max-w-2xl">
+                    <p className="text-lg md:text-xl font-robert-regular text-center mb-8 max-w-2xl">
                         {subtitle}
                     </p>
                 )}
                 {ctaText && onCtaClick && (
                     <button
                         onClick={onCtaClick}
-                        className="px-8 py-3 bg-white text-black font-medium rounded-full hover:bg-black hover:text-white transition-colors duration-300"
+                        className="px-8 py-3 bg-white font-general text-black font-medium rounded-full hover:bg-black hover:text-white transition-colors duration-300"
                         aria-label={ctaText}
                     >
                         {ctaText}
