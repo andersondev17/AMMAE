@@ -68,7 +68,6 @@ export async function getDashboardSummary(): Promise<DashboardSummary> {
  */
 export async function getRecentOrders(limit = 5): Promise<Order[]> {
     try {
-        console.log(`Solicitando pedidos recientes, límite: ${limit}`);
         
         const response = await axios.get(`${API_URL}/dashboard/recent-orders?limit=${limit}`, {
             headers: {
@@ -76,7 +75,6 @@ export async function getRecentOrders(limit = 5): Promise<Order[]> {
             }
         });
         
-        console.log('Respuesta pedidos recientes:', response.data);
         return response.data.data || [];
     } catch (error) {
         console.error('Error en getRecentOrders:', error);

@@ -45,9 +45,9 @@ const ProductList: React.FC<ProductListProps> = ({
   if (!products?.length) {
     return (
       <div className="text-center py-16 bg-gray-50">
-        <p className="text-gray-500 mb-4">No se encontraron productos.</p>
+        <p className="text-gray-500 mb-4 font-robert-regular">No se encontraron productos.</p>
         {isAdminView && (
-          <button className="px-4 py-2 bg-black text-white hover:bg-gray-900 transition-colors">
+          <button className="px-4 py-2 font-general bg-black text-white hover:bg-gray-900 transition-colors">
             Crear nuevo producto
           </button>
         )}

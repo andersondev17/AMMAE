@@ -66,7 +66,7 @@ export default function Navbar() {
                         </button>
 
                         <Link href="/" aria-label="Inicio">
-                            <h1 className="text-2xl font-zentry tracking-wider uppercase font-black text-black">
+                            <h1 className="uppercase font-black text-2xl   tracking-wider  text-black">
                                 AMMAE
                             </h1>
                         </Link>
@@ -121,7 +121,7 @@ const NavLink = ({ href, currentPath, children }: { href: string; currentPath: s
     <Link
         href={href}
         className={cn(
-            "relative tracking-widest text-xs font-zentry font-bold group",
+            "relative tracking-widest text-xs font-general font-bold group",
             "transition-colors duration-300 py-1 text-gray-500 hover:text-black",
             currentPath === href && "text-black font-bold"
         )}
@@ -137,7 +137,8 @@ const NavLink = ({ href, currentPath, children }: { href: string; currentPath: s
 
 const UserMenu = ({ user, isAdmin, router, logout }: { user: any; isAdmin: boolean; router: any; logout: () => void }) => (
     <DropdownMenu>
-        <DropdownMenuTrigger asChild>
+        <DropdownMenuTrigger asChild={false}>
+            {/* O simplemente elimina el prop asChild por completo */}
             <Avatar className="cursor-pointer border-2 border-red-500 hover:border-red-600">
                 <AvatarFallback className="bg-red-500 text-white">
                     {user?.name?.split(' ').slice(0, 2).map((n: string) => n[0]).join('').toUpperCase() || 'US'}
@@ -145,7 +146,7 @@ const UserMenu = ({ user, isAdmin, router, logout }: { user: any; isAdmin: boole
             </Avatar>
         </DropdownMenuTrigger>
 
-        <DropdownMenuContent className="w-48 rounded-lg shadow-lg">
+        <DropdownMenuContent className="w-48 rounded-lg shadow-lg font-robert-medium">
             <div className="px-3 py-2">
                 <p className="font-medium truncate">{user?.name || user?.email || 'Usuario'}</p>
                 <p className="text-xs text-gray-500">{isAdmin ? 'Administrador' : 'Usuario'}</p>
@@ -165,27 +166,27 @@ const UserMenu = ({ user, isAdmin, router, logout }: { user: any; isAdmin: boole
 
 const SearchIcon = ({ toggle }: { toggle: () => void }) => (
     <div className="h-10 border border-black ">
-        <button onClick={toggle} className="flex items-center justify-center w-full h-full px-4 text-gray-700 hover:bg-gray-50">
+        <button onClick={toggle} className="flex items-center justify-center w-full h-full px-4 text-gray-900 hover:bg-gray-50" aria-label="Abrir búsqueda de productos">
             <Search className="h-5 w-5" />
-            <span className="ml-2 hidden md:inline font-semibold text-xs tracking-wide">BUSCAR AQUÍ</span>
+            <span className="ml-2 hidden md:inline font-general font-semibold text-xs tracking-wide">BUSCAR AQUÍ</span>
         </button>
     </div>
 )
 
 const AuthLink = () => (
-    <Link href="/login" className="p-2 text-xs font-bold text-gray-700 hover:text-black rounded-full">
+    <Link href="/login" className="p-2 text-xs font-general tracking-widest font-bold text-gray-700 hover:text-black rounded-full">
         INICIAR SESION
     </Link>
 )
 
 const AdminLink = () => (
-    <Link href="/admin/products" className="p-2 rounded-full text-gray-800 hover:text-black hidden md:flex">
+    <Link href="/admin/products" className="p-2 rounded-full text-gray-800 hover:text-black hidden md:flex" aria-label="Abrir Panel Admin">
         <Package className="h-5 w-5" />
     </Link>
 )
 
 const CartIcon = ({ onOpen, itemCount }: { onOpen: () => void; itemCount: number }) => (
-    <button onClick={onOpen} className="relative p-2 rounded-full text-gray-800 hover:text-black">
+    <button onClick={onOpen} className="relative p-2 rounded-full text-gray-800 hover:text-black" aria-label="Abrir Carrito de compras">
         <ShoppingBag className="h-5 w-5" />
         {itemCount > 0 && (
             <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-blue-600 text-xs text-white">
@@ -195,14 +196,14 @@ const CartIcon = ({ onOpen, itemCount }: { onOpen: () => void; itemCount: number
     </button>
 )
 
-const SearchPanel = ({ isOpen, ...props }: { isOpen: boolean; [key: string]: any }) => (
+const SearchPanel = ({ isOpen, ...props }: { isOpen: boolean;[key: string]: any }) => (
     <div className={cn(
         "absolute left-0 right-0 z-40 bg-white backdrop-blur-sm border",
         "transform transition-all duration-300 ease-in-out",
         isOpen ? "translate-y-0 opacity-100" : "-translate-y-2 opacity-0 pointer-events-none"
     )}>
         <div className="container mx-auto">
-            <SearchBar 
+            <SearchBar
                 isOpen={isOpen}
                 searchTerm={props.searchTerm}
                 onChange={props.handleSearch}

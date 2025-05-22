@@ -18,6 +18,7 @@ const productoRoutes = require('./src/routes/productoRoutes');
 const orderRoutes = require('./src/routes/orderRoutes');
 const uploadRoutes = require('./src/routes/uploadRoutes');
 const dashboardRoutes = require('./src/routes/dashboardRoutes');
+const analyticsRoutes = require('./src/routes/analyticsRoutes');
 
 const app = express();
 const SESSION_SECRET = process.env.SESSION_SECRET || 'ammae_session_secret_key_2025';
@@ -77,6 +78,7 @@ app.use('/api/v1/pagos', pagoRoutes);
 app.use('/api/v1/upload', uploadRoutes);
 app.use('/api/v1/orders', orderRoutes);
 app.use('/api/v1/dashboard', dashboardRoutes);
+app.use('/api/v1/analytics', analyticsRoutes);
 
 
 app.get('/api/health', (req, res) => {

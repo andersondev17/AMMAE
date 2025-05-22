@@ -16,13 +16,13 @@ export function StatsCard({ title, value, description, icon, trend = 'neutral', 
     return (
         <Card className={cn("overflow-hidden hover:shadow-md transition-all duration-300", className)}>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-gray-600">{title}</CardTitle>
+                <CardTitle className="text-sm font-robert-medium font-medium text-gray-600">{title}</CardTitle>
                 <div className="size-8 rounded-full p-1.5 text-gray-700">
                     {icon}
                 </div>
             </CardHeader>
             <CardContent>
-                <div className="text-2xl font-bold">{value}</div>
+                <div className="text-2xl font-bold font-robert-medium">{value}</div>
                 {description && (
                     <div className="mt-1 flex items-center text-xs">
                         {trend === 'up' && <ArrowUp className="mr-1 size-3 text-green-500" />}

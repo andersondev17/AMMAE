@@ -91,6 +91,7 @@ export default function OrderSuccessPage() {
                                 <Button
                                     onClick={() => router.push('/')}
                                     className="w-full"
+                                    aria-label='Volver a la tienda'
                                 >
                                     Volver a la tienda
                                 </Button>

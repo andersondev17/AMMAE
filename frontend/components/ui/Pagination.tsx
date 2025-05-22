@@ -17,6 +17,7 @@ export const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages,
                             ? 'bg-gray-900 text-white'
                             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                         }`}
+                        aria-label='Cambiar página'
                 >
                     {page}
                 </button>

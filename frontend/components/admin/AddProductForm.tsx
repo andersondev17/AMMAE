@@ -65,7 +65,6 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
     const handleFormSubmit = async (data: ProductFormInput) => {
         try {
             setSubmitting(true);
-            console.log('AddProductForm handleFormSubmit iniciado con datos:', data);
 
             if (!data.nombre || !data.descripcion || !data.categoria) {
                 toast.error('Por favor complete todos los campos requeridos');
@@ -110,10 +109,9 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6">
                     <div className="space-y-6">
                         <div className="space-y-4">
-                            <h3 className="text-lg font-medium">Información básica</h3>
                             <div className="space-y-4">
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium">Nombre del Producto</label>
+                                    <label className="text-sm font-robert-regular font-medium">Nombre del Producto</label>
                                     <Input
                                         {...register('nombre')}
                                         placeholder="Ej: Blusa Floral Manga Larga"
@@ -125,7 +123,7 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
                                     )}
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium">Descripción</label>
+                                    <label className="text-sm font-robert-regular font-medium">Descripción</label>
                                     <textarea
                                         {...register('descripcion')}
                                         className="w-full min-h-[100px] px-3 py-2 rounded-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -138,7 +136,7 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <label className="text-sm font-medium">Precio</label>
+                                        <label className="text-sm font-robert-regular font-medium">Precio</label>
                                         <Input
                                             {...register('precio')}
                                             type="number"
@@ -152,7 +150,7 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
                                         )}
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-sm font-medium">Stock</label>
+                                        <label className="text-sm font-robert-regular font-medium">Stock</label>
                                         <Input
                                             {...register('stock')}
                                             type="number"
@@ -161,20 +159,19 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
                                             disabled={isSubmitting}
                                         />
                                         {errors.stock && (
-                                            <p className="text-sm text-red-500">{errors.stock.message}</p>
+                                            <p className="text-sm font-robert-regular text-red-500">{errors.stock.message}</p>
                                         )}
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div className="space-y-4">
-                            <h3 className="text-lg font-medium">Categorización</h3>
                             <Controller
                                 name="categoria"
                                 control={control}
                                 render={({ field }) => (
                                     <div className="space-y-2">
-                                        <label className="text-sm font-medium">Categoría</label>
+                                        <label className="text-sm font-robert-regular font-medium">Categoría</label>
                                         <Select
                                             onValueChange={field.onChange}
                                             defaultValue={field.value}
@@ -196,7 +193,7 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
                                 )}
                             />
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Tallas disponibles</label>
+                                <label className="text-sm font-robert-regular font-medium">Tallas disponibles</label>
                                 <div className="flex flex-wrap gap-2">
                                     {['XS', 'S', 'M', 'L', 'XL', 'XXL'].map(size => {
                                         const isSelected = watch('tallas').includes(size);
@@ -225,7 +222,7 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
                                     })}
                                 </div>
                                 {errors.tallas && (
-                                    <p className="text-sm text-red-500">{errors.tallas.message}</p>
+                                    <p className="text-sm font-robert-regular text-red-500">{errors.tallas.message}</p>
                                 )}
                             </div>
                         </div>
@@ -234,12 +231,12 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
                         <ErrorBoundary
                             fallback={
                                 <div className="p-4 border border-red-200 rounded-lg bg-red-50">
-                                    <p className="text-red-600">Esta es una imagen demo</p>
+                                    <p className="text-red-600 font-robert-regular">Esta es una imagen demo</p>
                                 </div>
                             }
                         >
                             <div className="space-y-4">
-                                <h3 className="text-lg font-medium">Imágenes del producto</h3>
+                                <h3 className="text-lg font-robert-regular font-medium">Imágenes del producto</h3>
                                 <ImageUpload
                                     value={imageUrls}
                                     onChange={setImageUrls}
@@ -257,7 +254,7 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
                             </div>
                         </ErrorBoundary>
                         <div className="space-y-4">
-                            <h3 className="text-lg font-medium">Detalles adicionales</h3>
+                            <h3 className="text-lg font-robert-regular font-medium">Detalles adicionales</h3>
                             <div className="space-y-4">
                                 <div className="flex items-center space-x-2">
                                     <input
@@ -267,13 +264,13 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
                                         id="enOferta"
                                         disabled={isSubmitting}
                                     />
-                                    <label htmlFor="enOferta" className="text-sm font-medium">
+                                    <label htmlFor="enOferta" className="text-sm font-robert-regular font-medium">
                                         Producto en oferta
                                     </label>
                                 </div>
                                 {enOfertaValue && (
                                     <div className="space-y-2">
-                                        <label className="text-sm font-medium">Precio de oferta</label>
+                                        <label className="text-sm font-robert-regular font-medium">Precio de oferta</label>
                                         <Input
                                             {...register('precioOferta')}
                                             type="number"
@@ -283,12 +280,12 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
                                             disabled={isSubmitting}
                                         />
                                         {errors.precioOferta && (
-                                            <p className="text-sm text-red-500">{errors.precioOferta.message}</p>
+                                            <p className="text-sm font-robert-regular text-red-500">{errors.precioOferta.message}</p>
                                         )}
                                     </div>
                                 )}
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium">Estilo</label>
+                                    <label className="text-sm font-robert-regular font-medium">Estilo</label>
                                     <Input
                                         {...register('estilo')}
                                         placeholder="Ej: Casual, Formal, etc."
@@ -296,11 +293,11 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
                                         disabled={isSubmitting}
                                     />
                                     {errors.estilo && (
-                                        <p className="text-sm text-red-500">{errors.estilo.message}</p>
+                                        <p className="text-sm font-robert-regular text-red-500">{errors.estilo.message}</p>
                                     )}
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium">Material</label>
+                                    <label className="text-sm font-robert-regular font-medium">Material</label>
                                     <Input
                                         {...register('material')}
                                         placeholder="Ej: Algodón, Poliéster, etc."
@@ -308,7 +305,7 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
                                         disabled={isSubmitting}
                                     />
                                     {errors.material && (
-                                        <p className="text-sm text-red-500">{errors.material.message}</p>
+                                        <p className="text-sm font-robert-regular text-red-500">{errors.material.message}</p>
                                     )}
                                 </div>
                                 <ColorPicker
@@ -325,7 +322,8 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
                         <Button
                             type="submit"
                             disabled={isButtonDisabled}
-                            className="min-w-[150px]"
+                            className="min-w-[150px] font-general"
+                            aria-label='Guardar producto'
                         >
                             {(isSubmitting || submitting) ? (
                                 <div className="flex items-center justify-center space-x-2">

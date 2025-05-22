@@ -10,7 +10,7 @@ import { notFound } from 'next/navigation';
 import { memo, useCallback } from 'react';
 
 const ProductList = dynamic(
-    () => import('@/components/product/ProductList'),
+    () => import('@/components/product/ProductList').then(mod => mod.ProductList),
     {
         loading: () => <Skeleton />,
         ssr: false
@@ -24,6 +24,7 @@ const ErrorFallback = memo(({ message, onRetry }: { message: string; onRetry: ()
     <button
       onClick={onRetry}
       className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition-colors"
+      aria-label='Reintentar carga de productos'
     >
       Reintentar
     </button>
