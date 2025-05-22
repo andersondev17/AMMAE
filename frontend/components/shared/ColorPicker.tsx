@@ -41,7 +41,7 @@ export const ColorPicker = memo(({
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <label className="text-sm font-medium text-gray-800">Colores disponibles</label>
+        <label className="text-sm font-medium font-robert-regular text-gray-800">Colores disponibles</label>
         {selected.length > 0 && (
           <span className="text-xs text-gray-500">
             {selected.length} {selected.length === 1 ? 'color' : 'colores'} seleccionado{selected.length !== 1 && 's'}
@@ -49,7 +49,7 @@ export const ColorPicker = memo(({
         )}
       </div>
       
-      <div className="grid grid-cols-5 gap-4">
+      <div className="grid grid-cols-5 gap-4 border border-gray-200 rounded-md p-2">
         {COLORS.map(({ name, value }) => {
           const isSelected = selected.includes(name);
           
@@ -65,8 +65,8 @@ export const ColorPicker = memo(({
               className={` group relative aspect-square rounded-full  transition-all duration-200
                 ${disabled ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer hover:scale-110'}
                 ${isSelected 
-                  ? 'ring-2 ring-offset-2 ring-black shadow-md' 
-                  : 'hover:ring-1 hover:ring-offset-1 hover:ring-gray-300'}
+                  ? 'ring-3 ring-offset-2 ring-black shadow-md' 
+                  : 'hover:ring-1 hover:ring-offset-1 hover:ring-gray-300 shadow-md'}
               `}
               style={{ backgroundColor: value }}
             >

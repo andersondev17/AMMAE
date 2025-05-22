@@ -1,6 +1,5 @@
 'use client';
 
-import { AddProductForm } from '@/components/admin/AddProductForm';
 import { ProductList } from '@/components/product/ProductList';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -10,10 +9,13 @@ import { useProducts } from '@/hooks/product/useProducts';
 import { useDebounce } from '@/hooks/useDebounce';
 import { Product, ProductFormData } from '@/types';
 import { Plus, Search } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-
+const AddProductForm = dynamic(() => import('@/components/admin/AddProductForm').then(mod => mod.AddProductForm), {
+  ssr: false
+});
 export default function AdminProductsPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -112,7 +114,7 @@ export default function AdminProductsPage() {
 
           <Button onClick={handleNewProduct} className="gap-2">
             <Plus className="h-4 w-4" />
-            <span className='font-general'>Nuevo Producto</span>
+            <span className='font-general tracking-widest'>Nuevo Producto</span>
           </Button>
         </div>
       </div>
