@@ -33,14 +33,14 @@ export const CartItem = memo(({
             <div className="ml-4 flex flex-1 flex-col">
                 <div className="flex justify-between">
                     <div>
-                        <h3 className="font-zentry text-sm font-medium text-gray-900">
+                        <h3 className="font-robert-medium text-sm font-medium text-gray-900">
                             {product.nombre}
                         </h3>
-                        <p className="mt-1 text-sm text-gray-500">
+                        <p className="mt-1 text-sm text-gray-500 font-robert-regular">
                             {product.categoria}
                         </p>
                     </div>
-                    <div className="mt-1 flex flex-wrap gap-2 text-xs text-gray-500">
+                    <div className="mt-1 flex flex-wrap font-robert-regulargap-2 text-xs text-gray-500">
                             {product.selectedSize && (
                                 <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100">
                                     Talla: {product.selectedSize}
@@ -55,7 +55,7 @@ export const CartItem = memo(({
                     <Button
                         onClick={() => onRemove(product._id)}
                         variant="ghost"
-                        className="text-gray-500 hover:text-gray-700"
+                        className="text-gray-500 hover:text-gray-700 font-general"
                         aria-label={`Eliminar ${product.nombre} del carrito`}
                     >
                         <X className="h-4 w-4" />
@@ -63,7 +63,7 @@ export const CartItem = memo(({
                 </div>
 
                 {/* Controles de cantidad y precio */}
-                <div className="flex items-center justify-between mt-auto">
+                <div className="flex items-center justify-between mt-auto font-general">
                     <div className="flex items-center border rounded-md">
                         <Button
                             onClick={() => onUpdateQuantity(product._id, quantity - 1)}

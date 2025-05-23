@@ -1,27 +1,19 @@
 // components/skeletons/ProductSkeleton.tsx
-import { memo } from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface ProductSkeletonProps {
     count?: number;
 }
 
-export const ProductSkeleton = memo(({ count = 8 }: ProductSkeletonProps) => {
-    return (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-0 border-l border-t">
-            {Array.from({ length: count }).map((_, index) => (
-                <div key={index} className="border-r border-b animate-pulse">
-                    <div className="p-4">
-                        <div className="aspect-[3/4] bg-gray-200 mb-4"></div>
-                        <div className="space-y-2">
-                            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                            <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                            <div className="h-4 bg-gray-200 rounded w-1/4"></div>
-                        </div>
-                    </div>
-                </div>
-            ))}
-        </div>
-    );
-});
-
-ProductSkeleton.displayName = 'ProductSkeleton';
+export const ProductSkeleton = ({ count = 8 }: ProductSkeletonProps) => (
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-0 border-l border-t">
+        {Array.from({ length: count }, (_, i) => (
+            <div key={i} className="border-r border-b p-4">
+                <Skeleton className="w-full aspect-square mb-4" />
+                <Skeleton className="h-4 w-3/4 mb-2" />
+                <Skeleton className="h-3 w-1/2 mb-2" />
+                <Skeleton className="h-4 w-1/3" />
+            </div>
+        ))}
+    </div>
+);

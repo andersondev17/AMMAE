@@ -27,15 +27,15 @@ const CategoryCard = ({ category, index }: { category: Category; index: number }
                         src={category.image}
                         alt={`Categoría de ${category.name}`}
                         fill
-                        className={`object-cover object-center transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'
-                            }`}
-                        sizes="(max-width: 768px) 100vw, 33vw"
+                        className={`object-cover object-center transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
+                        sizes="(max-width: 768px) 100vw, 25vw"
                         priority={index < 3}
                         quality={80}
                         onLoad={() => setIsLoading(false)}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-<h2 className="font-normal text-sm text-gray-900 truncate">                        {category.name}
+                    <h2 className="absolute bottom-4 left-4 font-normal text-sm text-white truncate">
+                        {category.name}
                     </h2>
                 </div>
             </Link>
@@ -46,9 +46,10 @@ const CategoryCard = ({ category, index }: { category: Category; index: number }
 const CategoriesSection = () => {
     return (
         <section className="bg-black">
-            <div className="flex md:flex-row lg:flex-nowrapsnap-x xl:flex-nowrap snap-mandatory overflow-x-hidden">
+            {/* CAMBIO 1: overflow-x-auto en lugar de overflow-x-hidden */}
+            <div className="flex md:flex-row lg:flex-nowrap xl:flex-nowrap snap-x snap-mandatory overflow-x-auto md:overflow-x-visible">
                 {categories.map((category, index) => (
-                    <div key={category.id} className="snap-center w-full md:w-1/4">
+                    <div key={category.id} className="snap-center w-2/5 sm:w-1/3 md:w-1/4 flex-shrink-0">
                         <CategoryCard category={category} index={index} />
                     </div>
                 ))}
@@ -61,8 +62,6 @@ const CategoriesSection = () => {
                     DESCUBRE LAS ÚLTIMAS TENDENCIAS EN MODA FEMENINA <b>@AMMAE.CO</b>
                 </p>
             </div>
-
-
         </section>
     );
 };

@@ -1,51 +1,27 @@
+// components/product/ProductCard.tsx
 import { cn } from '@/lib/utils';
 import { ProductCardProps } from '@/types';
 import { getImageUrl } from '@/utils/demoImages';
 import Image from 'next/image';
 import Link from 'next/link';
-import { memo, useMemo, useState } from 'react';
+import { useState } from 'react';
 
-// Mapa de colores como constante fuera del componente para mejor rendimiento
-const COLOR_MAP = {
-    Negro: '#000', Blanco: '#fff', Azul: '#2563EB',
-    Rojo: '#DC2626', Verde: '#059669', Amarillo: '#CA8A04',
-    Morado: '#7C3AED', Rosa: '#DB2777', Gris: '#4B5563',
-    Beige: '#D4B89C'
+const COLOR_MAP: Record<string, string> = {
+    Negro: '#000', Blanco: '#fff', Azul: '#2563EB', Rojo: '#DC2626',
+    Verde: '#059669', Amarillo: '#CA8A04', Morado: '#7C3AED', Rosa: '#DB2777',
+    Gris: '#4B5563', Beige: '#D4B89C'
 };
 
-export const ProductCard = memo(({ product, onEdit, onDelete, isAdminView = false }: ProductCardProps) => {
+export const ProductCard = ({ product, onEdit, onDelete, isAdminView = false }: ProductCardProps) => {
     const [isHovering, setIsHovering] = useState(false);
 
-    // Procesamiento de datos optimizado con useMemo
-    const { primaryImage, secondaryImage, discount, price } = useMemo(() => {
-        // Gestión principal y secundaria de imágenes
-        const imgPath = product.imagenes?.length > 0
-            ? getImageUrl(product.imagenes[0])
-            : getImageUrl(`default/${product.categoria.toLowerCase()}.jpg`);
+    // Datos calculados inline
+    const img1 = getImageUrl(product.imagenes?.[0] || `default/${product.categoria.toLowerCase()}.jpg`);
+    const img2 = product.imagenes?.[1] ? getImageUrl(product.imagenes[1]) : img1;
+    const discount = product.enOferta && product.precioOferta
+        ? Math.round(((product.precio - product.precioOferta) / product.precio) * 100)
+        : 0;
 
-        const secondImg = product.imagenes?.length > 1
-            ? getImageUrl(product.imagenes[1])
-            : imgPath;
-
-        // Cálculo de descuento
-        const disc = product.enOferta && product.precioOferta
-            ? Math.round(((product.precio - product.precioOferta) / product.precio) * 100)
-            : 0;
-
-        // Formateo de precios
-        const priceData = product.enOferta && product.precioOferta
-            ? { sale: product.precioOferta.toFixed(2), regular: product.precio.toFixed(2) }
-            : { regular: product.precio.toFixed(2) };
-
-        return {
-            primaryImage: imgPath,
-            secondaryImage: secondImg,
-            discount: disc,
-            price: priceData
-        };
-    }, [product]);
-
-    // Handlers para acciones administrativas
     const handleEdit = (e: React.MouseEvent) => {
         e.preventDefault();
         onEdit?.(product);
@@ -53,42 +29,34 @@ export const ProductCard = memo(({ product, onEdit, onDelete, isAdminView = fals
 
     const handleDelete = (e: React.MouseEvent) => {
         e.preventDefault();
-        if (confirm('¿Estás seguro de eliminar este producto?')) {
-            onDelete?.(product._id);
-        }
+        if (confirm('¿Eliminar producto?')) onDelete?.(product._id);
     };
-    const isFirstImage = product.imagenes?.[0] === primaryImage;
 
     return (
-        <article className="group relative bg-white border-b hover:border-black transition-colors duration-300">
-            <Link href={`/product/${product._id}`} className="block">
-                {/* Contenedor de imagen con efecto de hover */}
+        <article className="group relative bg-white border-b hover:border-black transition-colors">
+            <Link href={`/product/${product._id}`}>
                 <div
                     className="relative aspect-[3/4] overflow-hidden"
                     onMouseEnter={() => setIsHovering(true)}
                     onMouseLeave={() => setIsHovering(false)}
                 >
-                    {/* Imagen principal */}
                     <Image
-                        src={primaryImage}
+                        src={img1}
                         alt={product.nombre}
                         fill
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 25vw"
+                        sizes="(max-width: 768px) 50vw, 25vw"
                         className={cn(
                             "object-cover transition-opacity duration-500",
-                            isHovering && product.imagenes?.length > 1 ? "opacity-0" : "opacity-100"
+                            isHovering && product.imagenes?.length > 1 && "opacity-0"
                         )}
-                        priority={isFirstImage} // Determinar lógicamente la primera imagen
-
                     />
 
-                    {/* Imagen secundaria (visible en hover) */}
                     {product.imagenes?.length > 1 && (
                         <Image
-                            src={secondaryImage}
-                            alt={`${product.nombre} - vista alternativa`}
+                            src={img2}
+                            alt={`${product.nombre} - alt`}
                             fill
-                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 25vw"
+                            sizes="(max-width: 768px) 50vw, 25vw"
                             className={cn(
                                 "object-cover transition-opacity duration-500",
                                 isHovering ? "opacity-100" : "opacity-0"
@@ -97,38 +65,28 @@ export const ProductCard = memo(({ product, onEdit, onDelete, isAdminView = fals
                         />
                     )}
 
-                    {/* Etiqueta de descuento */}
+                    {/* Discount Badge */}
                     {discount > 0 && (
-                        <div className="absolute top-0 right-0 z-10 m-2">
-                            <span className="inline-block bg-black text-white text-xs font-medium px-2 py-1">
-                                -{discount}%
-                            </span>
+                        <div className="absolute top-2 right-2 z-10">
+                            <span className="bg-black font-general text-white text-xs px-2 py-1">-{discount}%</span>
                         </div>
                     )}
 
-                    {/* Controles admin */}
+                    {/* Admin Controls */}
                     {isAdminView && (
                         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/5 z-10">
                             <div className="flex gap-2">
-                                <button
-                                    onClick={handleEdit}
-                                    className="p-2 bg-white rounded-full shadow-sm hover:bg-blue-50 transition-colors"
-                                    aria-label="Editar"
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" /></svg>
+                                <button onClick={handleEdit} className="p-2 bg-white rounded-full hover:bg-blue-50">
+                                    ✏️
                                 </button>
-                                <button
-                                    onClick={handleDelete}
-                                    className="p-2 bg-white rounded-full shadow-sm hover:bg-red-50 transition-colors"
-                                    aria-label="Eliminar"
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /></svg>
+                                <button onClick={handleDelete} className="p-2 bg-white rounded-full hover:bg-red-50">
+                                    🗑️
                                 </button>
                             </div>
                         </div>
                     )}
 
-                    {/* CTA para usuario */}
+                    {/* CTA Button */}
                     {!isAdminView && product.stock > 0 && (
                         <div className={cn(
                             "absolute inset-x-0 bottom-0 z-10 p-4 transition-transform duration-300",
@@ -136,8 +94,7 @@ export const ProductCard = memo(({ product, onEdit, onDelete, isAdminView = fals
                         )}>
                             <button
                                 onClick={(e) => e.preventDefault()}
-                                className="w-full py-2 border border-black bg-white hover:bg-black hover:text-white transition-colors duration-300"
-                                aria-label="Ver detalles"
+                                className="w-full py-2 border font-general border-black bg-white hover:bg-black hover:text-white transition-colors"
                             >
                                 Ver detalles
                             </button>
@@ -145,17 +102,17 @@ export const ProductCard = memo(({ product, onEdit, onDelete, isAdminView = fals
                     )}
                 </div>
 
-                {/* Información del producto */}
+                {/* Product Info */}
                 <div className="p-4">
-                    <div className="flex -space-x-1 mb-2">
+                    <div className="flex -space-x-1 mb-2 font-general">
                         {product.colores?.slice(0, 3).map((color, i) => (
                             <div
                                 key={i}
                                 className={cn(
-                                    "w-4 h-4 rounded-full border border-white",
+                                    "w-4 h-4 rounded-full border border-gray-500",
                                     color === 'Blanco' && "ring-1 ring-gray-200"
                                 )}
-                                style={{ backgroundColor: COLOR_MAP[color as keyof typeof COLOR_MAP] || color }}
+                                style={{ backgroundColor: COLOR_MAP[color] || color }}
                                 title={color}
                             />
                         ))}
@@ -166,32 +123,31 @@ export const ProductCard = memo(({ product, onEdit, onDelete, isAdminView = fals
                         )}
                     </div>
 
-                    <h3 className="font-robert-regular text-sm text-gray-900 truncate">
-                        {product.nombre}
-                    </h3>
+                    <h3 className="font-medium font-robert-regulartext-sm text-gray-900 truncate">{product.nombre}</h3>
 
-                    <div className="mt-1 font-general flex items-center gap-2">
-                        {price.sale ? (
+                    <div className="mt-1 flex items-center gap-2 font-general">
+                        {product.enOferta && product.precioOferta ? (
                             <>
-                                <span className="font-medium text-black">${price.sale}</span>
-                                <span className="text-xs text-gray-500 line-through">${price.regular}</span>
+                                <span className="font-medium text-black">${product.precioOferta.toFixed(2)}</span>
+                                <span className="text-xs text-gray-500 line-through">${product.precio.toFixed(2)}</span>
                             </>
                         ) : (
-                            <span className="font-medium">${price.regular}</span>
+                            <span className="font-medium">${product.precio.toFixed(2)}</span>
                         )}
                     </div>
 
+                    {/* Admin Stock Info */}
                     {isAdminView && (
-                        <div className="mt-2 flex items-center gap-2 text-xs">
+                        <div className="mt-2 font-robert-regular">
                             <span className={cn(
-                                "px-1.5 py-0.5 rounded-sm",
+                                "text-xs px-1.5 py-0.5 rounded-sm",
                                 product.stock === 0 ? "bg-red-100 text-red-800" :
                                     product.stock <= 5 ? "bg-yellow-100 text-yellow-800" :
                                         "bg-green-100 text-green-800"
                             )}>
                                 {product.stock === 0 ? 'Sin stock' :
                                     product.stock <= 5 ? `Stock bajo (${product.stock})` :
-                                        `En stock`}
+                                        'En stock'}
                             </span>
                         </div>
                     )}
@@ -199,6 +155,4 @@ export const ProductCard = memo(({ product, onEdit, onDelete, isAdminView = fals
             </Link>
         </article>
     );
-});
-
-ProductCard.displayName = 'ProductCard';
+};

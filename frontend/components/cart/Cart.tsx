@@ -74,7 +74,7 @@ export const Cart = memo(() => {
                                             ...item,
                                             selectedSize: item.selectedSize,
                                             selectedColor: item.selectedColor
-                                        }} 
+                                        }}
                                         quantity={item.quantity}
 
                                         onRemove={removeItem}
@@ -87,37 +87,36 @@ export const Cart = memo(() => {
                         <div className="sticky bottom-0 w-full bg-white pr-4 ">
                             <div className="space-y-4">
                                 <div className="space-y-1">
-                                    <div className="font-zentry tracking-wider flex justify-between text-sm space-y-1">
-                                        <span>Subtotal</span>
-                                        <span className="font-bold">${total}</span>
+                                    <div className=" tracking-wider flex justify-between text-sm space-y-1">
+                                        <span className="font-robert-medium tracking-widest">Subtotal</span>
+                                        <span className="font-bold font-general">${total}</span>
                                     </div>
-                                    <div className="flex justify-between text-sm ">
+                                    <div className="flex justify-between text-sm font-robert-medium tracking-widest">
                                         <span>Envío</span>
                                         <span className="text-green-500">Gratis</span>
                                     </div>
                                     <Separator className="my-2" />
-                                    <div className="font-zentry font-bold tracking-wider flex justify-between text-base ">
-                                        <span>Total</span>
-                                        <span >${total}</span>
+                                    <div className=" font-bold tracking-wider flex justify-between text-base ">
+                                        <span className="font-robert-medium tracking-widest">Total</span>
+                                        <span className="font-general">${total}</span>
                                     </div>
                                 </div>
 
                                 <Button
                                     onClick={handleCheckout}
-                                    className="font-zentry tracking-wider w-full rounded-full bg-black hover:bg-gray-800"
+                                    className="font-general  tracking-wider w-full  bg-black hover:bg-white text-white border border-black hover:text-black transition-colors"
                                     disabled={isEmpty}
                                 >
                                     CHECKOUT
                                 </Button>
 
-                               {/*  <Button
+                                <Button
                                     onClick={clearCart}
-                                    variant="outline"
-                                    className="font-zentry tracking-wider w-full rounded-full"
+                                    className="font-general tracking-wider w-full bg-white text-black border border-black  bover:bg-black  hover:text-white transition-colors "
                                     disabled={isEmpty}
                                 >
                                     Vaciar carrito
-                                </Button> */}
+                                </Button>
                             </div>
                         </div>
                     </>
