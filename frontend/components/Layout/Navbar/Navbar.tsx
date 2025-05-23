@@ -1,7 +1,7 @@
 'use client'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { mainCategories } from '@/constants'
+import { mainCategories, navCategories } from '@/constants'
 import { useCart } from '@/hooks/cart/useCart'
 import { useSearch } from '@/hooks/product/useSearch'
 import { useAuth } from '@/hooks/useAuth'
@@ -74,7 +74,7 @@ export default function Navbar() {
 
                     {/* Navegación desktop */}
                     <div className="hidden lg:flex items-center space-x-8">
-                        {mainCategories.map((category) => (
+                        {navCategories.map((category) => (
                             <NavLink
                                 key={category.name}
                                 href={category.path}
@@ -117,7 +117,7 @@ export default function Navbar() {
 }
 
 // Componentes auxiliares actualizados
-const NavLink = ({ href, currentPath, children }: { href: string; currentPath: string; children: React.ReactNode }) => (
+export const NavLink = ({ href, currentPath, children }: { href: string; currentPath: string; children: React.ReactNode }) => (
     <Link
         href={href}
         className={cn(

@@ -81,6 +81,12 @@ export const mainCategories = [
     { name: 'ACCESORIOS', path: '/categoria/accesorios', apiValue: 'Accesorios' },
 ] as const;
 
+export const navCategories = [
+    { name: 'MUJER', path: '/categoria/jeans', apiValue: 'Hombre' },
+    { name: 'SALE', path: '/sale', apiValue: 'Sale' },
+] as const;
+
+
 export const categories: Category[] = [
     {
         id: 'Jeans',
