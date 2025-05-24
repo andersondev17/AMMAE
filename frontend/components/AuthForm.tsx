@@ -66,7 +66,7 @@ const AuthForm = <T extends FieldValues>({ type, schema, defaultValues, onSubmit
               name={fieldName as any}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-gray-700 text-xs font-bold uppercase tracking-wide">
+                  <FormLabel className="font-robert-regular text-gray-500 text-xs font-bold uppercase tracking-wide">
                     {FIELD_LABELS[fieldName] || fieldName}
                   </FormLabel>
                   <FormControl>
@@ -111,7 +111,7 @@ const AuthForm = <T extends FieldValues>({ type, schema, defaultValues, onSubmit
                         type={FIELD_TYPES[fieldName] || "text"}
                         placeholder={
                           fieldName === "email"
-                            ? "tu@email.com"
+                            ? "Email"
                             : `Ingresa tu ${FIELD_LABELS[fieldName] || fieldName}`
                         }
                         className="bg-white border-black text-black placeholder:text-gray-400 focus:ring-black focus:border-black py-3"
@@ -128,7 +128,7 @@ const AuthForm = <T extends FieldValues>({ type, schema, defaultValues, onSubmit
           ))}
 
           {isLogin && (
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between font-general">
               <div className="flex items-center">
                 <Checkbox id="remember" className="text-black focus:ring-black" />
                 <label htmlFor="remember" className="ml-2 text-xs text-gray-700">
@@ -143,7 +143,7 @@ const AuthForm = <T extends FieldValues>({ type, schema, defaultValues, onSubmit
 
           <Button
             type="submit"
-            className="w-full border border-black bg-black hover:bg-white hover:text-black text-white font-medium py-3 tracking-wider text-xs transition-all duration-300"
+            className=" w-full border border-black bg-black hover:bg-white hover:text-black text-white font-medium  font-general py-3 tracking-wider text-xs transition-all duration-300"
             disabled={isLoading}
           >
             {isLoading ? (
@@ -160,7 +160,7 @@ const AuthForm = <T extends FieldValues>({ type, schema, defaultValues, onSubmit
           </Button>
 
           {/* Enlaces para alternar entre login y registro */}
-          <p className="text-center text-sm text-gray-600 mt-4">
+          <p className="text-start text-sm text-gray-600 mt-4">
             {isLogin ? "¿No tienes una cuenta?" : "¿Ya tienes una cuenta?"}
             <Link
               href={isLogin ? "/register" : "/login"}
@@ -172,7 +172,7 @@ const AuthForm = <T extends FieldValues>({ type, schema, defaultValues, onSubmit
         </form>
       </Form>
 
-      <div className="mt-8 border-t border-gray-200 pt-6 text-center text-xs text-gray-500">
+      <div className="mt-8 border-t font-general border-gray-200 pt-6 text-center text-xs text-gray-500">
         <p>AMMAE © {new Date().getFullYear()} - Todos los derechos reservados</p>
       </div>
     </div>

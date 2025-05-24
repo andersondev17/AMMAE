@@ -7,10 +7,10 @@ const AuthLayout= ({ children }: { children: ReactNode }) => {
         <main className="grid grid-cols-1 md:grid-cols-2 min-h-screen">
             {/* Formulario */}
             <section className="flex items-center justify-center p-6 bg-white">
-                <div className="w-full max-w-md p-8 sm:p-10 border border-black">
+                <div className="w-full max-w-md p-8 sm:p-10">
                     <div className="flex items-center gap-3 mb-8">
                         <Link href="/" aria-label="Inicio" className="flex items-center">
-                            <h1 className="text-2xl tracking-wider uppercase font-black text-black">
+                            <h1 className="text-2xl tracking-wider uppercase font-black font-zentry text-black">
                                 AMMAE
                             </h1>
                         </Link>
