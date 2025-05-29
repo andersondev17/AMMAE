@@ -128,11 +128,11 @@ export const ProductCard = ({ product, onEdit, onDelete, isAdminView = false }: 
                     <div className="mt-1 flex items-center gap-2 font-general">
                         {product.enOferta && product.precioOferta ? (
                             <>
-                                <span className="font-medium text-black">${product.precioOferta.toFixed(2)}</span>
-                                <span className="text-xs text-gray-500 line-through">${product.precio.toFixed(2)}</span>
+                                <span className="font-medium text-black">${product.precioOferta}</span>
+                                <span className="text-xs text-gray-500 line-through">${product.precio}</span>
                             </>
                         ) : (
-                            <span className="font-medium">${product.precio.toFixed(2)}</span>
+                            <span className="font-medium">${product.precio}</span>
                         )}
                     </div>
 

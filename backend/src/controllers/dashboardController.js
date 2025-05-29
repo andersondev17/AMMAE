@@ -6,7 +6,7 @@ const ErrorResponse = require('../utils/errorResponse');
 
 exports.getRecentOrders = asyncHandler(async (req, res) => {
     const limit = Math.min(parseInt(req.query.limit) || 5, 20);
-    
+
     const results = await Order.find()
         .sort({ createdAt: -1 })
         .limit(limit)
@@ -24,31 +24,38 @@ exports.getRecentOrders = asyncHandler(async (req, res) => {
 // Resumen del dashboard
 exports.getDashboardSummary = asyncHandler(async (req, res) => {
     try {
-        const totalOrders = await Order.countDocuments();
-        const totalProductos = await Producto.countDocuments();
-        const enStock = await Producto.countDocuments({ stock: { $gt: 0 } });
+        const [totalOrders, totalProductos, enStock] = await Promise.all([
+            Order.countDocuments(),
+            Producto.countDocuments(),
+            Producto.countDocuments({ stock: { $gt: 0 } })
+        ]);
 
-        const orders = await Order.find();
+        const orders = await Order.find().select('totalPagado customerData.email');
+
         const ingresos = orders.reduce((sum, order) => sum + (order.totalPagado || 0), 0);
 
-        const emails = new Set();
-        orders.forEach(order => {
-            if (order.customerData?.email) emails.add(order.customerData.email);
-        });
+        const clientesUnicos = new Set(
+            orders
+                .map(order => order.customerData?.email)
+                .filter(email => email)
+        ).size;
 
         res.status(200).json({
             success: true,
             data: {
                 ingresos,
                 totalPedidos: totalOrders,
-                clientesUnicos: emails.size,
+                clientesUnicos,
                 productosTotal: totalProductos,
                 productosEnStock: enStock
             }
         });
     } catch (error) {
         console.error('Error en dashboard summary:', error);
-        next(new ErrorResponse('Error al obtener resumen del dashboard', 500));
+        res.status(500).json({
+            success: false,
+            message: 'Error al obtener resumen del dashboard'
+        });
     }
 });
 
@@ -78,9 +85,9 @@ exports.getOrders = asyncHandler(async (req, res, next) => {
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit);
-            
+
         const total = await Order.countDocuments();
-        
+
         // Responder con éxito
         res.status(200).json({
             success: true,

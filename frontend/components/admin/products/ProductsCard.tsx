@@ -66,7 +66,7 @@ export function ProductsCard({
                                     <div className="flex-1 min-w-0">
                                         <h4 className="font-medium font-robert-regular truncate">{product.nombre}</h4>
                                         <div className="flex items-center font-general text-sm text-gray-500">
-                                            <span>${product.precio.toFixed(2)}</span>
+                                            <span>${product.precio}</span>
                                             <span className="mx-2">•</span>
                                             <span>{product.categoria}</span>
                                         </div>
