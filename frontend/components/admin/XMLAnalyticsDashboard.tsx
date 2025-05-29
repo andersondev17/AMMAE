@@ -4,12 +4,13 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/form/card';
 import { useXMLAnalytics } from '@/hooks/useXMLAnalytics';
 import { cn } from '@/lib/utils';
+import { registerLicense } from '@syncfusion/ej2-base';
 import { SeriesCollectionDirective, SeriesDirective } from '@syncfusion/ej2-react-charts';
 import { AlertCircle, ChevronDown, ChevronUp, FileText, Package, RefreshCw, TrendingUp } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useCallback, useMemo, useState } from 'react';
-import { toast } from 'sonner';
-import('@syncfusion/ej2-react-charts');
+registerLicense('SYNCFUSION_LICENCE_KEY');
+
 const ChartComponent = dynamic(
     () => import('@syncfusion/ej2-react-charts').then((mod) => {
         const { ChartComponent, LineSeries, Category, Tooltip } = mod;
@@ -21,9 +22,9 @@ const ChartComponent = dynamic(
         loading: () => <div className="h-[300px] flex items-center justify-center">Cargando gráfico...</div>
     }
 );
+
 const XMLAnalyticsDashboard = () => {
-    const { analytics, error, refresh, timestamp, orders } = useXMLAnalytics();
-    const [refreshing, setRefreshing] = useState(false);
+    const { analytics, error, refresh, timestamp, orders, isLoading } = useXMLAnalytics();
     const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
     const [xmlDemoOpen, setXmlDemoOpen] = useState(false);
 
@@ -44,15 +45,12 @@ const XMLAnalyticsDashboard = () => {
         }));
     }, [orders]);
 
+    // ✅ SOLUCIÓN: Usar isLoading del hook directamente
     const handleRefresh = useCallback(async () => {
-        setRefreshing(true);
         try {
             await refresh();
-            toast.success('Dashboard actualizado');
         } catch (error) {
-            toast.error('Error al actualizar');
-        } finally {
-            setRefreshing(false);
+            // El error ya se maneja en el hook
         }
     }, [refresh]);
 
@@ -138,10 +136,10 @@ const XMLAnalyticsDashboard = () => {
                     variant="outline"
                     size="sm"
                     onClick={handleRefresh}
-                    disabled={refreshing}
+                    disabled={isLoading}
                     className="gap-2"
                 >
-                    <RefreshCw className={cn("h-4 w-4", refreshing && "animate-spin")} />
+                    <RefreshCw className={cn("h-4 w-4", isLoading && "animate-spin")} />
                     <span>Actualizar</span>
                 </Button>
             </div>
@@ -263,8 +261,7 @@ const XMLAnalyticsDashboard = () => {
                             </CardContent>
                         </Card>
                     )}
-
-                    {orders.length > 0 && (
+{orders.length > 0 && (
                         <Card>
                             <CardHeader>
                                 <CardTitle>🚀 Pedidos Recientes</CardTitle>
@@ -300,7 +297,6 @@ const XMLAnalyticsDashboard = () => {
                             </CardContent>
                         </Card>
                     )}
-
                     <Card>
                         <CardHeader>
                             <CardTitle>📊 Resumen General</CardTitle>

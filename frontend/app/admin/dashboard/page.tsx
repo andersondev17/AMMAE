@@ -8,7 +8,6 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useMemo } from "react";
 
-// Lazy load the dashboard XML
 const XMLAnalyticsDashboard = dynamic(
     () => import('@/components/admin/XMLAnalyticsDashboard'),
     { ssr: false, loading: () => <DashboardSkeleton /> }
@@ -32,7 +31,7 @@ export default function EnterpriseDashboard() {
             <header className="flex justify-between items-start">
                 <div>
                     <h1 className="text-3xl font-medium tracking-tight">Analytics Dashboard</h1>
-                    <p className="text-gray-500 mt-1">AMMAE Store - Análisis Empresarial</p>
+                    <p className="text-gray-500 mt-1">AMMAE Store</p>
                 </div>
                 <Link
                     href="/admin/products"
