@@ -1,4 +1,6 @@
 import { Product } from "@/types";
+import { getProductImages } from "@/utils/imageUtils";
+import { formatPrice } from "@/utils/price";
 import { Minus, Plus, X } from "lucide-react";
 import Image from "next/image";
 import { memo } from "react";
@@ -17,19 +19,27 @@ export const CartItem = memo(({
     onRemove,
     onUpdateQuantity
 }: CartItemProps) => {
+    if (!product?._id) return null;
+
+    const { primary: imageUrl } = getProductImages(product);
+    
+    const isOnSale = product.enOferta && product.precioOferta && product.precioOferta < product.precio;
+    const currentPrice = isOnSale ? product.precioOferta! : product.precio;
+    const itemTotal = currentPrice * quantity;
+    const originalTotal = product.precio * quantity;
+
     return (
         <div className="flex py-6 border-b">
-            {/* Imagen del producto */}
             <div className="relative h-24 w-24 rounded-md overflow-hidden">
                 <Image
                     fill
-                    src={product.imagenes[0]}
+                    src={imageUrl} 
                     alt={product.nombre}
                     className="object-cover object-center"
+                    sizes="96px"
                 />
             </div>
 
-            {/* Información del producto */}
             <div className="ml-4 flex flex-1 flex-col">
                 <div className="flex justify-between">
                     <div>
@@ -39,19 +49,28 @@ export const CartItem = memo(({
                         <p className="mt-1 text-sm text-gray-500 font-robert-regular">
                             {product.categoria}
                         </p>
+                        
+                        {/* ✅ BADGE DE OFERTA */}
+                        {isOnSale && (
+                            <span className="inline-block mt-1 px-2 py-0.5 bg-red-100 text-red-800 text-xs font-medium font-general">
+                                En oferta
+                            </span>
+                        )}
                     </div>
-                    <div className="mt-1 flex flex-wrap font-robert-regulargap-2 text-xs text-gray-500">
-                            {product.selectedSize && (
-                                <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100">
-                                    Talla: {product.selectedSize}
-                                </span>
-                            )}
-                            {product.selectedColor && (
-                                <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100">
-                                    Color: {product.selectedColor}
-                                </span>
-                            )}
-                        </div>
+                    
+                    <div className="mt-1 flex flex-wrap font-general  text-xs text-gray-500">
+                        {product.selectedSize && (
+                            <span className="inline-flex items-center px-2  bg-gray-100">
+                                Talla: {product.selectedSize}
+                            </span>
+                        )}
+                        {product.selectedColor && (
+                            <span className="inline-flex items-center px-2 bg-gray-100">
+                                Color: {product.selectedColor}
+                            </span>
+                        )}
+                    </div>
+                    
                     <Button
                         onClick={() => onRemove(product._id)}
                         variant="ghost"
@@ -62,7 +81,6 @@ export const CartItem = memo(({
                     </Button>
                 </div>
 
-                {/* Controles de cantidad y precio */}
                 <div className="flex items-center justify-between mt-auto font-general">
                     <div className="flex items-center border rounded-md">
                         <Button
@@ -85,15 +103,18 @@ export const CartItem = memo(({
                             <Plus className="h-3 w-3" />
                         </Button>
                     </div>
+                    
                     <div className="text-right">
-                        <p className="text-sm font-medium text-gray-900">
-                            ${(product.precio * quantity)}
-                        </p>
-                        {product.enOferta && product.precioOferta && (
-                            <p className="text-xs text-red-500 line-through">
-                                ${(product.precioOferta * quantity)}
+                        <div className="flex flex-col items-end">
+                            <p className="text-sm font-medium text-gray-900">
+                                {formatPrice(itemTotal)}
                             </p>
-                        )}
+                            {isOnSale && (
+                                <p className="text-xs text-red-500 line-through">
+                                    {formatPrice(originalTotal)}
+                                </p>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>

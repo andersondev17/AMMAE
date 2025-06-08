@@ -1,39 +1,47 @@
-// components/admin/cards/StatsCard.tsx
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/form/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/form/card";
 import { cn } from "@/lib/utils";
-import { ArrowDown, ArrowUp, Minus } from "lucide-react";
+import { TrendingDown, TrendingUp } from "lucide-react";
 
-interface StatsCardProps {
+type StatsCardProps = Readonly<{
     title: string;
     value: string;
-    description?: string;
     icon?: React.ReactNode;
-    trend?: 'up' | 'down' | 'neutral';
     className?: string;
-}
+    description?: string;
+    trend?: 'up' | 'down' | 'neutral';
+    change?: string;
+}>;
 
-export function StatsCard({ title, value, description, icon, trend = 'neutral', className }: StatsCardProps) {
+export function StatsCard({ title, value, icon, className, description, trend = 'neutral', change}: StatsCardProps) {
+    const trendIcon = trend === 'up' ? <TrendingUp className="h-3 w-3" />
+        : trend === 'down' ? <TrendingDown className="h-3 w-3" />
+            : null;
+
+    const trendColor = trend === 'up' ? 'text-green-600'
+        : trend === 'down' ? 'text-red-600'
+            : 'text-gray-500';
+
     return (
         <Card className={cn("overflow-hidden hover:shadow-md transition-all duration-300", className)}>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-robert-medium font-medium text-gray-600">{title}</CardTitle>
+                <CardTitle className="text-sm font-medium font-robert-medium text-gray-600">{title}</CardTitle>
                 <div className="size-8 rounded-full p-1.5 text-gray-700">
                     {icon}
                 </div>
             </CardHeader>
             <CardContent>
-                <div className="text-2xl font-bold font-robert-medium">{value}</div>
-                {description && (
-                    <div className="mt-1 flex items-center text-xs">
-                        {trend === 'up' && <ArrowUp className="mr-1 size-3 text-green-500" />}
-                        {trend === 'down' && <ArrowDown className="mr-1 size-3 text-red-500" />}
-                        {trend === 'neutral' && <Minus className="mr-1 size-3 text-gray-500" />}
-                        <CardDescription className={cn(
-                            trend === 'up' && "text-green-500",
-                            trend === 'down' && "text-red-500"
-                        )}>
-                            {description}
-                        </CardDescription>
+                <div className="text-2xl font-bold font-general">{value}</div>
+                {(description || change) && (
+                    <div className="flex items-center justify-between mt-2">
+                        {description && (
+                            <p className="text-xs text-gray-500">{description}</p>
+                        )}
+                        {change && (
+                            <div className={cn("flex items-center gap-1 text-xs", trendColor)}>
+                                {trendIcon}
+                                <span>{change}</span>
+                            </div>
+                        )}
                     </div>
                 )}
             </CardContent>

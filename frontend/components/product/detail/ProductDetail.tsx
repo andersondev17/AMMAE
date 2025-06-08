@@ -1,9 +1,9 @@
-// components/product/ProductDetail.tsx - MODAL OPTIMIZADO SIGUIENDO PRINCIPIOS ITIL
+// components/product/ProductDetail.tsx
 'use client';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/hooks/cart/useCart';
 import { Product } from '@/types';
-import { getImageUrl } from '@/utils/demoImages';
+import { getImageUrl } from '@/utils/imageUtils';
 import { Heart, ShoppingBag, X } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
@@ -44,7 +44,6 @@ export default function ProductDetail({ product }: { product: Product }) {
             return;
         }
         addItem(product, { size: selectedSize, color: selectedColor, quantity });
-        toast.success('Producto añadido al carrito');
     };
 
     return (
@@ -118,25 +117,31 @@ export default function ProductDetail({ product }: { product: Product }) {
                     </div>
                 </div>
 
-                {/* INFO SECTION - CONSERVADA COMPLETAMENTE */}
-                <div className="space-y-8 pt-0 md:py-16 px-3 ">
+                {/* INFO SECTION  */}
+                <div className="space-y-8 pt-0 md:py-20 py-28 px-8">
                     <div className="space-y-4 md:space-y-0 md:grid md:grid-cols-2 md:gap-4">
-                        <div>
-                            <h1 className="text-2xl font-medium font-robert-medium">{product.nombre}</h1>
+                        <div className='flex flex-col justify-center'>
+                            <h1 className="text-xl font-medium font-robert-medium">{product.nombre}</h1>
                             <p className="text-gray-500 mt-1 font-robert-regular">{product.categoria}</p>
                         </div>
 
-                        <div className="flex items-baseline gap-4">
+                        <div className="flex items-baseline gap-4 mt-2">
                             {discount > 0 ? (
                                 <>
-                                    <span className="text-2xl font-medium font-general">${product.precioOferta?.toFixed(2)}</span>
-                                    <span className="text-gray-500 line-through text-sm font-general">${product.precio.toFixed(2)}</span>
-                                    <span className="px-2 py-0.5 font-robert-general bg-red-100 text-red-700 text-xs font-medium">
-                                        -{discount}% OFF
+                                    <span className="text-xl font-medium font-general text-red-700">
+                                        ${product.precioOferta?.toFixed(0)}
+                                    </span>
+                                    <span className="px-2 font-robert-regular bg-red-700 text-white text-xs">
+                                        - {discount}% OFF
+                                    </span>
+                                    <span className="text-gray-500 line-through text-sm font-general">
+                                        ${product.precio}
                                     </span>
                                 </>
                             ) : (
-                                <span className="text-2xl font-medium font-general">${product.precio.toFixed(2)}</span>
+                                <span className="text-2xl font-medium font-general">
+                                    ${product.precio}
+                                </span>
                             )}
                         </div>
 
@@ -334,11 +339,10 @@ export default function ProductDetail({ product }: { product: Product }) {
                                 <button
                                     key={idx}
                                     onClick={(e) => { e.stopPropagation(); setMainImage(getImageUrl(img)); }}
-                                    className={`w-full aspect-square relative rounded overflow-hidden transition-all ${
-                                        mainImage === getImageUrl(img)
-                                            ? 'ring-2 ring-white opacity-100'
-                                            : 'opacity-60 hover:opacity-100'
-                                    }`}
+                                    className={`w-full aspect-square relative rounded overflow-hidden transition-all ${mainImage === getImageUrl(img)
+                                        ? 'ring-2 ring-white opacity-100'
+                                        : 'opacity-60 hover:opacity-100'
+                                        }`}
                                 >
                                     <Image
                                         src={getImageUrl(img)}
@@ -352,7 +356,7 @@ export default function ProductDetail({ product }: { product: Product }) {
                         </div>
                     </aside>
 
-                    <div 
+                    <div
                         className="absolute inset-0 flex items-center justify-center cursor-pointer z-[61]"
                         onClick={() => setIsModalOpen(false)}
                     >

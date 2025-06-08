@@ -1,4 +1,4 @@
-// components/product/ProductList.tsx
+// components/product/ProductList.tsx - DISEÑO OPTIMIZADO
 import { ProductListProps } from '@/types';
 import { ProductSkeleton } from '../skeletons/ProductSkeleton';
 import { ProductCard } from './ProductCard';
@@ -11,10 +11,8 @@ export const ProductList: React.FC<ProductListProps> = ({
   onDelete,
   isAdminView = false
 }) => {
-  // Loading state con skeleton
   if (isLoading) return <ProductSkeleton count={8} />;
 
-  // Error state simple
   if (error) return (
     <div className="text-center py-12">
       <p className="text-red-500 mb-4">{error.message}</p>
@@ -27,7 +25,6 @@ export const ProductList: React.FC<ProductListProps> = ({
     </div>
   );
 
-  // Empty state
   if (!products?.length) return (
     <div className="text-center py-16">
       <p className="text-gray-500 mb-4">No se encontraron productos.</p>
@@ -39,11 +36,10 @@ export const ProductList: React.FC<ProductListProps> = ({
     </div>
   );
 
-  // Products grid - Simplificado sin agrupaciones complejas
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-0 border-l border-t">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-1 bg-gray-100">
       {products.map((product) => (
-        <div key={product._id} className="border-r border-b">
+        <div key={product._id} className="bg-white">
           <ProductCard
             product={product}
             onEdit={onEdit}

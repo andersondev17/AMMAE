@@ -17,3 +17,11 @@ export const ProductSkeleton = ({ count = 8 }: ProductSkeletonProps) => (
         ))}
     </div>
 );
+
+export const DashboardSkeleton = () => (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {Array(4).fill(0).map((_, i) => (
+            <div key={i} className="h-32 bg-gray-100 animate-pulse rounded-lg" />
+        ))}
+    </div>
+);

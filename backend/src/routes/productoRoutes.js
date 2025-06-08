@@ -3,6 +3,7 @@
 const express = require('express');
 const router = express.Router();
 const productoController = require('../controllers/productoController');
+const imageCleanup = require('../middleware/imageCleanup');
 
 router.route('/')
     .get(productoController.getAllProductos)
@@ -15,5 +16,8 @@ router.route('/:id')
 
 router.get('/categoria/:categoria', productoController.getProductosPorCategoria);
 router.get('/ofertas', productoController.getProductosEnOferta);
+
+router.post('/', imageCleanup, productoController.crearProducto);
+router.put('/:id', imageCleanup, productoController.actualizarProducto);
 
 module.exports = router;

@@ -26,7 +26,7 @@ export const adminSideBarLinks = [
         text: "Usuarios",
     },
     {
-        img: "/icons/admin/book.svg",
+        img: "/assets/icons/admin/hanger.svg",
         route: "/admin/products",
         text: "Productos",
     },
@@ -46,7 +46,7 @@ export const adminSideBarLinks = [
         text: "Sin Stock",
     },
     {
-        img: "/assets/icons/heart.svg",
+        img: "/assets/icons/admin/sale.svg",
         route: "/admin/products?filter=onSale",
         text: "En Oferta",
     },

@@ -98,7 +98,7 @@ export function ProductTable({ onEdit, onDelete, onView, onDuplicate, filters }:
                 <div className="text-xs text-gray-500">{product.categoria}</div>
               </div>
             </TableCell>
-            <TableCell>${product.precio.toFixed(2)}</TableCell>
+            <TableCell>${product.precio}</TableCell>
             <TableCell className={product.stock <= 0 ? "text-red-500" : product.stock <= 5 ? "text-amber-500" : ""}>
               {product.stock}
             </TableCell>
