@@ -3,100 +3,62 @@
 import { useRouter } from "next/navigation";
 import { AuthUser } from "./auth.types";
 
-
+// ===== CORE PRODUCT TYPES =====
 export interface Product {
   _id: string;
   nombre: string;
   descripcion: string;
   precio: number;
-  categoria: 'Jeans' | 'Blusas' | 'Vestidos' | 'Faldas' | 'Accesorios';
-  tallas: Array<'XS' | 'S' | 'M' | 'L' | 'XL' | 'XXL'>;
+  precioOferta?: number;
+  enOferta: boolean;
+  precioFormateado: string; 
+  descuentoPorcentaje: number; 
+  precioOfertaFormateado?: string; 
+  categoria: ProductCategory;
+  tallas: ProductSize[];
   colores: string[];
   imagenes: string[];
   stock: number;
-  enOferta: boolean;
-  precioOferta?: number;
   estilo: string;
   material: string;
   createdAt: string;
   updatedAt: string;
   selectedSize?: string;
-  selectedColor?: string; 
-
+  selectedColor?: string;
 }
 
-export interface CartIconProps {
-  onOpen: () => void;
-  itemCount: number;
-  textColor: string;
-}
-export interface SearchIconProps {
-  isOpen: boolean;
-  toggle: () => void;
-  color: string;
-}
-export interface AuthLinkProps {
-  textColor: string;
-}
-export interface NavLinkProps {
-  href: string;
-  currentPath: string;
-  isHome: boolean;
-  textColor: string;
-  children: React.ReactNode;
-}
-export interface SearchPanelProps {
-  isOpen: boolean;
-  searchTerm: string;
-  handleSearch: (value: string) => void;
-  handleClear: () => void;
-  isLoading: boolean;
-}
-export interface UserMenuProps {
-  user: AuthUser | null;
-  isAdmin: boolean;
-  router: ReturnType<typeof useRouter>;
-  logout: () => Promise<void>;
-}
-export interface Category {
-  id: ProductCategory;
-  name: string;
-  image: string;
-  description: string;
-  link: string;
-}
-export type CategoryCardProps = {
-  category: Category;
-  index: number;
-};
-export interface VideoHeroProps {
-    placeholderImage: string;
-    title: string;
-    subtitle?: string;
-    ctaText?: string;
-    onCtaClick?: () => void;
-		onLoad?: () => void
-}
+// ===== PRODUCT CONSTANTS =====
+export const PRODUCT_CATEGORIES = [
+  'Jeans', 'Blusas', 'Vestidos', 'Faldas', 'Accesorios'
+] as const;
 
-// Nueva interfaz para el formulario de entrada
+export const PRODUCT_SIZES = [
+  'XS', 'S', 'M', 'L', 'XL', 'XXL'
+] as const;
+
+export type ProductCategory = typeof PRODUCT_CATEGORIES[number];
+export type ProductSize = typeof PRODUCT_SIZES[number];
+
+// ===== FORM AND API =====
 export interface ProductFormInput {
   nombre: string;
   descripcion: string;
-  precio: number | string; // Permitimos string para el manejo del formulario
-  categoria: string; // String simple para el formulario
-  tallas: string[]; // Array de strings para el formulario
+  precio: number | string;
+  categoria: string;
+  tallas: string[];
   colores: string[];
   imagenes: string[];
-  stock: number | string; // Permitimos string para el manejo del formulario
+  stock: number | string;
   enOferta: boolean;
-  precioOferta?: number | string; // Opcional y permitimos string
+  precioOferta?: number | string;
   estilo: string;
   material: string;
 }
 
 export type ProductFormData = Omit<Product, '_id' | 'createdAt' | 'updatedAt'> & {
-  imagenes?: string[]; //  imagenes opcional
+  imagenes?: string[];
 };
+
 export interface ApiResponse<T> {
   success: boolean;
   data: T;
@@ -107,6 +69,7 @@ export interface ApiResponse<T> {
   };
 }
 
+// ===== COMPONENT PROPS =====
 export interface ProductListProps {
   products: Product[];
   isLoading: boolean;
@@ -124,6 +87,13 @@ export interface ProductCardProps {
   isAdminView?: boolean;
 }
 
+export interface AddProductFormProps {
+  initialData?: Product | null;
+  onSubmit: (data: ProductFormData) => Promise<void>;
+  isSubmitting?: boolean;
+}
+
+// ===== FILTER AND SEARCH =====
 export interface ProductFilters {
   page?: number;
   limit?: number;
@@ -139,30 +109,66 @@ export interface ProductFilters {
   fields: string;
 }
 
-export interface AddProductFormProps {
-  initialData?: Product | null;
-  onSubmit: (data: ProductFormData) => Promise<void>;
-  isSubmitting?: boolean;
+// ===== UI COMPONENT TYPES =====
+export interface CartIconProps {
+  onOpen: () => void;
+  itemCount: number;
+  textColor: string;
 }
 
-// Constantes para las categorías y tallas
-export const PRODUCT_CATEGORIES = [
-  'Jeans',
-  'Blusas',
-  'Vestidos',
-  'Faldas',
-  'Accesorios',
-] as const;
+export interface SearchIconProps {
+  isOpen: boolean;
+  toggle: () => void;
+  color: string;
+}
 
-export const PRODUCT_SIZES = [
-  'XS',
-  'S',
-  'M',
-  'L',
-  'XL',
-  'XXL',
-] as const;
+export interface AuthLinkProps {
+  textColor: string;
+}
 
-// Type helpers
-export type ProductCategory = typeof PRODUCT_CATEGORIES[number];
-export type ProductSize = typeof PRODUCT_SIZES[number];
+export interface NavLinkProps {
+  href: string;
+  currentPath: string;
+  isHome: boolean;
+  textColor: string;
+  children: React.ReactNode;
+}
+
+export interface SearchPanelProps {
+  isOpen: boolean;
+  searchTerm: string;
+  handleSearch: (value: string) => void;
+  handleClear: () => void;
+  isLoading: boolean;
+}
+
+export interface UserMenuProps {
+  user: AuthUser | null;
+  isAdmin: boolean;
+  router: ReturnType<typeof useRouter>;
+  logout: () => Promise<void>;
+}
+
+// ===== CATEGORY TYPES =====
+export interface Category {
+  id: ProductCategory;
+  name: string;
+  image: string;
+  description: string;
+  link: string;
+}
+
+export type CategoryCardProps = {
+  category: Category;
+  index: number;
+};
+
+// ===== HERO  =====
+export interface VideoHeroProps {
+  placeholderImage: string;
+  title: string;
+  subtitle?: string;
+  ctaText?: string;
+  onCtaClick?: () => void;
+  onLoad?: () => void;
+}

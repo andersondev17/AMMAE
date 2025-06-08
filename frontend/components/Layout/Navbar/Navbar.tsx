@@ -16,7 +16,7 @@ import { SearchBar } from './SearchBar'
 export default function Navbar() {
     const router = useRouter()
     const { user, logout, isAdmin } = useAuth()
-    const { itemCount, onOpen } = useCart()
+    const { itemCount, openCart } = useCart() // ✅ CORREGIDO: openCart en lugar de onOpen
     const pathname = usePathname()
 
     const [uiState, setUiState] = useState({
@@ -35,19 +35,6 @@ export default function Navbar() {
         handleSearch('')
         setUiState(prev => ({ ...prev, isSearchOpen: false }))
     }
-
-    if (pathname.includes('/checkout')) {
-        return (
-            <div className="fixed inset-x-0 top-0 z-50 h-10 backdrop-blur-sm shadow-sm bg-white/95">
-                <nav className="flex h-full items-center justify-center">
-                    <Link href="/">
-                        <h1 className="text-2xl font-bold text-gray-800">AMMAE</h1>
-                    </Link>
-                </nav>
-            </div>
-        )
-    }
-
     return (
         <div className="fixed inset-x-0 top-0 z-50">
             <div className={cn(
@@ -93,7 +80,7 @@ export default function Navbar() {
 
                         {isAdmin && <AdminLink />}
 
-                        <CartIcon onOpen={onOpen} itemCount={itemCount} />
+                        <CartIcon onOpen={openCart} itemCount={itemCount} /> {/* ✅ CORREGIDO: openCart */}
                     </div>
                 </nav>
             </div>
@@ -116,7 +103,7 @@ export default function Navbar() {
     )
 }
 
-// Componentes auxiliares actualizados
+// Componentes auxiliares - SIN CAMBIOS
 export const NavLink = ({ href, currentPath, children }: { href: string; currentPath: string; children: React.ReactNode }) => (
     <Link
         href={href}
@@ -138,7 +125,6 @@ export const NavLink = ({ href, currentPath, children }: { href: string; current
 const UserMenu = ({ user, isAdmin, router, logout }: { user: any; isAdmin: boolean; router: any; logout: () => void }) => (
     <DropdownMenu>
         <DropdownMenuTrigger asChild={false}>
-            {/* O simplemente elimina el prop asChild por completo */}
             <Avatar className="cursor-pointer border-2 border-red-500 hover:border-red-600">
                 <AvatarFallback className="bg-red-500 text-white">
                     {user?.name?.split(' ').slice(0, 2).map((n: string) => n[0]).join('').toUpperCase() || 'US'}

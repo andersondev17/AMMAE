@@ -1,5 +1,5 @@
-
 import { WebVitalsTracker } from "@/components/analytics/WebVitalsTracker";
+import { CartNotification } from "@/components/cart/CartNotification";
 import type { Metadata } from "next";
 import dynamic from 'next/dynamic';
 import localFont from "next/font/local";
@@ -14,6 +14,7 @@ const Cart = dynamic(() =>
     loading: () => null
   }
 );
+
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",
@@ -21,6 +22,7 @@ const geistSans = localFont({
   preload: true,
   display: "swap"
 });
+
 const geistMono = localFont({
   src: "./fonts/GeistMonoVF.woff",
   variable: "--font-geist-mono",
@@ -43,17 +45,16 @@ const RootLayout = ({ children }: { children: ReactNode }) => {
     <html lang="es">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <Providers>
-          <Suspense >
+          <Suspense>
             {children}
             <Cart />
+            <CartNotification /> 
             <WebVitalsTracker />
-
           </Suspense>
-
         </Providers>
       </body>
     </html>
   );
 }
 
-export default RootLayout
+export default RootLayout;

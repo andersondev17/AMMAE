@@ -1,12 +1,11 @@
-// types/order.types.ts
-
+// types/order.types.ts - FIXED ORDER TYPES
 export interface OrderProduct {
     producto: {
         _id: string;
         nombre: string;
         precio: number;
         imagenes?: string[];
-    } | string; // Puede ser un string (ID) o el objeto producto completo
+    } | string;
     cantidad: number;
     talla?: string;
     color?: string;
@@ -15,9 +14,9 @@ export interface OrderProduct {
 }
 
 export interface CustomerData {
-    nombre: string;
-    email: string;
-    telefono: string;
+    nombre?: string;
+    email?: string;
+    telefono?: string;
 }
 
 export interface DireccionEnvio {
@@ -27,11 +26,12 @@ export interface DireccionEnvio {
     pais: string;
 }
 
+// ✅ COMPLETE ORDER TYPE - MATCHES REAL DATA
 export interface Order {
     _id: string;
     orderNumber: string;
     customerData: CustomerData;
-    productos: OrderProduct[];
+    productos: OrderProduct[]; // ✅ THIS WAS MISSING IN SOME INTERFACES
     estado: 'pendiente' | 'procesando' | 'enviado' | 'entregado' | 'cancelado';
     metodoPago: 'contraentrega' | 'transferencia' | 'qr';
     totalPagado: number;
@@ -42,6 +42,26 @@ export interface Order {
     updatedAt: string;
     __v?: number;
 }
+
+// ✅ ANALYTICS ORDER TYPE - MINIMAL BUT COMPLETE
+export interface AnalyticsOrder {
+    _id: string;
+    orderNumber: string;
+    totalPagado: number;
+    estado: string;
+    customerData: {
+        nombre?: string;
+        email?: string;
+    };
+    productos?: OrderProduct[]; // ✅ OPTIONAL BUT DEFINED
+    createdAt: string;
+    fechaPedido: string;
+}
+
+// ✅ TYPE GUARD FOR SAFE ACCESS
+export const hasProducts = (order: AnalyticsOrder): order is AnalyticsOrder & { productos: OrderProduct[] } => {
+    return Array.isArray(order.productos);
+};
 
 // Dashboard summary type
 export interface DashboardSummary {
