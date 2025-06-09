@@ -1,31 +1,7 @@
-// @/types/index.ts
+// @/types/index.ts - CLEAN SEPARATION OF CONCERNS
 
 import { useRouter } from "next/navigation";
 import { AuthUser } from "./auth.types";
-
-// ===== CORE PRODUCT TYPES =====
-export interface Product {
-  _id: string;
-  nombre: string;
-  descripcion: string;
-  precio: number;
-  precioOferta?: number;
-  enOferta: boolean;
-  precioFormateado: string; 
-  descuentoPorcentaje: number; 
-  precioOfertaFormateado?: string; 
-  categoria: ProductCategory;
-  tallas: ProductSize[];
-  colores: string[];
-  imagenes: string[];
-  stock: number;
-  estilo: string;
-  material: string;
-  createdAt: string;
-  updatedAt: string;
-  selectedSize?: string;
-  selectedColor?: string;
-}
 
 // ===== PRODUCT CONSTANTS =====
 export const PRODUCT_CATEGORIES = [
@@ -39,7 +15,37 @@ export const PRODUCT_SIZES = [
 export type ProductCategory = typeof PRODUCT_CATEGORIES[number];
 export type ProductSize = typeof PRODUCT_SIZES[number];
 
-// ===== FORM AND API =====
+// ===== FORM DATA - PURE INPUT (NO COMPUTED FIELDS) =====
+export interface ProductFormData {
+  nombre: string;
+  descripcion: string;
+  precio: number;
+  categoria: ProductCategory;
+  tallas: ProductSize[];
+  colores: string[];
+  imagenes: string[];
+  stock: number;
+  enOferta: boolean;
+  precioOferta?: number;
+  estilo: string;
+  material: string;
+  // ❌ NO COMPUTED FIELDS - FORM IS FOR INPUT ONLY
+}
+
+// ===== PRODUCT WITH COMPUTED FIELDS (FOR DISPLAY) =====
+export interface Product extends ProductFormData {
+  _id: string;
+  createdAt: string;
+  updatedAt: string;
+  selectedSize?: string;
+  selectedColor?: string;
+  // ✅ COMPUTED FIELDS - ONLY FOR UI PRESENTATION
+  precioFormateado?: string; 
+  descuentoPorcentaje?: number; 
+  precioOfertaFormateado?: string; 
+}
+
+// ===== FORM INPUT TYPE =====
 export interface ProductFormInput {
   nombre: string;
   descripcion: string;
@@ -55,10 +61,7 @@ export interface ProductFormInput {
   material: string;
 }
 
-export type ProductFormData = Omit<Product, '_id' | 'createdAt' | 'updatedAt'> & {
-  imagenes?: string[];
-};
-
+// ===== API RESPONSE =====
 export interface ApiResponse<T> {
   success: boolean;
   data: T;
@@ -163,7 +166,7 @@ export type CategoryCardProps = {
   index: number;
 };
 
-// ===== HERO  =====
+// ===== HERO =====
 export interface VideoHeroProps {
   placeholderImage: string;
   title: string;

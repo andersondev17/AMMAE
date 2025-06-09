@@ -1,105 +1,110 @@
-// app/order/success/page.tsx
 'use client';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/form/card';
-import { OrderService } from '@/services/orderService';
-import { OrderDetailsData } from '@/types/checkout.types';
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, Package } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 
-export default function OrderSuccessPage() {
+function OrderSuccessContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const orderNumber = searchParams.get('orderNumber');
-    const [orderDetails, setOrderDetails] = useState<OrderDetailsData | null>(null);
-    const [loading, setLoading] = useState(true);
+    const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
+        setMounted(true);
+        
+        // Redirigir si no hay orderNumber
         if (!orderNumber) {
-            router.push('/');
-            return;
+            router.replace('/');
         }
-
-        const fetchOrderDetails = async () => {
-            try {
-                const details = await OrderService.getOrder(orderNumber);
-
-            } catch (error) {
-                console.error('Error fetching order details:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchOrderDetails();
     }, [orderNumber, router]);
 
-    if (loading) {
-        return <div className="flex justify-center items-center min-h-screen">
-            <span className="loading loading-spinner loading-lg"></span>
-        </div>;
+    if (!mounted || !orderNumber) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-blue-500" />
+            </div>
+        );
     }
 
     return (
-        <div className="flex items-center justify-center w-screen h-screen px-4">
-            <Card>
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-12">
+            <Card className="w-full max-w-md">
                 <CardHeader className="text-center">
                     <CheckCircle className="w-16 h-16 mx-auto text-green-500 mb-4" />
-                    <CardTitle className="text-2xl font-bold">
+                    <CardTitle className="text-2xl font-bold text-gray-900">
                         ¡Pedido Confirmado!
                     </CardTitle>
                     <p className="text-gray-600 mt-2">
-                        Tu número de pedido es: <span className="font-bold">{orderNumber}</span>
+                        Tu número de pedido es: 
+                        <span className="font-bold text-blue-600 block mt-1">
+                            {orderNumber}
+                        </span>
                     </p>
                 </CardHeader>
 
                 <CardContent className="space-y-6">
-                    {orderDetails && (
-                        <>
-                            <div className="border-t border-b py-4 space-y-2">
-                                <h3 className="font-semibold">Detalles del envío</h3>
-                                <p>{orderDetails.customerDetails.name}</p>
-                                <p>{orderDetails.customerDetails.phone}</p>
-                                <p>{orderDetails.customerDetails.address}</p>
-                                <p>Método de envío: {orderDetails.customerDetails.shippingMethod}</p>
-                            </div>
+                    <div className="bg-blue-50 rounded-lg p-4 text-center">
+                        <Package className="w-8 h-8 mx-auto text-blue-600 mb-2" />
+                        <h3 className="font-semibold text-blue-900">¿Qué sigue?</h3>
+                        <p className="text-sm text-blue-700 mt-1">
+                            Te contactaremos por WhatsApp para confirmar los detalles de tu pedido.
+                        </p>
+                    </div>
 
-                            <div className="space-y-4">
-                                <h3 className="font-semibold">Resumen del pedido</h3>
-                                {orderDetails.items.map((item) => (
-                                    <div key={item._id} className="flex justify-between">
-                                        <span>
-                                            {item.quantity}x {item.nombre}
-                                        </span>
-                                        <span>${(item.precio * item.quantity)}</span>
-                                    </div>
-                                ))}
-                                <div className="border-t pt-4">
-                                    <div className="flex justify-between font-bold">
-                                        <span>Total</span>
-                                        <span>${orderDetails.total}</span>
-                                    </div>
-                                </div>
-                            </div>
+                    <div className="space-y-3">
+                        <h3 className="font-semibold text-gray-900">Nuestras garantías:</h3>
+                        <ul className="space-y-2 text-sm text-gray-600">
+                            <li className="flex items-center">
+                                <span className="w-2 h-2 bg-green-500 rounded-full mr-3" />
+                                Confirmación por WhatsApp
+                            </li>
+                            <li className="flex items-center">
+                                <span className="w-2 h-2 bg-green-500 rounded-full mr-3" />
+                                Envío seguro y rastreado
+                            </li>
+                            <li className="flex items-center">
+                                <span className="w-2 h-2 bg-green-500 rounded-full mr-3" />
+                                Garantía de 30 días
+                            </li>
+                        </ul>
+                    </div>
 
-                            <div className="text-center space-y-4 mt-8">
-                                <p className="text-sm text-gray-600">
-                                    Te hemos enviado un correo electrónico con los detalles de tu pedido.
-                                </p>
-                                <Button
-                                    onClick={() => router.push('/')}
-                                    className="w-full"
-                                    aria-label='Volver a la tienda'
-                                >
-                                    Volver a la tienda
-                                </Button>
-                            </div>
-                        </>
-                    )}
+                    {/* ✅ ACCIONES */}
+                    <div className="space-y-3">
+                        <Button
+                            onClick={() => router.push('/')}
+                            className="w-full"
+                            size="lg"
+                        >
+                            Continuar comprando
+                        </Button>
+                        
+                    </div>
+
+                    <div className="text-center pt-4 border-t">
+                        <p className="text-xs text-gray-500">
+                            ¿Necesitas ayuda? Contáctanos por WhatsApp
+                        </p>
+                    </div>
                 </CardContent>
             </Card>
         </div>
+    );
+}
+
+export default function OrderSuccessPage() {
+    return (
+        <Suspense 
+            fallback={
+                <div className="min-h-screen flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-blue-500" />
+                </div>
+            }
+        >
+            <OrderSuccessContent />
+        </Suspense>
     );
 }
