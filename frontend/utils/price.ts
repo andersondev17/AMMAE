@@ -9,15 +9,22 @@ export const formatPrice = (price: number | string): string => {
     return formatter.format(isNaN(numPrice) ? 0 : numPrice);
 };
 
+export const getProductPrice = (product: {
+    precio: number;
+    enOferta?: boolean;
+    precioOferta?: number;
+}) => {
+    return product.enOferta && product.precioOferta 
+        ? product.precioOferta 
+        : product.precio;
+};
 //  CALCULADORA DE PRECIOS PARA PRODUCTOS
 export const calculateProductPrice = (product: {
     precio: number;
     enOferta?: boolean;
     precioOferta?: number;
 }) => {
-    const finalPrice = product.enOferta && product.precioOferta 
-        ? product.precioOferta 
-        : product.precio;
+    const finalPrice = getProductPrice(product);
     
     return {
         finalPrice,
@@ -41,7 +48,7 @@ export const calculateCartSubtotal = (items: Array<{
     precioOferta?: number;
 }>) => {
     return items.reduce((total, item) => {
-        const { finalPrice } = calculateProductPrice(item);
+        const finalPrice = getProductPrice(item);
         return total + (finalPrice * item.quantity);
     }, 0);
 };
