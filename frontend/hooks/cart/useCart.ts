@@ -1,21 +1,52 @@
-// hooks/cart/useCart.ts - ELIMINANDO COMPLEJIDAD
 import { Product } from '@/types';
 import { CartItem, CartOptions } from '@/types/cart.types';
+import { getProductPrice } from '@/utils/price';
 import { toast } from 'sonner';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+// CONFIGURACIÓN CENTRALIZADA
+const CART = {
+    MAX_QTY: 10,
+    FREE_SHIP_MIN: 99_000,
+    SHIP_COST: 8_000,
+    NOTIFY_DELAY: 5_000
+} as const;
+
+const getKey = (id: string, size = '', color = '') => `${id}-${size}-${color}`;
+
+// 🧮 CALCULADORA - O(n) 
+const calcCartState = (items: CartItem[]) => {
+    const totals = items.reduce((acc, item) => {
+        acc.itemCount += item.quantity;
+        acc.total += item.itemTotal;
+        return acc;
+    }, { itemCount: 0, total: 0 });
+
+    return {
+        ...totals,
+        shipping: totals.total >= CART.FREE_SHIP_MIN ? 0 : CART.SHIP_COST
+    };
+};
+
+//  TIMER MANAGER
+let timer: NodeJS.Timeout | null = null;
+const setTimer = (fn: () => void) => {
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(() => { fn(); timer = null; }, CART.NOTIFY_DELAY);
+};
+
 interface CartStore {
+    // State
     items: CartItem[];
     isOpen: boolean;
     itemCount: number;
     total: number;
     shipping: number;
-    
-    // Notification inline - no store separado
     showNotification: boolean;
     lastAdded: Product | null;
-    
+
+    // Actions
     addItem: (product: Product, options?: CartOptions) => void;
     removeItem: (productId: string) => void;
     updateQuantity: (productId: string, quantity: number) => void;
@@ -25,101 +56,124 @@ interface CartStore {
     hideNotification: () => void;
 }
 
-// One-liners para cálculos
-const finalPrice = (p: Product) => p.enOferta && p.precioOferta ? p.precioOferta : p.precio;
-const totals = (items: CartItem[]) => ({ 
-    itemCount: items.reduce((s, i) => s + i.quantity, 0),
-    total: items.reduce((s, i) => s + i.itemTotal, 0)
-});
-const shipping = (total: number) => total > 99000 ? 0 : 8000;
-
 export const useCart = create<CartStore>()(
     persist(
         (set, get) => ({
+            // Initial state
             items: [],
-            total: 0,
-            itemCount: 0,
             isOpen: false,
-            shipping: 8000,
+            itemCount: 0,
+            total: 0,
+            shipping: CART.SHIP_COST,
             showNotification: false,
             lastAdded: null,
 
-            addItem: (product, options = {}) => {
-                if (product.stock <= 0) {
+            addItem: (product, { size, color, quantity = 1 } = {}) => {
+                if (!product?._id || product.stock <= 0) {
                     toast.error('Sin stock');
                     return;
                 }
 
-                const { size, color, quantity = 1 } = options;
-                const key = `${product._id}-${size || ''}-${color || ''}`;
-                const price = finalPrice(product);
-                
+                const price = getProductPrice(product);
+                const key = getKey(product._id, size, color);
+
                 set(state => {
-                    const existingIndex = state.items.findIndex(
-                        item => `${item._id}-${item.selectedSize || ''}-${item.selectedColor || ''}` === key
+                    const existing = state.items.find(item =>
+                        getKey(item._id, item.selectedSize, item.selectedColor) === key
                     );
 
-                    let newItems = [...state.items];
-                    
-                    if (existingIndex >= 0) {
-                        const newQty = newItems[existingIndex].quantity + quantity;
-                        if (newQty > product.stock) {
-                            toast.error('Stock insuficiente');
-                            return state;
-                        }
-                        newItems[existingIndex] = {
-                            ...newItems[existingIndex],
-                            quantity: newQty,
-                            itemTotal: price * newQty
-                        };
-                    } else {
-                        newItems.push({
+                    const newQty = (existing?.quantity || 0) + quantity;
+
+                    // Validaciones de negocio
+                    if (newQty > CART.MAX_QTY) {
+                        toast.error(`Máximo ${CART.MAX_QTY} unidades`);
+                        return state;
+                    }
+                    if (newQty > product.stock) {
+                        toast.error('Stock insuficiente');
+                        return state;
+                    }
+
+                    // Actualización inmutable
+                    const newItems = existing
+                        ? state.items.map(item => item === existing
+                            ? { ...item, quantity: newQty, itemTotal: price * newQty }
+                            : item
+                        )
+                        : [...state.items, {
                             ...product,
                             quantity,
                             selectedSize: size,
                             selectedColor: color,
                             price,
                             itemTotal: price * quantity
-                        });
-                    }
+                        }];
 
-                    const { itemCount, total } = totals(newItems);
-                    
-                    // Auto-hide notification
-                    setTimeout(() => set({ showNotification: false, lastAdded: null }), 5000);
-                    
+                    const cartState = calcCartState(newItems);
+
+                    // Notificación con cleanup
+                    setTimer(() => get().hideNotification());
+
                     return {
                         items: newItems,
-                        itemCount,
-                        total,
-                        shipping: shipping(total),
+                        ...cartState,
                         showNotification: true,
                         lastAdded: { ...product, selectedSize: size, selectedColor: color }
                     };
                 });
             },
 
+            // 🔢 UPDATE QUANTITY
             updateQuantity: (id, qty) => set(state => {
-                const newItems = state.items.map(item => 
-                    item._id === id 
-                        ? { ...item, quantity: qty, itemTotal: finalPrice(item) * qty }
+                const safeQty = Math.max(1, Math.min(CART.MAX_QTY, qty));
+
+                const newItems = state.items.map(item =>
+                    item._id === id
+                        ? {
+                            ...item,
+                            quantity: Math.min(safeQty, item.stock),
+                            itemTotal: getProductPrice(item) * Math.min(safeQty, item.stock) 
+                        }
                         : item
                 );
-                const { itemCount, total } = totals(newItems);
-                return { items: newItems, itemCount, total, shipping: shipping(total) };
-            }),
 
+                return { items: newItems, ...calcCartState(newItems) };
+            }),
             removeItem: (id) => set(state => {
                 const newItems = state.items.filter(item => item._id !== id);
-                const { itemCount, total } = totals(newItems);
-                return { items: newItems, itemCount, total, shipping: shipping(total) };
+                return { items: newItems, ...calcCartState(newItems) };
             }),
 
-            clearCart: () => set({ items: [], itemCount: 0, total: 0, shipping: 8000 }),
+            clearCart: () => {
+                if (timer) clearTimeout(timer);
+                set({
+                    items: [],
+                    itemCount: 0,
+                    total: 0,
+                    shipping: CART.SHIP_COST,
+                    showNotification: false,
+                    lastAdded: null
+                });
+            },
+
+            //  UI Controls patron command
             openCart: () => set({ isOpen: true }),
             closeCart: () => set({ isOpen: false }),
-            hideNotification: () => set({ showNotification: false, lastAdded: null })
+            hideNotification: () => {
+                if (timer) clearTimeout(timer);
+                set({ showNotification: false, lastAdded: null });
+            }
         }),
-        { name: 'cart', partialize: state => ({ items: state.items }) }
+        {
+            name: 'cart-storage',
+            partialize: (state) => ({ items: state.items })
+        }
     )
 );
+
+// 🧹 Global cleanup
+if (typeof window !== 'undefined') {
+    window.addEventListener('beforeunload', () => {
+        if (timer) clearTimeout(timer);
+    });
+}

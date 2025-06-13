@@ -1,181 +1,160 @@
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/form/input';
-import { Separator } from '@/components/ui/form/separator';
-import { useCart } from '@/hooks/cart/useCart';
-import { CheckoutFormData, CustomerFormData, PaymentMethod } from '@/types/checkout.types';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+'use client';
 
-const CheckoutForm = () => {
-    const [step, setStep] = useState(1);
-    const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(null);
-    const cart = useCart();
-    const { items, itemCount, isOpen } = cart;
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/form/card';
+import { Form } from '@/components/ui/form/form';
+import { useCart } from '@/hooks/cart/useCart';
+import { useCheckout } from '@/hooks/shared/useCheckout';
+import { checkoutFormSchema, type CheckoutFormValues } from '@/lib/validations/checkoutFormSchema';
+import { PaymentMethod } from '@/types/checkout.types';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { ChevronLeft, Loader2 } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { ShippingForm } from './form/ShippingForm';
+import { OrderSummary } from './OrderSummary';
+import { PaymentDetails } from './payment/PaymentDetails';
+import { PaymentSelector } from './payment/PaymentSelector';
+import { Steps } from './Steps';
+
+export function CheckoutForm() {
+    const { items, total: subtotal, shipping } = useCart();
+
+    const form = useForm<CheckoutFormValues>({
+        resolver: zodResolver(checkoutFormSchema),
+        defaultValues: {
+            fullName: '',
+            email: '',
+            phone: '',
+            address: { street: '', city: '', state: '', zipCode: '' },
+            shippingMethod: 'standard',
+            saveAddress: false,
+        },
+    });
 
     const {
-        register,
-        handleSubmit,
-        formState: { errors, isSubmitting }
-    } = useForm<CustomerFormData>();
+        step,
+        setStep,
+        isSubmitting,
+        paymentMethod,
+        handlePaymentMethodSelect,
+        handleFormSubmit,
+        handleConfirmPayment
+    } = useCheckout({ form });
 
-    const subtotal = cart.items.reduce((acc, item) => acc + (item.precio * item.quantity), 0);
-    const shipping = subtotal > 100 ? 0 : 10; // Envío gratis por compras mayores a $100
-    const total = subtotal + shipping;
-    
+    const BackButton = ({ onBack }: { onBack: () => void }) => (
+        <Button
+            type="button"
+            variant="ghost"
+            onClick={onBack}
+            className="flex items-center gap-2 hover:bg-transparent hover:text-blue-600 mb-4"
+        >
+            <ChevronLeft className="h-4 w-4" />
+            Volver
+        </Button>
+    );
 
-    const onSubmit = async (data: CustomerFormData) => {
-        try {
-            const checkoutData: CheckoutFormData = {
-                ...data,
-                paymentMethod: paymentMethod!,
-                orderItems: cart.items.map(item => ({
-                    productId: item._id,
-                    quantity: item.quantity,
-                    price: item.precio,
-                    name: item.nombre 
-                })),
-                subtotal,
-                shipping,
-                total
-            };
+    const renderStepContent = () => {
+        switch (step) {
+            case 1:
+                return (
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Información de envío</CardTitle>
+                            <CardDescription>Complete sus datos para realizar el pedido</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <Form {...form}>
+                                <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6">
+                                    <ShippingForm form={form} />
+                                    <Button type="submit" className="w-full" disabled={isSubmitting}>
+                                        {isSubmitting ? (
+                                            <>
+                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                Procesando...
+                                            </>
+                                        ) : (
+                                            'Continuar al pago'
+                                        )}
+                                    </Button>
+                                </form>
+                            </Form>
+                        </CardContent>
+                    </Card>
+                );
 
-            // Enviamos al backend y esperamos respuesta
-            // TODO: Implementar llamada a API
-            setStep(2);
-        } catch (error) {
-            console.error('Error al procesar el checkout:', error);
+            case 2:
+                return (
+                    <div className="space-y-6">
+                        <BackButton onBack={() => setStep(1)} />
+                        <PaymentSelector
+                            selectedMethod={paymentMethod}
+                            onSelect={handlePaymentMethodSelect} 
+                        />
+                    </div>
+                );
+
+            case 3:
+                return (
+                    <Card>
+                        <CardHeader>
+                            <BackButton onBack={() => setStep(2)} />
+                        </CardHeader>
+                        <CardContent className="space-y-6">
+                            {paymentMethod &&
+                                (paymentMethod === PaymentMethod.QR || paymentMethod === PaymentMethod.TRANSFERENCIA) && (
+                                    <>
+                                        <PaymentDetails method={paymentMethod} />
+                                        <div className="bg-blue-50 rounded-lg p-4">
+                                            <p className="text-sm text-blue-700">
+                                                ¡Tu prenda está a punto de ser despachada!
+                                            </p>
+                                        </div>
+                                    </>
+                                )}
+
+                            <Button
+                                className="w-full"
+                                disabled={isSubmitting || !paymentMethod}
+                                onClick={() => handleConfirmPayment(paymentMethod!)}
+                            >
+                                {isSubmitting ? (
+                                    <>
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        Procesando...
+                                    </>
+                                ) : (
+                                    'Confirmar pedido'
+                                )}
+                            </Button>
+                        </CardContent>
+                    </Card>
+                );
+
+            default:
+                return null;
         }
     };
 
     return (
-        <div className="font-zentry tracking-wider transition-colors max-w-4xl mx-auto p-6">
-            <div className="space-y-8">
-                {step === 1 && (
-                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium">Nombre completo</label>
-                                <Input
-                                    {...register('fullName')}
-                                    placeholder="Nombre completo"
-                                />
-                                {errors.fullName && (
-                                    <p className="text-sm text-red-500">{errors.fullName.message}</p>
-                                )}
-                            </div>
+        <div className="w-full">
+            <Steps currentStep={step} />
 
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium">Email</label>
-                                <Input
-                                    {...register('email')}
-                                    type="email"
-                                    placeholder="correo@ejemplo.com"
-                                />
-                                {errors.email && (
-                                    <p className="text-sm text-red-500">{errors.email.message}</p>
-                                )}
-                            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
+                <div className="lg:col-span-2">
+                    {renderStepContent()}
+                </div>
 
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium">Teléfono</label>
-                                <Input
-                                    {...register('phone')}
-                                    type="tel"
-                                    placeholder="Número de teléfono"
-                                />
-                                {errors.phone && (
-                                    <p className="text-sm text-red-500">{errors.phone.message}</p>
-                                )}
-                            </div>
-                        </div>
-
-                        <Separator />
-
-                        <div className="space-y-4">
-                            <h3 className="text-lg font-semibold">Dirección de envío</h3>
-                            <div className="grid grid-cols-1 gap-4">
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium">Dirección</label>
-                                    <Input
-                                        {...register('address.street')}
-                                        placeholder="Calle y número"
-                                    />
-                                </div>
-
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-medium">Ciudad</label>
-                                        <Input
-                                            {...register('address.city')}
-                                            placeholder="Ciudad"
-                                        />
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-medium">Código postal</label>
-                                        <Input
-                                            {...register('address.zipCode')}
-                                            placeholder="Código postal"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <Button
-                            type="submit"
-                            className="w-full"
-                            disabled={isSubmitting}
-                        >
-                            Continuar al pago
-                        </Button>
-                    </form>
-                )}
-
-                {step === 2 && (
-                    <div className="space-y-6">
-                        <h3 className="text-lg font-semibold">Método de pago</h3>
-                        <div className="grid grid-cols-3 gap-4">
-                            <Button
-                                variant={paymentMethod === PaymentMethod.CONTRA_ENTREGA ? 'default' : 'outline'}
-                                onClick={() => setPaymentMethod(PaymentMethod.CONTRA_ENTREGA)}
-                            >
-                                Contra entrega
-                            </Button>
-                            <Button
-                                variant={paymentMethod === PaymentMethod.TRANSFERENCIA ? 'default' : 'outline'}
-                                onClick={() => setPaymentMethod(PaymentMethod.TRANSFERENCIA)}
-                            >
-                                Transferencia
-                            </Button>
-                            <Button
-                                variant={paymentMethod === PaymentMethod.QR ? 'default' : 'outline'}
-                                onClick={() => setPaymentMethod(PaymentMethod.QR)}
-                            >
-                                Pago QR
-                            </Button>
-                        </div>
-
-                        {paymentMethod && (
-                            <Button
-                                className="w-full"
-                                onClick={() => {
-                                    // Implementar lógica según método de pago
-                                    if (paymentMethod === PaymentMethod.CONTRA_ENTREGA) {
-                                        // Redirigir a WhatsApp
-                                    } else {
-                                        setStep(3);
-                                    }
-                                }}
-                            >
-                                Confirmar método de pago
-                            </Button>
-                        )}
-                    </div>
-                )}
+                <div className="lg:col-span-1">
+                    <OrderSummary
+                        showShippingMethod={step >= 1}
+                        shippingMethod={form.watch('shippingMethod')}
+                        items={items}
+                        subtotal={subtotal}
+                        shipping={shipping}
+                        total={subtotal + shipping}
+                    />
+                </div>
             </div>
         </div>
     );
-};
-
-export default CheckoutForm;
+}

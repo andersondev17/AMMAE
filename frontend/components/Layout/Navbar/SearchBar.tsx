@@ -1,71 +1,38 @@
 // components/Layout/SearchBar.tsx
 import { Input } from '@/components/ui/form/input';
-import { Loader2, Search, X } from 'lucide-react';
-import { memo, useCallback } from 'react';
+import { useSearch } from '@/hooks/product/useSearch';
+import { Search, X } from 'lucide-react';
 
 interface SearchBarProps {
-    searchTerm: string;
-    onChange: (value: string) => void;
-    onClear?: () => void;
-    isOpen: boolean;
-    isLoading?: boolean;
+    placeholder?: string;
     className?: string;
-    autoFocus?: boolean;
 }
 
-export const SearchBar = memo(({
-    searchTerm = '',
-    onChange = () => { },
-    onClear,
-    isOpen,
-    isLoading = false,
-    className = '',
-    autoFocus = false
-}: SearchBarProps) => {
-    const handleSubmit = useCallback((e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        console.log('Buscar:', searchTerm);
-    }, [searchTerm]);
-
-    if (!isOpen) return null;
+export function SearchBar({
+    placeholder = "Buscar productos...",
+    className = ""
+}: SearchBarProps) {
+    const { searchTerm, handleSearch } = useSearch();
 
     return (
-        <div className={className}>
-            <form onSubmit={handleSubmit} className="relative mx-auto w-full">
-                {isLoading ? (
-                    <Loader2 className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400 animate-spin" />
-                ) : (
-                    <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-                )}
+        <div className={`relative ${className}`}>
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
 
-                <Input
-                    value={searchTerm}
-                    onChange={(e) => onChange(e.target.value)}
-                    name='search'
-                    placeholder="¿Qué estás buscando?"
-                    className="w-full h-14 pl-12 pr-12 border border-gray-200 focus:border-black focus:ring-0 shadow-none text-base transition-colors bg-transparent"
-                    autoFocus={autoFocus}
-                    disabled={isLoading}
-                />
-
-                {searchTerm && !isLoading && (
-                    <button
-                        type="button"
-                        onClick={onClear}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black transition-colors"
-                    >
-                        <X className="h-5 w-5" />
-                    </button>
-                )}
-            </form>
+            <Input
+                value={searchTerm}
+                onChange={(e) => handleSearch(e.target.value)}
+                placeholder={placeholder}
+                className="pl-10 pr-10"
+                onKeyDown={(e) => e.key === 'Escape' && e.currentTarget.blur()}
+            />
 
             {searchTerm && (
-                <div className="mt-4 text-sm text-gray-500">
-                    Pulsa Enter para buscar "{searchTerm}"
-                </div>
+                <button
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                    <X className="h-4 w-4" />
+                </button>
             )}
         </div>
     );
-});
-
-SearchBar.displayName = 'SearchBar';
+}
