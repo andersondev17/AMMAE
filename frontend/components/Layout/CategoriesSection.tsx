@@ -34,7 +34,7 @@ const CategoryCard = ({ category, index }: { category: Category; index: number }
                         onLoad={() => setIsLoading(false)}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                    <h2 className="absolute bottom-4 left-4 font-normal text-sm text-white truncate">
+                    <h2 className="absolute bottom-4 left-4 font-robert-medium text-xl text-white truncate">
                         {category.name}
                     </h2>
                 </div>
@@ -46,7 +46,6 @@ const CategoryCard = ({ category, index }: { category: Category; index: number }
 const CategoriesSection = () => {
     return (
         <section className="bg-black">
-            {/* CAMBIO 1: overflow-x-auto en lugar de overflow-x-hidden */}
             <div className="flex md:flex-row lg:flex-nowrap xl:flex-nowrap snap-x snap-mandatory overflow-x-auto md:overflow-x-visible">
                 {categories.map((category, index) => (
                     <div key={category.id} className="snap-center w-2/5 sm:w-1/3 md:w-1/4 flex-shrink-0">

@@ -97,11 +97,11 @@ export default function Home() {
 
         <div className="flex justify-center mt-12 pb-8">
           <Link
-            href="/categoria/todos"
+            href="/search"
             className="group flex items-center px-6 py-3 border border-black hover:bg-black hover:text-white transition-colors"
           >
             <span className="mr-2 font-general">Ver todos los productos</span>
-            <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+            <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-2" />
           </Link>
         </div>
       </main>

@@ -182,16 +182,16 @@ export const ProductCard = ({ product, onEdit, onDelete, isAdminView = false, va
                             </button>
 
                             {/* Desktop: Panel de tallas en hover */}
-                            <div className="hidden md:block absolute inset-x-2 bottom-2 bg-white/95 backdrop-blur-sm rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="hidden md:block absolute inset-x-2 bottom-1 bg-white/95 backdrop-blur-sm rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
                                 <div className="p-3">
                                     {product.tallas?.length ? (
                                         <div className="space-y-2">
-                                            <p className="text-xs font-medium text-center">Talla rápida</p>
+                                            <p className="text-xs font-robert-regular text-center">Talla rápida</p>
                                             <div className="flex gap-1 justify-center">
                                                 {product.tallas.slice(0, 4).map((talla) => (
                                                     <button
                                                         key={talla}
-                                                        className="px-2 py-1 text-xs border hover:bg-black hover:text-white transition-colors"
+                                                        className="px-2 py-1 text-xs font-robert-regular border hover:bg-black hover:text-white transition-colors"
                                                         onClick={(e) => {
                                                             e.preventDefault();
                                                             e.stopPropagation();
@@ -205,7 +205,7 @@ export const ProductCard = ({ product, onEdit, onDelete, isAdminView = false, va
                                         </div>
                                     ) : (
                                         <button
-                                            className="w-full bg-black text-white text-xs py-2 hover:bg-gray-800 transition-colors"
+                                            className="w-full text-xs font-robert-regular text-center"
                                             onClick={(e) => {
                                                 e.preventDefault();
                                                 e.stopPropagation();

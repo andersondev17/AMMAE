@@ -138,28 +138,28 @@ export default function ProductDetail({ product }: { product: Product }) {
                         <p className="text-gray-500 mt-1 font-robert-regular">{product.categoria}</p>
 
                         {/* Pricing */}
-                        <div className="flex items-baseline gap-4 mt-4">
+                        <div className="flex items-baseline gap-4 mt-4 font-robert-medium">
                             {pricing.isOnSale ? (
                                 <>
-                                    <span className="text-xl font-medium text-red-700">
-                                        {pricing.formatted.final}
+                                    <span className="text-lg font-medium text-red-700">
+                                        {pricing.formatted.final} COP
                                     </span>
                                     <span className="px-2 bg-red-700 text-white text-xs">
                                         -{pricing.discount}% OFF
                                     </span>
                                     <span className="text-gray-500 line-through text-sm">
-                                        {pricing.formatted.original}
+                                        {pricing.formatted.original} COP
                                     </span>
                                 </>
                             ) : (
-                                <span className="text-2xl font-medium">
-                                    {pricing.formatted.final}
+                                <span className="text-lg font-medium">
+                                    {pricing.formatted.final} COP
                                 </span>
                             )}
                         </div>
 
                         {/* Stock Status */}
-                        <div className="flex items-center gap-2 text-sm mt-2">
+                        <div className="flex items-center gap-2 text-sm mt-2 font-robert-regular">
                             <span className={`font-medium ${stockStatus.color}`}>{stockStatus.text}</span>
                             {product.stock > 0 && (
                                 <>
@@ -182,13 +182,13 @@ export default function ProductDetail({ product }: { product: Product }) {
                                     Guía de tallas
                                 </button>
                             </div>
-                            <div className="grid grid-cols-4 gap-2">
+                            <div className="grid grid-cols-4 ">
                                 {product.tallas.map((talla) => (
                                     <Button
                                         key={talla}
                                         variant={selectedSize === talla ? 'default' : 'outline'}
                                         onClick={() => setSelectedSize(talla)}
-                                        className="h-12"
+                                        className=" border-rounded rounded-full font-robert-regular"
                                         aria-pressed={selectedSize === talla}
                                     >
                                         {talla}
@@ -202,12 +202,12 @@ export default function ProductDetail({ product }: { product: Product }) {
                     {product.colores?.length > 0 && (
                         <div className="space-y-3">
                             <div className="flex items-center justify-between">
-                                <span className="text-sm font-medium">Color</span>
-                                <span className="text-sm text-gray-500">
+                                <span className="text-sm font-medium font-robert-regular">Color</span>
+                                <span className="text-sm text-gray-500 font-robert-regular">
                                     {selectedColor || 'Selecciona un color'}
                                 </span>
                             </div>
-                            <div className="flex flex-wrap gap-2">
+                            <div className="flex flex-wrap gap-2 font-general">
                                 {product.colores.map((color) => (
                                     <button
                                         key={color}
@@ -227,7 +227,7 @@ export default function ProductDetail({ product }: { product: Product }) {
 
                     {/* Quantity Selection */}
                     <div className="space-y-3">
-                        <label htmlFor="quantity" className="text-sm font-medium">Cantidad</label>
+                        <label htmlFor="quantity" className="text-sm font-medium font-robert-regular">Cantidad</label>
                         <div className="flex items-center border rounded w-fit">
                             <button
                                 onClick={() => adjustQuantity(-1)}
@@ -239,7 +239,7 @@ export default function ProductDetail({ product }: { product: Product }) {
                             </button>
                             <span
                                 id="quantity"
-                                className="px-4 py-2 border-x min-w-[60px] text-center"
+                                className="px-4 py-2 border-x min-w-[60px] text-center font-robert-regular"
                                 aria-live="polite"
                             >
                                 {quantity}
@@ -260,7 +260,7 @@ export default function ProductDetail({ product }: { product: Product }) {
                         <Button
                             onClick={handleAddToCart}
                             disabled={product.stock === 0}
-                            className="flex-1 h-12 bg-black hover:bg-gray-900 text-white disabled:opacity-50"
+                            className="flex-1 h-12 bg-black hover:bg-gray-900 text-white disabled:opacity-50 font-robert-regular"
                         >
                             <ShoppingBag className="mr-2 h-5 w-5" aria-hidden="true" />
                             {product.stock === 0 ? 'Agotado' : 'Agregar al carrito'}
@@ -280,7 +280,7 @@ export default function ProductDetail({ product }: { product: Product }) {
                     </div>
 
                     {/* ✅ Accordion SIMPLIFICADO */}
-                    <div className="space-y-2" role="region" aria-label="Información adicional del producto">
+                    <div className="space-y-2 font-robert-regular" role="region" aria-label="Información adicional del producto">
                         {PRODUCT_ACCORDION_CONFIG.map((config) => {
                             const { value, title } = config;
                             const isExpanded = expandedAccordion === value;
