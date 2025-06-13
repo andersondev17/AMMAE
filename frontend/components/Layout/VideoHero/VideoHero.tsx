@@ -26,7 +26,7 @@ export const VideoHero = memo(({
 
             <div className="absolute inset-0 bg-black/30" aria-hidden="true" />
 
-            <div className="hero-content absolute inset-0 z-10 flex flex-col justify-center items-center text-white px-4">
+            <div className=" absolute inset-0 z-10 flex flex-col justify-center items-center text-white px-4">
                 <h1 className="text-5xl md:text-5xl lg:text-7xl font-zentry font-black text-center mb-4 max-w-3xl">
                     {title}
                 </h1>

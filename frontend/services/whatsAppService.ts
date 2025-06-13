@@ -52,8 +52,11 @@ export class WhatsAppService {
         }
     }
 
-    private static formatOrderMessage(orderDetails: OrderDetails & { orderNumber?: string }): string {
-        const { items, customerDetails, orderNumber} = orderDetails;
+    private static formatOrderMessage(orderDetails: OrderDetails & { 
+        orderNumber?: string; 
+        paymentMethod?: string; 
+    }): string {
+        const { items, customerDetails, orderNumber, paymentMethod } = orderDetails;
     
         const itemsList = items
             .map(item => {
@@ -84,8 +87,9 @@ export class WhatsAppService {
             `• Nombre: ${customerDetails.name}\n` +
             `• Teléfono: ${customerDetails.phone}\n` +
             `• Dirección: ${customerDetails.address}\n` +
-            `• Envío: ${customerDetails.shippingMethod}\n\n` +
-            `🛒 *Productos:*\n${itemsList}\n\n` +
+            `• Envío: ${customerDetails.shippingMethod}\n` +
+            `${paymentMethod ? `• Pago: ${paymentMethod}\n` : ''}` +
+            `\n🛒 *Productos:*\n${itemsList}\n\n` +
             `💰 *Resumen:*\n` +
             `• Subtotal: $${subtotal.toLocaleString()}\n` +
             `• Envío: $${shippingCost.toLocaleString()}\n` +
@@ -95,7 +99,10 @@ export class WhatsAppService {
 
     static async sendOrderNotification(
         items: OrderDetails['items'],
-        customerDetails: OrderDetails['customerDetails']
+        customerDetails: OrderDetails['customerDetails'] & {
+            orderNumber?: string;
+            paymentMethod?: string;
+        }
     ): Promise<WhatsAppResponse> {
         if (!WHATSAPP_NUMBER) {
             console.error('Número de WhatsApp no configurado');
@@ -104,7 +111,7 @@ export class WhatsAppService {
 
         try {
             const platform = this.getPlatform();
-            const message = this.formatOrderMessage({ items, customerDetails });
+            const message = this.formatOrderMessage({ items, customerDetails, orderNumber: customerDetails.orderNumber, paymentMethod: customerDetails.paymentMethod });
             const whatsappUrl = this.getWhatsAppUrl(message, platform);
 
             // Configuración de la ventana de WhatsApp
@@ -143,7 +150,7 @@ export class WhatsAppService {
             if (typeof document !== 'undefined') {
                 const backupLink = document.createElement('a');
                 backupLink.href = this.getWhatsAppUrl(
-                    this.formatOrderMessage({ items, customerDetails }),
+                    this.formatOrderMessage({ items, customerDetails,orderNumber: customerDetails.orderNumber, paymentMethod: customerDetails.paymentMethod}),
                     'DESKTOP'
                 );
                 backupLink.target = '_blank';
@@ -162,11 +169,13 @@ export class WhatsAppService {
     }
 }
 
-// Hook personalizado para usar el servicio
 export const useWhatsApp = () => {
     const sendOrderNotification = async (
         items: OrderDetails['items'],
-        customerDetails: OrderDetails['customerDetails']
+        customerDetails: OrderDetails['customerDetails'] & {
+            orderNumber?: string;
+            paymentMethod?: string;
+        }
     ) => {
         return WhatsAppService.sendOrderNotification(items, customerDetails);
     };

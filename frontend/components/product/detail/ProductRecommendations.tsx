@@ -4,7 +4,7 @@ import { ProductCard } from '@/components/product/ProductCard';
 import { Button } from '@/components/ui/button';
 import { useProducts } from '@/hooks/product/useProducts';
 import { Product } from '@/types';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useRef } from 'react';
 
 interface ProductRecommendationsProps {
@@ -16,7 +16,7 @@ interface ProductRecommendationsProps {
 }
 
 export const ProductRecommendations = ({
-    title = "PRODUCTOS RECOMENDADOS",
+    title = " TE PUEDE INTERESAR",
     subtitle,
     limit = 8,
     filter = 'popular',
@@ -59,9 +59,11 @@ export const ProductRecommendations = ({
         <section className="py-12 bg-gray-50">
             <div className="container mx-auto px-4">
                 <div className="flex justify-between items-end mb-8">
-                    
                     <div>
-                        <h2 className="text-2xl font-robert-medium font-semibold font-zentry">{title}</h2>
+                        <h2 className="text-xl md:text-3xl lg:text-2xl xl:text-4xl font-robert-medium font-semibold">
+                            <ArrowRight className="float-left mt-2 text-3xl md:text-2xl lg:text-xl xl:text-lg" />
+                            {title}
+                        </h2>
                         {subtitle && <p className="text-gray-500 mt-1">{subtitle}</p>}
                     </div>
 

@@ -62,18 +62,6 @@ export const FILTERS = [
     { id: 'onSale', label: 'En oferta' }
 ];
 
-export const COLOR_MAP: Record<string, string> = {
-    'Negro': '#000000',
-    'Blanco': '#FFFFFF',
-    'Azul': '#2563EB',
-    'Rojo': '#DC2626',
-    'Verde': '#059669',
-    'Amarillo': '#CA8A04',
-    'Morado': '#7C3AED',
-    'Rosa': '#DB2777',
-    'Gris': '#4B5563',
-    'Beige': '#D4B89C'
-};
 export const mainCategories = [
     { name: 'JEANS', path: '/categoria/jeans', apiValue: 'Jeans' },
     { name: 'BLUSAS', path: '/categoria/blusas', apiValue: 'Blusas' },
@@ -118,8 +106,39 @@ export const categories: Category[] = [
     }
 ];
 
-//authform 
-// Definición de tipos para campos
+export const PRODUCT_ACCORDION_CONFIG = [
+    {
+        value: "details",
+        title: "Detalles del producto",
+        type: "product_details",
+        fields: ["descripcion", "material", "estilo"]
+    },
+    {
+        value: "shipping",
+        title: "Envío y entrega",
+        type: "text",
+        content: "Envío gratuito a partir de $99. Entrega estimada de 3-5 días hábiles."
+    },
+    {
+        value: "returns",
+        title: "Devoluciones",
+        type: "text",
+        content: "Tienes 30 días para devolver el producto sin cargo adicional."
+    },
+    {
+        value: "care",
+        title: "Cuidado del producto",
+        type: "care_instructions",
+        instructions: [
+            "Lavar a máquina en agua fría",
+            "No usar blanqueador",
+            "Secar al aire libre",
+            "Planchar a temperatura media"
+        ]
+    }
+] as const;
+
+
 export const FIELD_TYPES: Record<string, string> = {
     email: "email",
     password: "password",
@@ -129,7 +148,6 @@ export const FIELD_TYPES: Record<string, string> = {
     lastName: "text",
 };
 
-// Definición de etiquetas para campos
 export const FIELD_LABELS: Record<string, string> = {
     email: "Correo electrónico",
     password: "Contraseña",
