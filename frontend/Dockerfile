@@ -17,6 +17,7 @@ RUN chown -R app:app .
 # change the user back to the app user
 USER app
 RUN npm install
+
 COPY . .
-EXPOSE 3001
+EXPOSE 3000
 CMD npm run dev

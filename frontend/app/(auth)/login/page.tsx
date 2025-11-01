@@ -4,7 +4,7 @@ import AuthForm from '@/components/AuthForm';
 import { useAuth } from '@/hooks/useAuth';
 import { LoginFormValues, loginSchema } from '@/lib/validations/auth';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 
 const defaultValues = {
@@ -17,11 +17,6 @@ export default function LoginPage() {
     const router = useRouter();
     const [formSubmitting, setFormSubmitting] = useState(false);
 
-    useEffect(() => {
-        if (sessionStatus === 'authenticated') {
-            router.push('/');
-        }
-    }, [sessionStatus, router]);
 
     const handleLogin = async (data: LoginFormValues) => {
     setFormSubmitting(true);
