@@ -1,0 +1,55 @@
+version: "3.8"
+
+services:
+  web:
+    #web depends on the api service - service will be started before web
+    depends_on:
+      - api
+    build: ./frontend
+    ports:
+      # Map port 3000 of the host to port 3000 of the container
+      - "3000:3000"
+    environment:
+      NEXTAUTH_URL: http://localhost:3000
+    env_file:
+      - ./frontend/.env.local
+    develop:
+      watch:
+        #it will watch for changes in these files and rebuild the service if any changes are detected
+        - path: ./frontend/package.json
+          action: rebuild
+        - path: ./frontend/package-lock.json
+          action: rebuild
+        #Listen for the changes in the entire frontend directory
+        - path: ./frontend
+          target: /app
+          action: sync
+  api:
+    depends_on:
+      - db
+    build: ./backend
+    ports:
+      #port mapping for api service
+      - "3001:3001"
+    environment:
+      MONGODB_URI: mongodb://db:27017/tiendaBD
+    develop:
+      watch:
+        - path: ./backend/package.json
+          action: rebuild
+        - path: ./backend/package-lock.json
+          action: rebuild
+        - path: ./backend
+          target: /src
+          action: sync
+  db:
+    image: mongo:latest
+    ports:
+      #port mapping for mongodb service
+      - "27017:27017"
+    volumes:
+      #persist data in a named volume
+      - tiendaBD:/data/db
+
+volumes:
+  tiendaBD:
